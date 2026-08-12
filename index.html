@@ -8,6 +8,8 @@
 <meta name="keywords" content="Bftero, BFTERO, Roblox developer, Roblox games, PS5 gamer, streamer, Minecraft, GTA, Rockstar Games, NepX Universe, live streaming, gaming creator">
 <meta name="author" content="Bftero">
 <meta name="robots" content="index, follow">
+<!-- Required so YouTube embeds receive a proper Referer (avoids Error 153) -->
+<meta name="referrer" content="origin">
 <link rel="canonical" href="https://bftero.com/">
 
 <!-- Open Graph -->
@@ -525,6 +527,42 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
 #backtop.show{opacity:1;visibility:visible;transform:none;}
 #backtop:hover{color:var(--cyan);border-color:var(--cyan);}
 
+/* Spider-Man web rope (canvas) + climbing Roblox character */
+#webRope{
+  position:fixed;right:0;top:0;bottom:0;width:120px;z-index:139;
+  pointer-events:none;
+}
+.dance-buddy{
+  position:fixed;right:12px;top:0;z-index:140;
+  width:110px;height:110px;pointer-events:none;
+  filter:drop-shadow(0 8px 18px rgba(139,92,246,0.45));
+  background:transparent;
+  will-change:top;
+}
+.dance-buddy img{
+  width:100%;height:100%;object-fit:contain;
+  border:none;border-radius:0;background:transparent;
+  transition:transform 0.1s linear;
+}
+.dance-buddy.climbing-down img{ transform:rotate(7deg); }
+.dance-buddy.climbing-up img{ transform:rotate(-7deg); }
+
+/* Center background 3D model (shiv.glb) */
+#modelStage{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  opacity:0.55;
+}
+#modelStage canvas{width:100%!important;height:100%!important;display:block;}
+
+@media (max-width:700px){
+  #webRope{width:90px;}
+  .dance-buddy{width:78px;height:78px;right:4px;}
+  #modelStage{opacity:0.35;}
+}
+@media (prefers-reduced-motion: reduce){
+  .dance-buddy img{transition:none;}
+}
+
 .loading-msg{text-align:center;color:var(--muted);padding:40px;font-family:var(--font-mono);font-size:0.85rem;}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
 </style>
@@ -864,6 +902,23 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
 
 <button id="backtop" aria-label="Back to top">↑</button>
 
+<!-- Center 3D model background (place shiv.glb next to index.html) -->
+<div id="modelStage" aria-hidden="true"></div>
+
+<!-- Spider-Man style web rope with particles -->
+<canvas id="webRope" aria-hidden="true"></canvas>
+
+<!-- Real Roblox character climbs the web with scroll -->
+<div class="dance-buddy" id="danceBuddy" aria-hidden="true">
+  <img
+    src="https://tr.rbxcdn.com/30DAY-Avatar-99E47C8637EB114F4EA2A01744F9FDFE-Png/720/720/Avatar/Png/noFilter"
+    alt="Bftero Roblox character climbing"
+    width="110"
+    height="110"
+    loading="lazy"
+  >
+</div>
+
 <script>
 /* ========== DATA ========== */
 const GAMES = [
@@ -1054,8 +1109,25 @@ function openVideoPlayer(videoId, title, isShort) {
   if (!videoId) return;
   videoModalTitle.textContent = title || 'Playing…';
   videoModal.classList.toggle('short-mode', !!isShort);
-  // Official embed. autoplay requires mute in modern browsers (no sound autoplay).
-  // User can unmute inside the player. playsinline helps mobile.
+
+  const pageOrigin = window.location.origin || '';
+  const isHttp = pageOrigin.startsWith('http');
+
+  // If opened as file:// there is no valid origin — YouTube will show Error 153
+  if (!isHttp) {
+    videoModalFrame.innerHTML = `
+      <div class="video-modal-fallback">
+        <p><strong>Cannot play embed from a local file.</strong></p>
+        <p>Open the site with a local server so YouTube receives a valid Referer:</p>
+        <code style="color:var(--cyan);font-size:0.75rem;">python3 -m http.server 8080</code>
+        <p style="margin-top:8px;">Then visit <strong>http://localhost:8080</strong></p>
+      </div>`;
+    videoModal.classList.add('open');
+    document.body.classList.add('modal-open');
+    return;
+  }
+
+  // Official embed with origin + referrer so YouTube can identify this site (Error 153 fix)
   const params = new URLSearchParams({
     autoplay: '1',
     mute: '1',
@@ -1063,16 +1135,28 @@ function openVideoPlayer(videoId, title, isShort) {
     modestbranding: '1',
     playsinline: '1',
     enablejsapi: '1',
+    origin: pageOrigin,
+    widget_referrer: pageOrigin,
   });
-  const embedSrc = `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
-  videoModalFrame.innerHTML = `
-    <iframe
-      src="${embedSrc}"
-      title="${(title || 'Video').replace(/"/g, '&quot;')}"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowfullscreen
-      referrerpolicy="strict-origin-when-cross-origin"
-    ></iframe>`;
+
+  const embedSrc = `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+
+  videoModalFrame.innerHTML = '';
+  const iframe = document.createElement('iframe');
+  iframe.src = embedSrc;
+  iframe.title = title || 'Video';
+  iframe.width = '100%';
+  iframe.height = '100%';
+  iframe.frameBorder = '0';
+  iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+  iframe.allowFullscreen = true;
+  iframe.setAttribute('allowfullscreen', 'allowfullscreen');
+  // Must send Referer — use origin (always sends origin to YouTube)
+  iframe.referrerPolicy = 'origin';
+  iframe.setAttribute('referrerpolicy', 'origin');
+  iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;';
+  videoModalFrame.appendChild(iframe);
+
   videoModal.classList.add('open');
   document.body.classList.add('modal-open');
 }
@@ -1288,6 +1372,135 @@ if(heroVisual && !window.matchMedia('(prefers-reduced-motion: reduce)').matches)
 /* ========== BACK TO TOP ========== */
 backtop.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
 
+/* ========== Spider web rope (particles + strands) + climb ========== */
+(function(){
+  const canvas = document.getElementById('webRope');
+  const buddy = document.getElementById('danceBuddy');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let lastY = window.scrollY;
+  let idleTimer;
+  let particles = [];
+  let W = 120, H = window.innerHeight;
+
+  function resize() {
+    W = window.innerWidth < 700 ? 90 : 120;
+    H = window.innerHeight;
+    canvas.width = W;
+    canvas.height = H;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Silk particles that drift along the web
+  function spawnParticles() {
+    particles = [];
+    const count = reduce ? 12 : 36;
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        y: Math.random() * H,
+        xOff: (Math.random() - 0.5) * 28,
+        speed: 0.25 + Math.random() * 0.7,
+        r: 0.8 + Math.random() * 1.8,
+        a: 0.25 + Math.random() * 0.55,
+      });
+    }
+  }
+  spawnParticles();
+
+  function drawWeb() {
+    ctx.clearRect(0, 0, W, H);
+    const cx = W * 0.55;
+
+    // Main thick silk strand
+    ctx.strokeStyle = 'rgba(220,240,255,0.55)';
+    ctx.lineWidth = 2.2;
+    ctx.shadowColor = 'rgba(41,241,230,0.55)';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.moveTo(cx, 0);
+    for (let y = 0; y <= H; y += 18) {
+      const wobble = Math.sin(y * 0.04 + Date.now() * 0.001) * 3;
+      ctx.lineTo(cx + wobble, y);
+    }
+    ctx.stroke();
+
+    // Secondary thinner strands (spider web look)
+    ctx.shadowBlur = 4;
+    for (let s = -1; s <= 1; s += 2) {
+      ctx.strokeStyle = 'rgba(180,220,255,0.28)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(cx + s * 6, 0);
+      for (let y = 0; y <= H; y += 22) {
+        const wobble = Math.sin(y * 0.05 + s + Date.now() * 0.0012) * 5;
+        ctx.lineTo(cx + s * 8 + wobble, y);
+      }
+      ctx.stroke();
+    }
+
+    // Cross silk threads
+    ctx.strokeStyle = 'rgba(41,241,230,0.18)';
+    ctx.lineWidth = 0.8;
+    ctx.shadowBlur = 0;
+    for (let y = 40; y < H; y += 55) {
+      const spread = 18 + Math.sin(y * 0.02) * 6;
+      ctx.beginPath();
+      ctx.moveTo(cx - spread, y);
+      ctx.quadraticCurveTo(cx, y + 8, cx + spread, y + 4);
+      ctx.stroke();
+    }
+
+    // Glowing particles (web dust / silk motes)
+    particles.forEach(p => {
+      if (!reduce) {
+        p.y += p.speed;
+        if (p.y > H + 10) p.y = -10;
+      }
+      const px = cx + p.xOff + Math.sin(p.y * 0.03) * 4;
+      ctx.beginPath();
+      ctx.arc(px, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(180,255,255,${p.a})`;
+      ctx.shadowColor = 'rgba(41,241,230,0.8)';
+      ctx.shadowBlur = 6;
+      ctx.fill();
+    });
+    ctx.shadowBlur = 0;
+
+    if (!reduce) requestAnimationFrame(drawWeb);
+  }
+  drawWeb();
+
+  function placeOnRope() {
+    if (!buddy) return;
+    const docH = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+    const progress = Math.min(Math.max(window.scrollY / docH, 0), 1);
+    const buddyH = buddy.offsetHeight || 110;
+    const topPad = 70;
+    const bottomPad = 90;
+    const travel = Math.max(window.innerHeight - buddyH - topPad - bottomPad, 0);
+    buddy.style.top = (topPad + progress * travel) + 'px';
+
+    if (!reduce) {
+      const dy = window.scrollY - lastY;
+      if (dy > 1) {
+        buddy.classList.add('climbing-down');
+        buddy.classList.remove('climbing-up');
+      } else if (dy < -1) {
+        buddy.classList.add('climbing-up');
+        buddy.classList.remove('climbing-down');
+      }
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => buddy.classList.remove('climbing-up', 'climbing-down'), 200);
+    }
+    lastY = window.scrollY;
+  }
+  placeOnRope();
+  window.addEventListener('scroll', placeOnRope, { passive: true });
+  window.addEventListener('resize', placeOnRope);
+})();
+
 /* ========== CONTACT ========== */
 const form=document.getElementById('contactForm');
 const success=document.getElementById('formSuccess');
@@ -1360,6 +1573,101 @@ setTimeout(()=>{
     if(!elm.classList.contains('in')) window._io.observe(elm);
   });
 },800);
+</script>
+
+<!-- Three.js for center background model: shiv.glb -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const stage = document.getElementById('modelStage');
+if (stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.position.set(0, 0.4, 5.5);
+
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x000000, 0);
+  stage.appendChild(renderer.domElement);
+
+  const amb = new THREE.AmbientLight(0xffffff, 0.65);
+  scene.add(amb);
+  const key = new THREE.DirectionalLight(0x29f1e6, 1.1);
+  key.position.set(3, 5, 4);
+  scene.add(key);
+  const rim = new THREE.DirectionalLight(0xff3fb0, 0.55);
+  rim.position.set(-4, 2, -3);
+  scene.add(rim);
+
+  let model = null;
+  let targetY = 0;
+  let targetRotY = 0;
+  let currentY = 0;
+  let currentRotY = 0;
+
+  const loader = new GLTFLoader();
+  // Place your file as: /home/workdir/artifacts/shiv.glb  (same folder as index.html)
+  loader.load(
+    'shiv.glb',
+    (gltf) => {
+      model = gltf.scene;
+      // Normalize size
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      const scale = 2.4 / maxDim;
+      model.scale.setScalar(scale);
+      box.setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      model.position.sub(center);
+      scene.add(model);
+    },
+    undefined,
+    (err) => {
+      console.warn('shiv.glb not found — put the file next to index.html', err);
+    }
+  );
+
+  function onScroll() {
+    const docH = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+    const p = Math.min(Math.max(window.scrollY / docH, 0), 1);
+    // Scroll down → model moves down + rotates one way
+    // Scroll up → model moves up + opposite rotation
+    targetY = (0.5 - p) * 2.2;
+    targetRotY = (p - 0.5) * Math.PI * 1.4;
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    currentY += (targetY - currentY) * 0.08;
+    currentRotY += (targetRotY - currentRotY) * 0.08;
+    if (model) {
+      model.position.y = currentY;
+      model.rotation.y = currentRotY;
+      model.rotation.x = Math.sin(currentRotY) * 0.12;
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+}
 </script>
 </body>
 </html>
