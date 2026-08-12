@@ -3,32 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFTERO — Roblox Developer · Streamer · Gamer</title>
-<meta name="description" content="BFTERO — Live Streamer, Roblox Developer and Gamer. Explore original Roblox games, watch live streams, catch the latest Shorts and read the blog.">
+<title>Bftero | Gamer • Streamer • Roblox Developer</title>
+<meta name="description" content="Welcome to Bftero — a gaming creator, streamer and Roblox developer. Explore my Roblox games, watch my latest YouTube videos and Shorts, follow my livestreams, and connect with me across social media.">
+<meta name="keywords" content="Bftero, BFTERO, Roblox developer, Roblox games, PS5 gamer, streamer, Minecraft, GTA, Rockstar Games, NepX Universe, live streaming, gaming creator">
+<meta name="author" content="Bftero">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://bftero.com/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Bftero | Gamer • Streamer • Roblox Developer">
+<meta property="og:description" content="Welcome to Bftero — gaming creator, streamer & Roblox developer. Watch live streams, play original Roblox games, and join the community.">
+<meta property="og:image" content="bftero-avatar.jpg">
+<meta property="og:url" content="https://bftero.com/">
+<meta property="og:site_name" content="Bftero">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Bftero | Gamer • Streamer • Roblox Developer">
+<meta name="twitter:description" content="PS5 • Roblox • Minecraft • GTA • Live Streaming">
+<meta name="twitter:image" content="bftero-avatar.jpg">
+
+<link rel="icon" type="image/jpeg" href="bftero-avatar.jpg">
+<link rel="apple-touch-icon" href="bftero-avatar.jpg">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
 <style>
-/* ============ TOKENS ============ */
-:root{
-  --bg: #07040f;
-  --bg-2: #0d0820;
-  --panel: #100a24;
+:root {
+  --bg: #05030c;
+  --bg-2: #0a0718;
+  --panel: #0f0a22;
   --panel-2: #150e2e;
-  --line: rgba(160,150,220,0.16);
+  --line: rgba(160,150,220,0.14);
   --cyan: #29f1e6;
   --magenta: #ff3fb0;
   --violet: #8b5cf6;
   --amber: #ffb454;
+  --green: #3dff9a;
   --text: #f2eefc;
   --muted: #a79cc9;
   --muted-2: #6f6591;
-  --grad-1: linear-gradient(135deg, var(--cyan), var(--violet) 55%, var(--magenta));
-  --font-display: 'Rajdhani', sans-serif;
+  --grad-1: linear-gradient(135deg, var(--cyan), var(--violet) 50%, var(--magenta));
+  --grad-2: linear-gradient(135deg, var(--magenta), var(--violet));
+  --font-display: 'Orbitron', 'Rajdhani', sans-serif;
   --font-body: 'Space Grotesk', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --cut: 14px;
-  --panel-radius: 4px;
+  --cut: 12px;
+  --radius: 6px;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -37,355 +61,472 @@ body{
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
-  overflow-x:hidden;
-  line-height:1.6;
+  overflow-x: hidden;
+  line-height: 1.6;
 }
-::selection{ background: var(--magenta); color:#07040f; }
-a{ color:inherit; text-decoration:none; }
-ul{ list-style:none; }
-img{ max-width:100%; display:block; }
-button{ font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; }
-input,textarea{ font-family:inherit; }
+::selection{background:var(--magenta);color:#05030c;}
+a{color:inherit;text-decoration:none;}
+ul{list-style:none;}
+img{max-width:100%;display:block;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
 
 @media (prefers-reduced-motion: reduce){
-  *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important; }
+  *{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;scroll-behavior:auto!important;}
 }
 
-/* focus visibility */
-a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
-  outline: 2px solid var(--cyan);
-  outline-offset: 3px;
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
+  outline:2px solid var(--cyan);outline-offset:3px;
 }
 
-/* ============ BACKDROP ============ */
+/* Backdrop */
 .grid-backdrop{
-  position:fixed; inset:0; z-index:0; pointer-events:none;
+  position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image:
     linear-gradient(var(--line) 1px, transparent 1px),
     linear-gradient(90deg, var(--line) 1px, transparent 1px);
-  background-size: 46px 46px;
-  opacity:0.35;
-  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 85%);
+  background-size:48px 48px;
+  opacity:0.28;
+  mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,black 25%,transparent 85%);
 }
-#particles{
-  position:fixed; inset:0; z-index:0; pointer-events:none;
-}
-.glow-orb{
-  position:fixed; border-radius:50%; filter: blur(110px); z-index:0; pointer-events:none; opacity:0.35;
-}
-.orb-1{ width:520px; height:520px; background:var(--violet); top:-120px; left:-120px; }
-.orb-2{ width:460px; height:460px; background:var(--cyan); top:40%; right:-160px; opacity:0.22; }
-.orb-3{ width:420px; height:420px; background:var(--magenta); bottom:-140px; left:20%; opacity:0.22; }
+#particles{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.glow-orb{position:fixed;border-radius:50%;filter:blur(120px);z-index:0;pointer-events:none;opacity:0.32;}
+.orb-1{width:560px;height:560px;background:var(--violet);top:-140px;left:-140px;}
+.orb-2{width:480px;height:480px;background:var(--cyan);top:35%;right:-180px;opacity:0.2;}
+.orb-3{width:440px;height:440px;background:var(--magenta);bottom:-160px;left:15%;opacity:0.2;}
 
-/* ============ LOADER ============ */
+/* Loader */
 #loader{
-  position:fixed; inset:0; z-index:9999; background:var(--bg);
-  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:18px;
-  transition: opacity .6s ease, visibility .6s ease;
+  position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;
+  transition:opacity .55s ease,visibility .55s ease;
 }
-#loader.hidden{ opacity:0; visibility:hidden; }
+#loader.hidden{opacity:0;visibility:hidden;pointer-events:none;}
 .loader-mark{
-  font-family:var(--font-display); font-weight:700; font-size:2.2rem; letter-spacing:0.35em;
-  background:var(--grad-1); -webkit-background-clip:text; background-clip:text; color:transparent;
+  font-family:var(--font-display);font-weight:800;font-size:2.4rem;letter-spacing:0.28em;
+  background:var(--grad-1);-webkit-background-clip:text;background-clip:text;color:transparent;
 }
-.loader-bar{ width:220px; height:3px; background:rgba(255,255,255,0.08); position:relative; overflow:hidden; }
+.loader-bar{width:230px;height:3px;background:rgba(255,255,255,0.07);position:relative;overflow:hidden;border-radius:2px;}
 .loader-bar::after{
-  content:''; position:absolute; inset:0; width:40%; background:var(--grad-1);
-  animation: loadsweep 1.1s ease-in-out infinite;
+  content:'';position:absolute;inset:0;width:38%;background:var(--grad-1);
+  animation:loadsweep 1s ease-in-out infinite;
 }
-@keyframes loadsweep{ 0%{ transform:translateX(-120%);} 100%{ transform:translateX(340%);} }
-.loader-tag{ font-family:var(--font-mono); font-size:0.7rem; letter-spacing:0.25em; color:var(--muted-2); text-transform:uppercase; }
+@keyframes loadsweep{0%{transform:translateX(-120%);}100%{transform:translateX(340%);}}
+.loader-tag{font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.28em;color:var(--muted-2);text-transform:uppercase;}
 
-/* ============ HUD PANEL (signature element) ============ */
+/* HUD Panel */
 .hud-panel{
   position:relative;
-  background: linear-gradient(160deg, var(--panel), var(--panel-2));
+  background:linear-gradient(160deg,rgba(15,10,34,0.92),rgba(21,14,46,0.88));
   border:1px solid var(--line);
-  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  backdrop-filter:blur(12px);
+  clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut));
 }
-.hud-panel::before, .hud-panel::after{
-  content:''; position:absolute; width:22px; height:22px; pointer-events:none;
-  border-color: var(--cyan); border-style:solid; opacity:0.8;
+.hud-panel::before,.hud-panel::after{
+  content:'';position:absolute;width:18px;height:18px;pointer-events:none;
+  border-style:solid;opacity:0.75;
 }
-.hud-panel::before{ top:-1px; left:-1px; border-width:2px 0 0 2px; }
-.hud-panel::after{ bottom:-1px; right:-1px; border-width:0 2px 2px 0; border-color:var(--magenta); }
+.hud-panel::before{top:-1px;left:-1px;border-width:2px 0 0 2px;border-color:var(--cyan);}
+.hud-panel::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0;border-color:var(--magenta);}
 
-/* ============ LAYOUT ============ */
-.wrap{ max-width:1240px; margin:0 auto; padding:0 28px; }
-section{ position:relative; z-index:1; padding:120px 0; }
+/* Layout */
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px;}
+section{position:relative;z-index:1;padding:100px 0;}
 .eyebrow{
-  font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.32em; text-transform:uppercase;
-  color:var(--cyan); display:flex; align-items:center; gap:10px; margin-bottom:14px;
+  font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;
+  color:var(--cyan);display:flex;align-items:center;gap:10px;margin-bottom:12px;
 }
-.eyebrow::before{ content:''; width:26px; height:1px; background:var(--cyan); display:inline-block; }
-.section-head{ margin-bottom:54px; max-width:640px; }
+.eyebrow::before{content:'';width:22px;height:1px;background:var(--cyan);}
+.section-head{margin-bottom:48px;max-width:640px;}
 .section-title{
-  font-family:var(--font-display); font-weight:700; font-size:clamp(2rem, 4vw, 2.8rem);
-  letter-spacing:0.01em; text-transform:uppercase; line-height:1.05;
+  font-family:var(--font-display);font-weight:800;font-size:clamp(1.9rem,4vw,2.7rem);
+  letter-spacing:0.02em;text-transform:uppercase;line-height:1.1;
 }
-.section-title span{ background:var(--grad-1); -webkit-background-clip:text; background-clip:text; color:transparent; }
-.section-sub{ color:var(--muted); margin-top:14px; font-size:1rem; max-width:520px; }
-.section-foot{ display:flex; justify-content:center; margin-top:48px; }
+.section-title span{background:var(--grad-1);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.section-sub{color:var(--muted);margin-top:12px;font-size:1rem;max-width:520px;}
+.section-foot{display:flex;justify-content:center;margin-top:42px;}
 
-/* reveal */
-.reveal{ opacity:0; transform:translateY(28px); transition: opacity .7s ease, transform .7s ease; }
-.reveal.in{ opacity:1; transform:none; }
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.in{opacity:1;transform:none;}
 
-/* buttons */
+/* Buttons */
 .btn{
-  font-family:var(--font-display); font-weight:700; letter-spacing:0.06em; text-transform:uppercase; font-size:0.86rem;
-  padding:15px 30px; display:inline-flex; align-items:center; gap:10px; position:relative;
-  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-  transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
+  font-family:var(--font-display);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:0.82rem;
+  padding:14px 28px;display:inline-flex;align-items:center;gap:10px;position:relative;
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);
+  transition:transform .25s ease,box-shadow .25s ease,filter .25s ease;
   white-space:nowrap;
 }
-.btn-primary{ background:var(--grad-1); color:#07040f; }
-.btn-primary:hover{ transform:translateY(-3px); box-shadow:0 12px 30px -8px rgba(139,92,246,0.65); filter:brightness(1.08); }
-.btn-ghost{ background:rgba(255,255,255,0.03); color:var(--text); border:1px solid var(--line); backdrop-filter: blur(6px); }
-.btn-ghost:hover{ border-color: var(--cyan); color:var(--cyan); transform:translateY(-3px); }
-.btn-small{ padding:10px 20px; font-size:0.72rem; }
+.btn-primary{background:var(--grad-1);color:#05030c;}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 14px 32px -8px rgba(139,92,246,0.6);filter:brightness(1.1);}
+.btn-ghost{
+  background:rgba(255,255,255,0.03);color:var(--text);border:1px solid var(--line);
+  backdrop-filter:blur(8px);
+}
+.btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);transform:translateY(-3px);}
+.btn-small{padding:10px 18px;font-size:0.7rem;}
 
-/* ============ NAV ============ */
+/* Nav */
 #navbar{
-  position:fixed; top:0; left:0; right:0; z-index:200;
-  padding:22px 0; transition: padding .35s ease, background .35s ease, border-color .35s ease;
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  padding:18px 0;transition:padding .3s ease,background .3s ease,border-color .3s ease;
   border-bottom:1px solid transparent;
 }
 #navbar.scrolled{
-  padding:13px 0; background:rgba(7,4,15,0.78); backdrop-filter: blur(14px); border-color: var(--line);
+  padding:10px 0;background:rgba(5,3,12,0.85);backdrop-filter:blur(16px);border-color:var(--line);
 }
-.nav-inner{ display:flex; align-items:center; justify-content:space-between; gap:24px; }
-.brand{ display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:1.35rem; letter-spacing:0.12em; }
-.brand-dot{ width:9px; height:9px; border-radius:50%; background:var(--magenta); box-shadow:0 0 12px var(--magenta); animation: pulse 1.8s ease-in-out infinite; }
-@keyframes pulse{ 0%,100%{ opacity:1; transform:scale(1);} 50%{ opacity:0.5; transform:scale(0.8);} }
-.nav-links{ display:flex; gap:34px; align-items:center; }
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.brand{
+  display:flex;align-items:center;gap:12px;
+  font-family:var(--font-display);font-weight:800;font-size:1.25rem;letter-spacing:0.1em;
+}
+.brand-img{
+  width:42px;height:42px;border-radius:50%;object-fit:cover;
+  border:2px solid transparent;background:var(--grad-1);padding:2px;
+  box-shadow:0 0 18px rgba(41,241,230,0.35);
+}
+.brand-img img{width:100%;height:100%;border-radius:50%;object-fit:cover;}
+.nav-links{display:flex;gap:28px;align-items:center;}
 .nav-links a{
-  font-family:var(--font-mono); font-size:0.76rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted);
-  position:relative; padding-bottom:4px; transition: color .25s ease;
+  font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);
+  position:relative;padding-bottom:3px;transition:color .2s ease;
 }
-.nav-links a::after{ content:''; position:absolute; left:0; bottom:0; width:0; height:1px; background:var(--cyan); transition: width .25s ease; }
-.nav-links a:hover{ color:var(--text); }
-.nav-links a:hover::after{ width:100%; }
-.nav-cta{ display:flex; align-items:center; gap:14px; }
-.nav-toggle{ display:none; flex-direction:column; gap:5px; width:30px; }
-.nav-toggle span{ height:2px; background:var(--text); border-radius:2px; }
+.nav-links a::after{content:'';position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--cyan);transition:width .25s ease;}
+.nav-links a:hover,.nav-links a.active{color:var(--text);}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%;}
+.nav-cta{display:flex;align-items:center;gap:12px;}
+.nav-toggle{display:none;flex-direction:column;gap:5px;width:28px;}
+.nav-toggle span{height:2px;background:var(--text);border-radius:2px;transition:transform .25s ease;}
 
-@media (max-width:900px){
+@media (max-width:960px){
   .nav-links{
-    position:fixed; inset:64px 0 0 0; background:rgba(7,4,15,0.98); flex-direction:column; justify-content:center; gap:30px;
-    transform:translateY(-110%); transition:transform .4s ease; backdrop-filter: blur(20px);
+    position:fixed;inset:60px 0 0 0;background:rgba(5,3,12,0.97);
+    flex-direction:column;justify-content:center;gap:28px;
+    transform:translateY(-110%);transition:transform .35s ease;backdrop-filter:blur(20px);
   }
-  .nav-links.open{ transform:translateY(0); }
-  .nav-links a{ font-size:1rem; }
-  .nav-toggle{ display:flex; }
-  .nav-cta .btn-ghost{ display:none; }
+  .nav-links.open{transform:translateY(0);}
+  .nav-links a{font-size:1.05rem;}
+  .nav-toggle{display:flex;}
+  .nav-cta .btn-ghost{display:none;}
 }
 
-/* ============ HERO ============ */
-#hero{ min-height:100vh; display:flex; align-items:center; padding-top:140px; padding-bottom:80px; }
-.hero-grid{ display:grid; grid-template-columns: 1.05fr 0.95fr; gap:40px; align-items:center; }
+/* Hero */
+#hero{min-height:100vh;display:flex;align-items:center;padding-top:120px;padding-bottom:70px;}
+.hero-grid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:36px;align-items:center;}
 .hero-tag{
-  display:inline-flex; align-items:center; gap:10px; font-family:var(--font-mono); font-size:0.72rem;
-  letter-spacing:0.2em; text-transform:uppercase; color:var(--amber); padding:8px 16px; border:1px solid rgba(255,180,84,0.35);
-  background:rgba(255,180,84,0.06); margin-bottom:26px;
+  display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:0.68rem;
+  letter-spacing:0.18em;text-transform:uppercase;color:var(--amber);
+  padding:7px 14px;border:1px solid rgba(255,180,84,0.3);background:rgba(255,180,84,0.06);
+  margin-bottom:22px;
 }
+.hero-tag .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 1.6s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.45;transform:scale(0.75);}}
 .hero-title{
-  font-family:var(--font-display); font-weight:700; font-size:clamp(3rem, 7vw, 5.4rem); line-height:0.98;
-  text-transform:uppercase; letter-spacing:0.01em;
+  font-family:var(--font-display);font-weight:900;font-size:clamp(3.2rem,8vw,5.8rem);line-height:0.95;
+  text-transform:uppercase;letter-spacing:0.02em;
 }
-.hero-title .grad{ background:var(--grad-1); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.hero-title .grad{background:var(--grad-1);-webkit-background-clip:text;background-clip:text;color:transparent;}
 .hero-role{
-  margin-top:22px; font-family:var(--font-mono); font-size:1rem; letter-spacing:0.08em; color:var(--muted);
-  display:flex; flex-wrap:wrap; gap:10px 6px;
+  margin-top:18px;font-family:var(--font-mono);font-size:0.95rem;letter-spacing:0.06em;color:var(--muted);
+  display:flex;flex-wrap:wrap;gap:8px 4px;
 }
-.hero-role .sep{ color:var(--magenta); }
-.hero-bio{ margin-top:22px; color:var(--muted); max-width:480px; font-size:1.02rem; }
-.hero-actions{ margin-top:38px; display:flex; flex-wrap:wrap; gap:16px; }
-.hero-stats{ display:flex; gap:34px; margin-top:52px; flex-wrap:wrap; }
-.hero-stat b{ display:block; font-family:var(--font-display); font-size:1.7rem; font-weight:700; color:var(--text); }
-.hero-stat span{ font-family:var(--font-mono); font-size:0.68rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--muted-2); }
+.hero-role .sep{color:var(--magenta);}
+.hero-platforms{
+  margin-top:14px;font-size:0.88rem;color:var(--muted-2);letter-spacing:0.04em;
+}
+.hero-bio{margin-top:18px;color:var(--muted);max-width:500px;font-size:1.02rem;}
+.hero-actions{margin-top:32px;display:flex;flex-wrap:wrap;gap:14px;}
+.hero-stats{display:flex;gap:30px;margin-top:44px;flex-wrap:wrap;}
+.hero-stat b{display:block;font-family:var(--font-display);font-size:1.55rem;font-weight:800;color:var(--text);}
+.hero-stat span{font-family:var(--font-mono);font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted-2);}
 
-/* hero visual: avatar + floating voxel cluster */
-.hero-visual{ position:relative; height:520px; display:flex; align-items:center; justify-content:center; }
+/* Hero visual */
+.hero-visual{position:relative;height:540px;display:flex;align-items:center;justify-content:center;}
 .avatar-shell{
-  width:230px; height:230px; border-radius:50%; position:relative; z-index:3;
-  background: linear-gradient(160deg, var(--panel-2), var(--panel));
-  border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.02), 0 40px 80px -30px rgba(139,92,246,0.55);
+  width:260px;height:260px;border-radius:50%;position:relative;z-index:3;
+  background:linear-gradient(160deg,var(--panel-2),var(--panel));
+  border:2px solid transparent;
+  background-clip:padding-box;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 2px rgba(41,241,230,0.25),0 0 40px rgba(139,92,246,0.4),0 40px 80px -20px rgba(139,92,246,0.5);
+  overflow:hidden;
 }
+.avatar-shell img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 .avatar-ring{
-  position:absolute; inset:-16px; border-radius:50%; border:1px dashed rgba(41,241,230,0.35);
-  animation: spin 26s linear infinite;
+  position:absolute;inset:-18px;border-radius:50%;border:1px dashed rgba(41,241,230,0.35);
+  animation:spin 28s linear infinite;
 }
-.avatar-ring.r2{ inset:-34px; border-color: rgba(255,63,176,0.25); animation-duration:34s; animation-direction:reverse; }
-@keyframes spin{ to{ transform:rotate(360deg);} }
-.avatar-glyph{ font-family:var(--font-display); font-weight:700; font-size:4.2rem; background:var(--grad-1); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.avatar-ring.r2{inset:-38px;border-color:rgba(255,63,176,0.22);animation-duration:36s;animation-direction:reverse;}
+.avatar-ring.r3{inset:-58px;border-color:rgba(139,92,246,0.18);animation-duration:48s;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-.voxel-field{ position:absolute; inset:0; perspective:900px; pointer-events:none; }
-.voxel{ position:absolute; transform-style:preserve-3d; animation: float 7s ease-in-out infinite; }
-.voxel .face{ position:absolute; width:100%; height:100%; border:1px solid rgba(255,255,255,0.12); }
-.voxel-1{ width:54px; height:54px; top:10%; left:6%; animation-delay:0s; }
-.voxel-2{ width:38px; height:38px; top:66%; left:2%; animation-delay:1.1s; }
-.voxel-3{ width:46px; height:46px; top:12%; right:4%; animation-delay:0.6s; }
-.voxel-4{ width:30px; height:30px; top:70%; right:10%; animation-delay:1.8s; }
-.voxel-5{ width:24px; height:24px; top:42%; right:-2%; animation-delay:2.4s; }
-.voxel .front{ background:rgba(41,241,230,0.16); transform: translateZ(20px); }
-.voxel .back{ background:rgba(139,92,246,0.14); transform: translateZ(-20px) rotateY(180deg); }
-.voxel .right{ background:rgba(255,63,176,0.16); transform: rotateY(90deg) translateZ(20px); }
-.voxel .left{ background:rgba(255,63,176,0.1); transform: rotateY(-90deg) translateZ(20px); }
-.voxel .top{ background:rgba(41,241,230,0.22); transform: rotateX(90deg) translateZ(20px); }
-.voxel .bottom{ background:rgba(139,92,246,0.08); transform: rotateX(-90deg) translateZ(20px); }
-@keyframes float{ 0%,100%{ transform: translateY(0) rotateX(18deg) rotateY(28deg);} 50%{ transform: translateY(-22px) rotateX(32deg) rotateY(52deg);} }
+.float-item{
+  position:absolute;z-index:2;opacity:0.85;filter:drop-shadow(0 8px 16px rgba(0,0,0,0.4));
+  animation:floatY 6s ease-in-out infinite;pointer-events:none;
+  font-size:2rem;
+}
+.float-1{top:8%;left:4%;animation-delay:0s;}
+.float-2{top:18%;right:6%;animation-delay:1.2s;}
+.float-3{bottom:22%;left:2%;animation-delay:0.6s;}
+.float-4{bottom:12%;right:8%;animation-delay:1.8s;}
+.float-5{top:42%;left:-4%;animation-delay:2.2s;font-size:1.6rem;}
+.float-6{top:48%;right:-2%;animation-delay:0.9s;font-size:1.7rem;}
+@keyframes floatY{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-18px) rotate(6deg);}}
 
 @media (max-width:980px){
-  .hero-grid{ grid-template-columns:1fr; }
-  .hero-visual{ height:340px; order:-1; }
-  .avatar-shell{ width:170px; height:170px; }
+  .hero-grid{grid-template-columns:1fr;}
+  .hero-visual{height:360px;order:-1;}
+  .avatar-shell{width:200px;height:200px;}
 }
 
-/* ============ CAROUSEL SHARED ============ */
-.carousel-shell{ position:relative; }
+/* Cards shared */
+.carousel-shell{position:relative;}
 .carousel-track{
-  display:flex; gap:26px; overflow-x:auto; scroll-snap-type:x mandatory; padding:10px 4px 26px;
-  scrollbar-width:none;
+  display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x mandatory;padding:8px 4px 24px;
+  scrollbar-width:none;-ms-overflow-style:none;
 }
-.carousel-track::-webkit-scrollbar{ display:none; }
-.carousel-controls{ display:flex; gap:12px; justify-content:flex-end; margin-bottom:20px; }
+.carousel-track::-webkit-scrollbar{display:none;}
+.carousel-controls{display:flex;gap:10px;justify-content:flex-end;margin-bottom:16px;}
 .carousel-btn{
-  width:44px; height:44px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
-  background:rgba(255,255,255,0.02); transition: border-color .2s ease, color .2s ease, transform .2s ease;
-  clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  width:42px;height:42px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,0.02);transition:border-color .2s,color .2s,transform .2s;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
 }
-.carousel-btn:hover{ border-color:var(--cyan); color:var(--cyan); transform:translateY(-2px); }
+.carousel-btn:hover{border-color:var(--cyan);color:var(--cyan);transform:translateY(-2px);}
 
-/* ============ GAME CARDS ============ */
-.game-card{
-  flex:0 0 340px; scroll-snap-align:start; padding:22px; perspective:900px;
-}
-.game-card-inner{
-  transition: transform .35s ease, box-shadow .35s ease; transform-style:preserve-3d;
-}
-.game-card:hover .game-card-inner{ box-shadow:0 30px 60px -24px rgba(41,241,230,0.35); }
+/* Game cards */
+.game-card{flex:0 0 300px;scroll-snap-align:start;perspective:900px;}
+.game-card-inner{transition:transform .35s ease,box-shadow .35s ease;transform-style:preserve-3d;}
+.game-card:hover .game-card-inner{box-shadow:0 28px 50px -18px rgba(41,241,230,0.3);}
 .game-thumb{
-  height:180px; border-radius:2px; position:relative; overflow:hidden; margin-bottom:20px;
-  display:flex; align-items:center; justify-content:center;
-  font-family:var(--font-display); font-weight:700; font-size:1.1rem; letter-spacing:0.05em; text-align:center; padding:16px;
+  height:170px;position:relative;overflow:hidden;margin-bottom:0;
+  background:var(--panel-2);
 }
-.game-thumb::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, transparent 40%, rgba(7,4,15,0.7)); }
-.game-thumb span{ position:relative; z-index:1; text-transform:uppercase; }
-.game-body{ padding:0 20px 22px; }
-.game-num{ font-family:var(--font-mono); font-size:0.7rem; color:var(--muted-2); letter-spacing:0.2em; margin-bottom:8px; display:block; }
-.game-title{ font-family:var(--font-display); font-weight:700; font-size:1.35rem; text-transform:uppercase; margin-bottom:10px; }
-.game-desc{ color:var(--muted); font-size:0.92rem; margin-bottom:20px; min-height:66px; }
-.game-cta{ display:flex; align-items:center; justify-content:space-between; }
+.game-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease;}
+.game-card:hover .game-thumb img{transform:scale(1.06);}
+.game-thumb::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(5,3,12,0.85));}
+.game-body{padding:18px 18px 20px;}
+.game-num{font-family:var(--font-mono);font-size:0.64rem;color:var(--muted-2);letter-spacing:0.18em;margin-bottom:6px;display:block;}
+.game-title{font-family:var(--font-display);font-weight:700;font-size:1.15rem;text-transform:uppercase;margin-bottom:8px;}
+.game-desc{color:var(--muted);font-size:0.86rem;margin-bottom:16px;min-height:48px;line-height:1.45;}
+.game-cta{display:flex;align-items:center;justify-content:space-between;}
 
-/* ============ STREAM / SHORT / BLOG CARDS ============ */
-.stream-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; }
-.stream-card{ overflow:hidden; }
-.stream-thumb{
-  height:170px; position:relative; display:flex; align-items:center; justify-content:center;
+/* Content grids — compact */
+.content-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
 }
+@media (max-width:1100px){.content-grid{grid-template-columns:repeat(3,1fr);}}
+@media (max-width:800px){.content-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:480px){.content-grid{grid-template-columns:1fr;}}
+
+.yt-card{
+  overflow:hidden;transition:transform .25s ease;cursor:pointer;
+}
+.yt-card:hover{transform:translateY(-4px);}
+.yt-thumb{
+  aspect-ratio:16/9;height:auto;position:relative;overflow:hidden;background:var(--panel-2);
+}
+.yt-thumb img{width:100%;height:100%;object-fit:cover;}
 .play-badge{
-  width:50px; height:50px; border-radius:50%; background:rgba(7,4,15,0.6); border:1px solid rgba(255,255,255,0.3);
-  display:flex; align-items:center; justify-content:center; backdrop-filter: blur(4px); transition: transform .25s ease;
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:36px;height:36px;border-radius:50%;background:rgba(5,3,12,0.7);
+  border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);transition:transform .25s ease;font-size:0.75rem;
 }
-.stream-card:hover .play-badge{ transform:scale(1.12); }
-.duration-tag{
-  position:absolute; bottom:10px; right:10px; font-family:var(--font-mono); font-size:0.68rem; background:rgba(7,4,15,0.75);
-  padding:3px 8px; border:1px solid var(--line);
+.yt-card:hover .play-badge,.short-card:hover .play-badge{transform:translate(-50%,-50%) scale(1.12);}
+.duration-tag,.live-tag{
+  position:absolute;bottom:6px;right:6px;font-family:var(--font-mono);font-size:0.58rem;
+  background:rgba(5,3,12,0.85);padding:2px 6px;border:1px solid var(--line);
 }
-.stream-body{ padding:18px 20px 22px; }
-.stream-date{ font-family:var(--font-mono); font-size:0.68rem; color:var(--muted-2); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:8px; }
-.stream-title{ font-family:var(--font-display); font-weight:700; font-size:1.1rem; margin-bottom:16px; text-transform:uppercase; }
-
-.shorts-track .short-card{ flex:0 0 200px; }
-.short-thumb{ aspect-ratio:9/16; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-.short-title{ padding:14px 16px; font-family:var(--font-display); font-weight:700; text-transform:uppercase; font-size:0.92rem; }
-
-.blog-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; }
-.blog-thumb{ height:160px; display:flex; align-items:center; justify-content:center; }
-.blog-body{ padding:20px; }
-.blog-meta{ display:flex; gap:14px; font-family:var(--font-mono); font-size:0.66rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted-2); margin-bottom:10px; }
-.blog-title{ font-family:var(--font-display); font-weight:700; font-size:1.15rem; margin-bottom:10px; text-transform:uppercase; }
-.blog-excerpt{ color:var(--muted); font-size:0.9rem; margin-bottom:18px; }
-
-@media (max-width:900px){
-  .stream-grid, .blog-grid{ grid-template-columns:1fr; }
-}
-@media (min-width:901px) and (max-width:1200px){
-  .stream-grid, .blog-grid{ grid-template-columns:repeat(2,1fr); }
+.live-tag{background:rgba(61,255,154,0.18);border-color:var(--green);color:var(--green);left:6px;right:auto;}
+.yt-body{padding:10px 12px 12px;}
+.yt-date{font-family:var(--font-mono);font-size:0.58rem;color:var(--muted-2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;}
+.yt-title{
+  font-family:var(--font-display);font-weight:700;font-size:0.78rem;margin-bottom:0;
+  text-transform:uppercase;line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
 }
 
-/* generic thumb gradients (placeholders) */
-.thumb-1{ background:linear-gradient(150deg, rgba(41,241,230,0.28), rgba(11,7,22,0.9)); }
-.thumb-2{ background:linear-gradient(150deg, rgba(139,92,246,0.32), rgba(11,7,22,0.9)); }
-.thumb-3{ background:linear-gradient(150deg, rgba(255,63,176,0.28), rgba(11,7,22,0.9)); }
-.thumb-4{ background:linear-gradient(150deg, rgba(255,180,84,0.28), rgba(11,7,22,0.9)); }
+/* Shorts grid — compact 9:16 */
+.shorts-grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:12px;
+}
+@media (max-width:1200px){.shorts-grid{grid-template-columns:repeat(5,1fr);}}
+@media (max-width:960px){.shorts-grid{grid-template-columns:repeat(4,1fr);}}
+@media (max-width:700px){.shorts-grid{grid-template-columns:repeat(3,1fr);}}
+@media (max-width:480px){.shorts-grid{grid-template-columns:repeat(2,1fr);}}
 
-/* ============ CONNECT ============ */
-.social-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+.short-card{
+  overflow:hidden;cursor:pointer;transition:transform .25s ease;
+  display:flex;flex-direction:column;
+}
+.short-card:hover{transform:translateY(-4px);}
+.short-thumb{
+  aspect-ratio:9/16;position:relative;overflow:hidden;background:var(--panel-2);width:100%;
+}
+.short-thumb img{width:100%;height:100%;object-fit:cover;}
+.short-title{
+  padding:8px 10px;font-family:var(--font-display);font-weight:700;text-transform:uppercase;
+  font-size:0.7rem;line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+
+/* Video modal player */
+.video-modal{
+  position:fixed;inset:0;z-index:5000;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(5,3,12,0.88);backdrop-filter:blur(10px);
+  opacity:0;visibility:hidden;transition:opacity .3s ease,visibility .3s ease;
+  padding:20px;
+}
+.video-modal.open{opacity:1;visibility:visible;}
+.video-modal-inner{
+  position:relative;width:min(860px,100%);
+  background:linear-gradient(160deg,var(--panel),var(--panel-2));
+  border:1px solid var(--line);
+  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);
+  box-shadow:0 30px 80px rgba(0,0,0,0.6);
+  transform:scale(0.94);transition:transform .3s ease;
+}
+.video-modal.open .video-modal-inner{transform:scale(1);}
+.video-modal.short-mode .video-modal-inner{width:min(360px,100%);}
+.video-modal-header{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 16px;border-bottom:1px solid var(--line);
+}
+.video-modal-title{
+  font-family:var(--font-display);font-weight:700;font-size:0.85rem;text-transform:uppercase;
+  line-height:1.3;flex:1;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.video-modal-close{
+  width:36px;height:36px;flex:none;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:1.2rem;
+  color:var(--muted);transition:color .2s,border-color .2s;
+  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+}
+.video-modal-close:hover{color:var(--cyan);border-color:var(--cyan);}
+.video-modal-frame{
+  position:relative;width:100%;aspect-ratio:16/9;background:#000;
+}
+.video-modal.short-mode .video-modal-frame{aspect-ratio:9/16;max-height:70vh;}
+.video-modal-frame iframe{
+  position:absolute;inset:0;width:100%;height:100%;border:0;
+}
+.video-modal-fallback{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;padding:24px;text-align:center;color:var(--muted);font-size:0.9rem;
+}
+body.modal-open{overflow:hidden;}
+
+/* Roblox / Community */
+.profile-card{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;padding:32px;}
+.profile-avatar{
+  width:120px;height:120px;border-radius:50%;overflow:hidden;
+  border:3px solid transparent;background:var(--grad-1);padding:3px;
+  box-shadow:0 0 30px rgba(41,241,230,0.3);
+}
+.profile-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;}
+.profile-info h3{font-family:var(--font-display);font-weight:800;font-size:1.5rem;text-transform:uppercase;margin-bottom:6px;}
+.profile-info p{color:var(--muted);margin-bottom:16px;}
+.community-banner{
+  padding:40px 32px;text-align:center;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(41,241,230,0.08),rgba(139,92,246,0.12),rgba(255,63,176,0.08));
+}
+.community-banner h3{font-family:var(--font-display);font-weight:800;font-size:1.8rem;text-transform:uppercase;margin-bottom:10px;}
+.community-banner p{color:var(--muted);max-width:480px;margin:0 auto 22px;}
+
+/* Categories */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}
+.cat-card{
+  padding:28px 22px;text-align:center;transition:transform .3s ease,border-color .3s ease;
+  cursor:default;
+}
+.cat-card:hover{transform:translateY(-6px);}
+.cat-icon{font-size:2.4rem;margin-bottom:14px;display:block;}
+.cat-card h3{font-family:var(--font-display);font-weight:700;font-size:1.05rem;text-transform:uppercase;margin-bottom:10px;}
+.cat-card ul{text-align:left;padding-left:4px;}
+.cat-card li{color:var(--muted);font-size:0.88rem;padding:3px 0;position:relative;padding-left:14px;}
+.cat-card li::before{content:'▸';position:absolute;left:0;color:var(--cyan);font-size:0.7rem;}
+
+/* Socials */
+.social-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;}
 .social-card{
-  padding:26px 20px; display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center;
-  transition: transform .3s ease, border-color .3s ease;
+  padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;
+  transition:transform .3s ease;
 }
-.social-card:hover{ transform:translateY(-6px); }
+.social-card:hover{transform:translateY(-6px);}
 .social-icon{
-  width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-  background:rgba(255,255,255,0.04); border:1px solid var(--line); transition: box-shadow .3s ease, border-color .3s ease;
+  width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,0.04);border:1px solid var(--line);transition:box-shadow .3s,border-color .3s;
+  font-size:1.4rem;
 }
-.social-card:hover .social-icon{ border-color:var(--cyan); box-shadow:0 0 24px rgba(41,241,230,0.35); }
-.social-name{ font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:0.04em; }
-.social-handle{ font-family:var(--font-mono); font-size:0.72rem; color:var(--muted-2); }
-@media (max-width:900px){ .social-grid{ grid-template-columns:repeat(2,1fr); } }
+.social-card:hover .social-icon{border-color:var(--cyan);box-shadow:0 0 22px rgba(41,241,230,0.3);}
+.social-name{font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:0.04em;font-size:0.9rem;}
+.social-handle{font-family:var(--font-mono);font-size:0.68rem;color:var(--muted-2);}
 
-/* ============ CONTACT ============ */
-.contact-layout{ display:grid; grid-template-columns: 0.85fr 1.15fr; gap:50px; align-items:start; }
-.contact-info-item{ display:flex; gap:14px; margin-bottom:26px; }
+/* About */
+.about-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:40px;align-items:center;}
+.about-visual{position:relative;display:flex;justify-content:center;}
+.about-avatar{
+  width:220px;height:220px;border-radius:50%;overflow:hidden;
+  border:3px solid transparent;background:var(--grad-1);padding:3px;
+  box-shadow:0 0 50px rgba(139,92,246,0.35);
+}
+.about-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.about-text p{color:var(--muted);margin-bottom:16px;font-size:1.02rem;}
+@media (max-width:800px){.about-grid{grid-template-columns:1fr;}.about-visual{order:-1;}}
+
+/* Contact */
+.contact-layout{display:grid;grid-template-columns:0.9fr 1.1fr;gap:40px;align-items:start;}
+.contact-info-item{display:flex;gap:14px;margin-bottom:22px;}
 .contact-info-item .ico{
-  width:40px; height:40px; flex:none; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--cyan);
+  width:40px;height:40px;flex:none;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--cyan);font-size:1.1rem;
 }
-.contact-info-item h4{ font-family:var(--font-display); font-weight:700; text-transform:uppercase; font-size:0.95rem; margin-bottom:4px; }
-.contact-info-item p{ color:var(--muted); font-size:0.9rem; }
-.contact-form{ padding:36px; }
-.form-row{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px; }
-.field{ display:flex; flex-direction:column; gap:8px; }
-.field.full{ grid-column:1/-1; }
-.field label{ font-family:var(--font-mono); font-size:0.68rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
-.field input, .field textarea{
-  background:rgba(255,255,255,0.03); border:1px solid var(--line); color:var(--text); padding:13px 14px; font-size:0.95rem;
-  transition: border-color .25s ease, box-shadow .25s ease;
+.contact-info-item h4{font-family:var(--font-display);font-weight:700;text-transform:uppercase;font-size:0.9rem;margin-bottom:3px;}
+.contact-info-item p{color:var(--muted);font-size:0.88rem;}
+.contact-form{padding:32px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field.full{grid-column:1/-1;}
+.field label{font-family:var(--font-mono);font-size:0.64rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
+.field input,.field textarea{
+  background:rgba(255,255,255,0.03);border:1px solid var(--line);color:var(--text);padding:12px 14px;font-size:0.92rem;
+  transition:border-color .25s,box-shadow .25s;
 }
-.field input:focus, .field textarea:focus{ border-color:var(--cyan); box-shadow:0 0 0 3px rgba(41,241,230,0.12); outline:none; }
-.field textarea{ resize:vertical; min-height:120px; }
-.field-error{ font-family:var(--font-mono); font-size:0.68rem; color:var(--magenta); min-height:14px; }
+.field input:focus,.field textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(41,241,230,0.1);outline:none;}
+.field textarea{resize:vertical;min-height:110px;}
+.field-error{font-family:var(--font-mono);font-size:0.64rem;color:var(--magenta);min-height:14px;}
 .form-success{
-  display:none; align-items:center; gap:10px; padding:14px 16px; border:1px solid rgba(41,241,230,0.4);
-  background:rgba(41,241,230,0.08); color:var(--cyan); font-family:var(--font-mono); font-size:0.8rem; margin-top:18px;
+  display:none;align-items:center;gap:8px;padding:12px 14px;border:1px solid rgba(41,241,230,0.35);
+  background:rgba(41,241,230,0.07);color:var(--cyan);font-family:var(--font-mono);font-size:0.78rem;margin-top:14px;
 }
-.form-success.show{ display:flex; }
-@media (max-width:900px){ .contact-layout{ grid-template-columns:1fr; } .form-row{ grid-template-columns:1fr; } }
+.form-success.show{display:flex;}
+@media (max-width:900px){.contact-layout{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}}
 
-/* ============ FOOTER ============ */
-footer{ position:relative; z-index:1; border-top:1px solid var(--line); padding:50px 0 34px; }
-.footer-inner{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; }
-.footer-social{ display:flex; gap:16px; }
-.footer-social a{ width:36px; height:36px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); transition: color .2s ease, border-color .2s ease; }
-.footer-social a:hover{ color:var(--cyan); border-color:var(--cyan); }
-.footer-copy{ font-family:var(--font-mono); font-size:0.72rem; color:var(--muted-2); letter-spacing:0.06em; }
+/* Footer */
+footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px 0 28px;}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;}
+.footer-social{display:flex;gap:12px;}
+.footer-social a{width:36px;height:36px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);transition:color .2s,border-color .2s;font-size:0.95rem;}
+.footer-social a:hover{color:var(--cyan);border-color:var(--cyan);}
+.footer-copy{font-family:var(--font-mono);font-size:0.68rem;color:var(--muted-2);letter-spacing:0.05em;}
 
-/* ============ BACK TO TOP ============ */
+/* Back to top */
 #backtop{
-  position:fixed; bottom:28px; right:28px; z-index:150; width:48px; height:48px;
-  background:var(--panel); border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
-  opacity:0; visibility:hidden; transform:translateY(10px); transition: all .3s ease; color:var(--text);
-  clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  position:fixed;bottom:24px;right:24px;z-index:150;width:46px;height:46px;
+  background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;transform:translateY(10px);transition:all .3s ease;color:var(--text);
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
 }
-#backtop.show{ opacity:1; visibility:visible; transform:none; }
-#backtop:hover{ color:var(--cyan); border-color:var(--cyan); }
+#backtop.show{opacity:1;visibility:visible;transform:none;}
+#backtop:hover{color:var(--cyan);border-color:var(--cyan);}
 
-/* utility */
-.center-wrap{ display:flex; justify-content:center; }
-.sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
+.loading-msg{text-align:center;color:var(--muted);padding:40px;font-family:var(--font-mono);font-size:0.85rem;}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
 </style>
 </head>
 <body>
@@ -405,17 +546,21 @@ footer{ position:relative; z-index:1; border-top:1px solid var(--line); padding:
 <!-- NAV -->
 <header id="navbar">
   <div class="wrap nav-inner">
-    <a href="#hero" class="brand"><span class="brand-dot"></span>BFTERO</a>
+    <a href="#hero" class="brand">
+      <div class="brand-img"><img src="bftero-avatar.jpg" alt="Bftero" width="42" height="42"></div>
+      BFTERO
+    </a>
     <nav class="nav-links" id="navLinks">
       <a href="#hero">Home</a>
+      <a href="#youtube">YouTube</a>
+      <a href="#roblox">Roblox</a>
       <a href="#games">Games</a>
-      <a href="#streams">Streams</a>
-      <a href="#shorts">Shorts</a>
-      <a href="#blog">Blog</a>
-      <a href="#contact">Contact</a>
+      <a href="#play">What I Play</a>
+      <a href="#socials">Socials</a>
+      <a href="#about">About</a>
     </nav>
     <div class="nav-cta">
-      <a href="#" class="btn btn-ghost btn-small" target="_blank" rel="noopener">Watch Live</a>
+      <a href="https://www.youtube.com/@Bftero" class="btn btn-ghost btn-small" target="_blank" rel="noopener">Watch Live</a>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
@@ -427,16 +572,20 @@ footer{ position:relative; z-index:1; border-top:1px solid var(--line); padding:
 <section id="hero">
   <div class="wrap hero-grid">
     <div>
-      <div class="hero-tag">● Live on Roblox &amp; YouTube</div>
+      <div class="hero-tag"><span class="live-dot"></span> Live on YouTube • Roblox • Twitch</div>
       <h1 class="hero-title">BF<span class="grad">TERO</span></h1>
       <div class="hero-role">
-        <span>Live Streamer</span><span class="sep">•</span><span>Roblox Developer</span><span class="sep">•</span><span>Gamer</span>
+        <span>Gamer</span><span class="sep">•</span>
+        <span>Streamer</span><span class="sep">•</span>
+        <span>Roblox Developer</span><span class="sep">•</span>
+        <span>Creator</span>
       </div>
-      <p class="hero-bio">Building worlds, breaking records, and streaming the whole journey. From city roleplay to space exploration, every game on this page was made from scratch — and every stream is a chance to play together.</p>
+      <p class="hero-platforms">PS5 Gamer | Roblox | Minecraft | GTA | Rockstar Games | Gaming &amp; Live Streaming</p>
+      <p class="hero-bio">Building worlds, breaking records, and streaming the whole journey. From Roblox experiences to PS5 adventures — every stream is a chance to play together.</p>
       <div class="hero-actions">
-        <a href="#streams" class="btn btn-primary">Watch Live</a>
-        <a href="#games" class="btn btn-ghost">Explore My Games</a>
-        <a href="#" class="btn btn-ghost" target="_blank" rel="noopener">Visit YouTube</a>
+        <a href="https://www.youtube.com/@Bftero" class="btn btn-primary" target="_blank" rel="noopener">Watch on YouTube</a>
+        <a href="#games" class="btn btn-ghost">Play My Roblox Games</a>
+        <a href="#socials" class="btn btn-ghost">Follow Me</a>
       </div>
       <div class="hero-stats">
         <div class="hero-stat"><b>4</b><span>Original Games</span></div>
@@ -444,17 +593,99 @@ footer{ position:relative; z-index:1; border-top:1px solid var(--line); padding:
         <div class="hero-stat"><b>NP</b><span>Based in Nepal</span></div>
       </div>
     </div>
-    <div class="hero-visual">
-      <div class="voxel-field">
-        <div class="voxel voxel-1"><div class="face front"></div><div class="face back"></div><div class="face right"></div><div class="face left"></div><div class="face top"></div><div class="face bottom"></div></div>
-        <div class="voxel voxel-2"><div class="face front"></div><div class="face back"></div><div class="face right"></div><div class="face left"></div><div class="face top"></div><div class="face bottom"></div></div>
-        <div class="voxel voxel-3"><div class="face front"></div><div class="face back"></div><div class="face right"></div><div class="face left"></div><div class="face top"></div><div class="face bottom"></div></div>
-        <div class="voxel voxel-4"><div class="face front"></div><div class="face back"></div><div class="face right"></div><div class="face left"></div><div class="face top"></div><div class="face bottom"></div></div>
-        <div class="voxel voxel-5"><div class="face front"></div><div class="face back"></div><div class="face right"></div><div class="face left"></div><div class="face top"></div><div class="face bottom"></div></div>
-      </div>
+    <div class="hero-visual" id="heroVisual">
+      <div class="float-item float-1" data-depth="0.08">🎮</div>
+      <div class="float-item float-2" data-depth="0.12">🕹</div>
+      <div class="float-item float-3" data-depth="0.06">👾</div>
+      <div class="float-item float-4" data-depth="0.1">💎</div>
+      <div class="float-item float-5" data-depth="0.15">🧱</div>
+      <div class="float-item float-6" data-depth="0.09">🚀</div>
       <div class="avatar-ring"></div>
       <div class="avatar-ring r2"></div>
-      <div class="avatar-shell"><span class="avatar-glyph">B</span></div>
+      <div class="avatar-ring r3"></div>
+      <div class="avatar-shell">
+        <img src="bftero-avatar.jpg" alt="Bftero Avatar" width="260" height="260">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- YOUTUBE -->
+<section id="youtube">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Latest Content</div>
+      <h2 class="section-title">YouTube <span>Videos</span></h2>
+      <p class="section-sub">Auto-updating from @Bftero — recent long-form videos. Refreshes with every new upload.</p>
+    </div>
+    <div id="ytVideos" class="content-grid">
+      <div class="loading-msg">Loading latest videos…</div>
+    </div>
+    <div class="section-foot reveal">
+      <a href="https://www.youtube.com/@Bftero/videos" class="btn btn-ghost" target="_blank" rel="noopener">View All Videos</a>
+    </div>
+
+    <!-- LIVE STREAMS -->
+    <div class="section-head reveal" style="margin-top:70px;">
+      <div class="eyebrow">On Air</div>
+      <h2 class="section-title">Live <span>Streams</span></h2>
+      <p class="section-sub">Recent livestreams from @Bftero — pulled directly from the streams feed.</p>
+    </div>
+    <div id="ytLives" class="content-grid">
+      <div class="loading-msg">Loading live streams…</div>
+    </div>
+    <div class="section-foot reveal">
+      <a href="https://www.youtube.com/@Bftero/streams" class="btn btn-ghost" target="_blank" rel="noopener">View All Streams</a>
+    </div>
+
+    <!-- SHORTS -->
+    <div class="section-head reveal" style="margin-top:70px;">
+      <div class="eyebrow">Quick Clips</div>
+      <h2 class="section-title">Latest <span>Shorts</span></h2>
+      <p class="section-sub">Vertical Shorts from @Bftero — auto-updated from the dedicated Shorts feed.</p>
+    </div>
+    <div class="carousel-controls reveal">
+      <button class="carousel-btn" id="shortsPrev" aria-label="Previous short">←</button>
+      <button class="carousel-btn" id="shortsNext" aria-label="Next short">→</button>
+    </div>
+    <div class="carousel-shell reveal">
+      <div class="carousel-track shorts-track" id="shortsTrack">
+        <div class="loading-msg">Loading Shorts…</div>
+      </div>
+    </div>
+    <div class="section-foot reveal">
+      <a href="https://www.youtube.com/@Bftero/shorts" class="btn btn-ghost" target="_blank" rel="noopener">View All Shorts</a>
+    </div>
+  </div>
+</section>
+
+<!-- ROBLOX PROFILE + COMMUNITY -->
+<section id="roblox">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Roblox</div>
+      <h2 class="section-title">My <span>Profile</span></h2>
+      <p class="section-sub">Developer & player — join me on Roblox.</p>
+    </div>
+    <div class="hud-panel profile-card reveal" style="margin-bottom:36px;">
+      <div class="profile-avatar">
+        <img src="https://tr.rbxcdn.com/30DAY-AvatarHeadshot-99E47C8637EB114F4EA2A01744F9FDFE-Png/420/420/AvatarHeadshot/Png/noFilter" alt="Bftero Roblox Avatar" width="120" height="120" loading="lazy">
+      </div>
+      <div class="profile-info">
+        <h3>Bftero</h3>
+        <p>User ID: 10002884608 · Roblox Developer &amp; Creator</p>
+        <a href="https://www.roblox.com/users/10002884608/profile" class="btn btn-primary btn-small" target="_blank" rel="noopener">View Roblox Profile</a>
+      </div>
+    </div>
+
+    <div class="section-head reveal">
+      <div class="eyebrow">Community</div>
+      <h2 class="section-title">NepX <span>Universe</span></h2>
+    </div>
+    <div class="hud-panel community-banner reveal">
+      <h3>NepX Universe</h3>
+      <p>Official Roblox community for Bftero & NepX players. Roleplay, events, game updates and hangouts.</p>
+      <a href="https://www.roblox.com/communities/481373678/NepX-Universe#!/about" class="btn btn-primary" target="_blank" rel="noopener">Join Community</a>
     </div>
   </div>
 </section>
@@ -465,11 +696,11 @@ footer{ position:relative; z-index:1; border-top:1px solid var(--line); padding:
     <div class="section-head reveal">
       <div class="eyebrow">Roblox Portfolio</div>
       <h2 class="section-title">My <span>Games</span></h2>
-      <p class="section-sub">Four original Roblox experiences, built end to end — survival, roleplay, mystery and exploration.</p>
+      <p class="section-sub">Four original experiences — survival, roleplay, mystery and space exploration. Thumbnails load live from Roblox.</p>
     </div>
     <div class="carousel-controls reveal">
-      <button class="carousel-btn" id="gamesPrev" aria-label="Previous game">&#8592;</button>
-      <button class="carousel-btn" id="gamesNext" aria-label="Next game">&#8594;</button>
+      <button class="carousel-btn" id="gamesPrev" aria-label="Previous game">←</button>
+      <button class="carousel-btn" id="gamesNext" aria-label="Next game">→</button>
     </div>
     <div class="carousel-shell reveal">
       <div class="carousel-track" id="gamesTrack"></div>
@@ -477,66 +708,97 @@ footer{ position:relative; z-index:1; border-top:1px solid var(--line); padding:
   </div>
 </section>
 
-<!-- STREAMS -->
-<section id="streams">
+<!-- WHAT I PLAY -->
+<section id="play">
   <div class="wrap">
     <div class="section-head reveal">
-      <div class="eyebrow">On Air</div>
-      <h2 class="section-title">Latest <span>Live Streams</span></h2>
-      <p class="section-sub">Catch the replays — Roblox roleplay nights, MM2 rounds, and building sessions.</p>
+      <div class="eyebrow">Gaming Categories</div>
+      <h2 class="section-title">What I <span>Play</span></h2>
+      <p class="section-sub">From PS5 exclusives to Roblox creation — this is the content you’ll find on stream.</p>
     </div>
-    <div class="stream-grid" id="streamsGrid"></div>
-    <div class="section-foot reveal">
-      <a href="#" class="btn btn-ghost" target="_blank" rel="noopener">View All Streams</a>
+    <div class="cat-grid">
+      <div class="hud-panel cat-card reveal">
+        <span class="cat-icon">🎮</span>
+        <h3>PS5 Gaming</h3>
+        <ul>
+          <li>GTA &amp; GTA Online</li>
+          <li>Upcoming GTA titles</li>
+          <li>Spider-Man</li>
+          <li>Other PS5 games</li>
+        </ul>
+      </div>
+      <div class="hud-panel cat-card reveal">
+        <span class="cat-icon">⛏️</span>
+        <h3>Minecraft</h3>
+        <ul>
+          <li>Minecraft gameplay</li>
+          <li>Survival</li>
+          <li>Challenges</li>
+          <li>Funny moments</li>
+        </ul>
+      </div>
+      <div class="hud-panel cat-card reveal">
+        <span class="cat-icon">🔫</span>
+        <h3>Roblox</h3>
+        <ul>
+          <li>Roblox gaming</li>
+          <li>Roblox development</li>
+          <li>NepX Universe</li>
+          <li>My original games</li>
+        </ul>
+      </div>
+      <div class="hud-panel cat-card reveal">
+        <span class="cat-icon">🔥</span>
+        <h3>Rockstar Games</h3>
+        <ul>
+          <li>GTA</li>
+          <li>GTA Online</li>
+          <li>Rockstar content</li>
+        </ul>
+      </div>
+      <div class="hud-panel cat-card reveal">
+        <span class="cat-icon">🎥</span>
+        <h3>Live Streaming</h3>
+        <ul>
+          <li>YouTube</li>
+          <li>Twitch</li>
+          <li>Kick</li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- SHORTS -->
-<section id="shorts">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div class="eyebrow">Quick Clips</div>
-      <h2 class="section-title">Latest <span>Shorts</span></h2>
-      <p class="section-sub">Fast highlights from streams and games, straight from the YouTube feed.</p>
-    </div>
-    <div class="carousel-controls reveal">
-      <button class="carousel-btn" id="shortsPrev" aria-label="Previous short">&#8592;</button>
-      <button class="carousel-btn" id="shortsNext" aria-label="Next short">&#8594;</button>
-    </div>
-    <div class="carousel-shell reveal">
-      <div class="carousel-track shorts-track" id="shortsTrack"></div>
-    </div>
-    <div class="section-foot reveal">
-      <a href="#" class="btn btn-ghost" target="_blank" rel="noopener">View All Shorts</a>
-    </div>
-  </div>
-</section>
-
-<!-- BLOG -->
-<section id="blog">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div class="eyebrow">Dev Log</div>
-      <h2 class="section-title">From My <span>Blog</span></h2>
-      <p class="section-sub">Notes on building games, growing a stream, and life behind the screen.</p>
-    </div>
-    <div class="blog-grid" id="blogGrid"></div>
-    <div class="section-foot reveal">
-      <a href="#" class="btn btn-ghost">View All Posts</a>
-    </div>
-  </div>
-</section>
-
-<!-- CONNECT -->
-<section id="connect">
+<!-- SOCIALS -->
+<section id="socials">
   <div class="wrap">
     <div class="section-head reveal">
       <div class="eyebrow">Find Me Everywhere</div>
-      <h2 class="section-title">Connect <span>With Me</span></h2>
+      <h2 class="section-title">Follow <span>Bftero</span></h2>
       <p class="section-sub">Every platform, one tap away.</p>
     </div>
     <div class="social-grid" id="socialGrid"></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrap about-grid">
+    <div class="about-visual reveal">
+      <div class="about-avatar">
+        <img src="bftero-avatar.jpg" alt="Bftero" width="220" height="220" loading="lazy">
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="eyebrow">About Me</div>
+      <h2 class="section-title" style="margin-bottom:20px;">About <span>Bftero</span></h2>
+      <div class="about-text">
+        <p>Bftero is a gaming creator, streamer, Roblox developer, and digital creator focused on gaming content, live streaming, Roblox experiences, PS5 gaming, Minecraft, GTA, and Rockstar Games.</p>
+        <p>From building original Roblox experiences like Leave Me Alone, The Balen City, MM2 Nepal and Space Tour NP, to streaming Spider-Man 2 and GTA on PS5 — the mission is simple: create worlds, share the journey, and play with the community.</p>
+        <p>Based in Nepal. Streaming weekly. Always building the next experience.</p>
+      </div>
+      <a href="#socials" class="btn btn-primary" style="margin-top:8px;">Connect With Me</a>
+    </div>
   </div>
 </section>
 
@@ -545,14 +807,14 @@ footer{ position:relative; z-index:1; border-top:1px solid var(--line); padding:
   <div class="wrap contact-layout">
     <div class="reveal">
       <div class="eyebrow">Get In Touch</div>
-      <h2 class="section-title" style="margin-bottom:26px;">Contact <span>Me</span></h2>
+      <h2 class="section-title" style="margin-bottom:24px;">Contact <span>Me</span></h2>
       <div class="contact-info-item">
         <div class="ico">✉</div>
-        <div><h4>Business Inquiries</h4><p>For collabs, sponsorships and game commissions.</p></div>
+        <div><h4>Business Inquiries</h4><p>Collabs, sponsorships &amp; game commissions.</p></div>
       </div>
       <div class="contact-info-item">
         <div class="ico">◈</div>
-        <div><h4>Community</h4><p>Join the Discord to chat during streams and playtests.</p></div>
+        <div><h4>Community</h4><p>Join NepX Universe or hop in Discord during streams.</p></div>
       </div>
       <div class="contact-info-item">
         <div class="ico">▲</div>
@@ -563,27 +825,27 @@ footer{ position:relative; z-index:1; border-top:1px solid var(--line); padding:
       <div class="form-row">
         <div class="field">
           <label for="fName">Name</label>
-          <input type="text" id="fName" name="name" placeholder="Your name">
+          <input type="text" id="fName" name="name" placeholder="Your name" autocomplete="name">
           <div class="field-error" id="errName"></div>
         </div>
         <div class="field">
           <label for="fEmail">Email</label>
-          <input type="email" id="fEmail" name="email" placeholder="you@email.com">
+          <input type="email" id="fEmail" name="email" placeholder="you@email.com" autocomplete="email">
           <div class="field-error" id="errEmail"></div>
         </div>
       </div>
-      <div class="field" style="margin-bottom:18px;">
+      <div class="field" style="margin-bottom:16px;">
         <label for="fSubject">Subject</label>
         <input type="text" id="fSubject" name="subject" placeholder="What's this about?">
         <div class="field-error" id="errSubject"></div>
       </div>
-      <div class="field" style="margin-bottom:8px;">
+      <div class="field" style="margin-bottom:6px;">
         <label for="fMessage">Message</label>
         <textarea id="fMessage" name="message" placeholder="Write your message..."></textarea>
         <div class="field-error" id="errMessage"></div>
       </div>
-      <button type="submit" class="btn btn-primary" style="margin-top:14px;">Send Message</button>
-      <div class="form-success" id="formSuccess">✓ Message sent — thanks for reaching out, I'll reply soon.</div>
+      <button type="submit" class="btn btn-primary" style="margin-top:12px;">Send Message</button>
+      <div class="form-success" id="formSuccess">✓ Message received — thanks for reaching out!</div>
     </form>
   </div>
 </section>
@@ -598,265 +860,417 @@ footer{ position:relative; z-index:1; border-top:1px solid var(--line); padding:
 <button id="backtop" aria-label="Back to top">↑</button>
 
 <script>
-/* ===================== EDITABLE CONTENT ===================== */
-/* Update these arrays to add new games, streams, shorts, blog posts, or socials — no layout changes needed. */
-
+/* ========== DATA ========== */
 const GAMES = [
-  { title:"Leave Me Alone", desc:"A fun and challenging Roblox experience where players must survive, explore, and stay one step ahead.", link:"#", thumbClass:"thumb-1" },
-  { title:"The Balen City RP", desc:"A Roblox roleplay experience where players can explore the city, create their own stories, and enjoy life with other players.", link:"#", thumbClass:"thumb-2" },
-  { title:"MM2 Nepal", desc:"A Murder Mystery 2-inspired Roblox experience with mystery, teamwork, and exciting rounds.", link:"#", thumbClass:"thumb-3" },
-  { title:"Space Tour NP", desc:"Explore space, discover amazing places, and experience an exciting futuristic space adventure.", link:"#", thumbClass:"thumb-4" },
-];
-
-const STREAMS = [
-  { title:"Late Night RP at Balen City", date:"Aug 8, 2026", duration:"1:42:11", link:"#", thumbClass:"thumb-1" },
-  { title:"MM2 Nepal — Ranked Rounds", date:"Aug 4, 2026", duration:"58:20", link:"#", thumbClass:"thumb-3" },
-  { title:"Building Space Tour NP Live", date:"Jul 29, 2026", duration:"2:10:05", link:"#", thumbClass:"thumb-4" },
-];
-
-const SHORTS = [
-  { title:"Clutch escape in Leave Me Alone", link:"#", thumbClass:"thumb-1" },
-  { title:"RP moment that broke chat", link:"#", thumbClass:"thumb-2" },
-  { title:"Fastest MM2 round ever?", link:"#", thumbClass:"thumb-3" },
-  { title:"New planet reveal", link:"#", thumbClass:"thumb-4" },
-];
-
-const POSTS = [
-  { title:"How I Built Space Tour NP", excerpt:"A look behind the scenes at lighting, terrain, and the exploration loop.", date:"Aug 2, 2026", read:"5 min read", link:"#", thumbClass:"thumb-4" },
-  { title:"Growing a Roblox RP Community", excerpt:"What The Balen City RP taught me about player-driven stories.", date:"Jul 21, 2026", read:"4 min read", link:"#", thumbClass:"thumb-2" },
-  { title:"Designing Tension in MM2 Nepal", excerpt:"Pacing, sound cues, and round design for mystery gameplay.", date:"Jul 9, 2026", read:"6 min read", link:"#", thumbClass:"thumb-3" },
+  { title:"Leave Me Alone", desc:"Survive, explore and stay one step ahead in this challenging Roblox experience.", placeId:74760670542558, link:"https://www.roblox.com/games/74760670542558/Leave-me-Alone" },
+  { title:"The Balen City", desc:"Roleplay in the city — create your own stories and enjoy life with other players.", placeId:78061856431889, link:"https://www.roblox.com/games/78061856431889/The-Balen-City" },
+  { title:"MM2 Nepal", desc:"Murder Mystery 2-inspired rounds with mystery, teamwork and high stakes.", placeId:77732687037625, link:"https://www.roblox.com/games/77732687037625/MM2-Nepal" },
+  { title:"Space Tour NP", desc:"Explore space, discover new worlds and experience a futuristic adventure.", placeId:139617873536242, link:"https://www.roblox.com/games/139617873536242/Space-Tour-NP" },
 ];
 
 const SOCIALS = [
-  { name:"YouTube", handle:"@bftero", link:"#", icon:"play" },
-  { name:"YT Shorts", handle:"@bftero/shorts", link:"#", icon:"bolt" },
-  { name:"Roblox", handle:"/users/bftero", link:"#", icon:"cube" },
-  { name:"Discord", handle:"/invite/bftero", link:"#", icon:"chat" },
-  { name:"Instagram", handle:"@bftero", link:"#", icon:"camera" },
-  { name:"TikTok", handle:"@bftero", link:"#", icon:"note" },
-  { name:"X / Twitter", handle:"@bftero", link:"#", icon:"x" },
+  { name:"YouTube", handle:"@Bftero", link:"https://www.youtube.com/@Bftero", icon:"▶" },
+  { name:"Facebook", handle:"Bftero", link:"https://www.facebook.com/profile.php?id=61591446936523", icon:"f" },
+  { name:"Instagram", handle:"@bfteroo", link:"https://www.instagram.com/bfteroo/?hl=en", icon:"📷" },
+  { name:"TikTok", handle:"@bftero", link:"https://www.tiktok.com/@bftero", icon:"♪" },
+  { name:"Twitch", handle:"bftero", link:"https://www.twitch.tv/bftero", icon:"📺" },
+  { name:"Kick", handle:"bftero", link:"https://kick.com/bftero", icon:"⚡" },
+  { name:"Roblox", handle:"Bftero", link:"https://www.roblox.com/users/10002884608/profile", icon:"◆" },
 ];
 
-/* ===================== ICONS ===================== */
-const ICONS = {
-  play: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg>',
-  bolt: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="7" y="2" width="10" height="20" rx="3"/><path d="M11 8l-2 4h3l-1 4 3-5h-2l1-3z" fill="currentColor" stroke="none"/></svg>',
-  cube: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 3v9M4 7.5l8 4.5 8-4.5"/></svg>',
-  chat: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4" width="20" height="13" rx="4"/><path d="M7 21l2-4h6l2 4"/><circle cx="8" cy="10.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="10.5" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="10.5" r="1" fill="currentColor" stroke="none"/></svg>',
-  camera: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="15" rx="3"/><circle cx="12" cy="13.5" r="4"/><path d="M8 6l1.6-2.5h4.8L16 6"/></svg>',
-  note: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V5l10-2v13"/><circle cx="7" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>',
-  x: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l16 16M20 4L4 20"/></svg>',
-  arrow: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+const CHANNEL_ID = "UCVUI4hRWYZJdc_bdczEYw9Q";
+/* Undocumented YouTube playlist prefixes (public RSS, no API key needed):
+   UUSH = Shorts only, UULV = Live streams, UULF = long-form videos */
+const YT_FEEDS = {
+  videos: `https://www.youtube.com/feeds/videos.xml?playlist_id=UULF${CHANNEL_ID.slice(2)}`,
+  shorts: `https://www.youtube.com/feeds/videos.xml?playlist_id=UUSH${CHANNEL_ID.slice(2)}`,
+  lives:  `https://www.youtube.com/feeds/videos.xml?playlist_id=UULV${CHANNEL_ID.slice(2)}`,
+  all:    `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`,
 };
 
-/* ===================== RENDER ===================== */
+/* ========== HELPERS ========== */
 function el(html){ const t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstChild; }
+function formatDate(iso){
+  try{
+    const d=new Date(iso);
+    return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  }catch{return '';}
+}
 
-const gamesTrack = document.getElementById('gamesTrack');
-GAMES.forEach((g,i)=>{
-  gamesTrack.appendChild(el(`
-    <article class="game-card hud-panel">
-      <div class="game-card-inner">
-        <div style="padding:20px 20px 0;">
-          <div class="game-thumb ${g.thumbClass}"><span>${g.title}</span></div>
-        </div>
-        <div class="game-body">
-          <span class="game-num">GAME 0${i+1}</span>
-          <h3 class="game-title">${g.title}</h3>
-          <p class="game-desc">${g.desc}</p>
-          <div class="game-cta">
-            <a href="${g.link}" class="btn btn-primary btn-small" target="_blank" rel="noopener">Visit Game</a>
-            <a href="${g.link}" target="_blank" rel="noopener" aria-label="Open ${g.title}" style="color:var(--muted-2);">${ICONS.arrow}</a>
+async function fetchYtRss(feedUrl){
+  // Primary: rss2json (JSON + CORS — reliable for browsers)
+  try {
+    const r = await fetch(
+      `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`,
+      { signal: AbortSignal.timeout(12000) }
+    );
+    if (r.ok) {
+      const data = await r.json();
+      if (data.status === 'ok' && Array.isArray(data.items) && data.items.length) {
+        return data.items.map(item => {
+          let id = '';
+          if (item.guid && item.guid.includes('yt:video:')) {
+            id = item.guid.replace('yt:video:', '');
+          } else if (item.link) {
+            const m = item.link.match(/(?:v=|shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+            if (m) id = m[1];
+          }
+          const thumb = item.thumbnail
+            || (item.enclosure && item.enclosure.thumbnail)
+            || (id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : '');
+          return {
+            id,
+            title: item.title || 'Untitled',
+            published: item.pubDate || '',
+            thumb,
+            link: item.link || (id ? `https://www.youtube.com/watch?v=${id}` : ''),
+          };
+        }).filter(v => v.id);
+      }
+    }
+  } catch (_) {}
+
+  // Fallback: XML via proxies
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`,
+    `https://corsproxy.io/?${encodeURIComponent(feedUrl)}`,
+  ];
+  let xmlText = '';
+  for (const url of proxies) {
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
+      if (r.ok) {
+        xmlText = await r.text();
+        if (xmlText.includes('<entry>') || xmlText.includes('<feed')) break;
+      }
+    } catch (_) {}
+  }
+  if (!xmlText) throw new Error('RSS fetch failed');
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xmlText, 'text/xml');
+  if (doc.querySelector('parsererror')) throw new Error('Invalid XML');
+  const entries = [...doc.querySelectorAll('entry')];
+  return entries.map(entry => {
+    const id = entry.querySelector('yt\\:videoId, videoId')?.textContent || '';
+    const title = entry.querySelector('title')?.textContent || 'Untitled';
+    const published = entry.querySelector('published')?.textContent || '';
+    const thumbEl = entry.querySelector('media\\:thumbnail, thumbnail');
+    const thumb = thumbEl?.getAttribute('url') || (id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : '');
+    const linkEl = entry.querySelector('link[rel="alternate"], link');
+    let link = linkEl?.getAttribute('href') || '';
+    if (!link && id) link = `https://www.youtube.com/watch?v=${id}`;
+    return { id, title, published, thumb, link };
+  }).filter(v => v.id);
+}
+
+/* ========== RENDER GAMES (live thumbnails) ========== */
+async function loadGames(){
+  const track=document.getElementById('gamesTrack');
+  const placeIds=GAMES.map(g=>g.placeId).join(',');
+  let thumbs={};
+  try{
+    const res=await fetch(`https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeIds}&size=512x512&format=Png&isCircular=false`);
+    const data=await res.json();
+    (data.data||[]).forEach(t=>{ thumbs[t.targetId]=t.imageUrl; });
+  }catch(e){ console.warn('Roblox thumbs failed',e); }
+
+  GAMES.forEach((g,i)=>{
+    const thumb=thumbs[g.placeId] || `https://tr.rbxcdn.com/180DAY-0ae00cfe9199e4f2789a6f8ef179bb48/512/512/Image/Png/noFilter`;
+    track.appendChild(el(`
+      <article class="game-card hud-panel">
+        <div class="game-card-inner">
+          <div class="game-thumb">
+            <img src="${thumb}" alt="${g.title}" loading="lazy" width="300" height="170">
+          </div>
+          <div class="game-body">
+            <span class="game-num">GAME 0${i+1}</span>
+            <h3 class="game-title">${g.title}</h3>
+            <p class="game-desc">${g.desc}</p>
+            <div class="game-cta">
+              <a href="${g.link}" class="btn btn-primary btn-small" target="_blank" rel="noopener">Play Game</a>
+            </div>
           </div>
         </div>
-      </div>
-    </article>
-  `));
-});
+      </article>
+    `));
+  });
 
-const streamsGrid = document.getElementById('streamsGrid');
-STREAMS.forEach(s=>{
-  streamsGrid.appendChild(el(`
-    <article class="stream-card hud-panel reveal">
-      <a href="${s.link}" target="_blank" rel="noopener" class="stream-thumb ${s.thumbClass}">
-        <span class="play-badge">${ICONS.play}</span>
-        <span class="duration-tag">${s.duration}</span>
+  // 3D tilt
+  document.querySelectorAll('.game-card').forEach(card=>{
+    const inner=card.querySelector('.game-card-inner');
+    card.addEventListener('mousemove',e=>{
+      const r=card.getBoundingClientRect();
+      const x=(e.clientX-r.left)/r.width-0.5;
+      const y=(e.clientY-r.top)/r.height-0.5;
+      inner.style.transform=`rotateY(${x*10}deg) rotateX(${-y*10}deg) translateZ(8px)`;
+    });
+    card.addEventListener('mouseleave',()=>{ inner.style.transform='rotateY(0) rotateX(0)'; });
+  });
+}
+
+/* ========== YOUTUBE RSS — separate feeds for Videos / Shorts / Lives ========== */
+function renderYtCard(v, opts = {}) {
+  const isLive = opts.isLive || /live|#bfterolive|livestream|live stream/i.test(v.title || '');
+  const watchUrl = opts.short
+    ? `https://www.youtube.com/shorts/${v.id}`
+    : (v.link || `https://www.youtube.com/watch?v=${v.id}`);
+  return el(`
+    <article class="yt-card hud-panel reveal">
+      <a href="${watchUrl}" target="_blank" rel="noopener" class="yt-thumb">
+        <img src="${v.thumb}" alt="${v.title.replace(/"/g, '&quot;')}" loading="lazy" width="320" height="160">
+        <span class="play-badge">▶</span>
+        ${isLive ? '<span class="live-tag">LIVE</span>' : ''}
       </a>
-      <div class="stream-body">
-        <div class="stream-date">${s.date}</div>
-        <h3 class="stream-title">${s.title}</h3>
-        <a href="${s.link}" class="btn btn-ghost btn-small" target="_blank" rel="noopener">Watch Stream</a>
+      <div class="yt-body">
+        <div class="yt-date">${formatDate(v.published)}</div>
+        <h3 class="yt-title">${v.title}</h3>
+        <a href="${watchUrl}" class="btn btn-ghost btn-small" target="_blank" rel="noopener">${opts.short ? 'Watch Short' : (isLive ? 'Watch Stream' : 'Watch')}</a>
       </div>
     </article>
-  `));
-});
+  `);
+}
 
-const shortsTrack = document.getElementById('shortsTrack');
-SHORTS.forEach(s=>{
-  shortsTrack.appendChild(el(`
-    <a href="${s.link}" target="_blank" rel="noopener" class="short-card hud-panel">
-      <div class="short-thumb ${s.thumbClass}"><span class="play-badge">${ICONS.play}</span></div>
+function renderShortCard(s) {
+  const url = `https://www.youtube.com/shorts/${s.id}`;
+  return el(`
+    <a href="${url}" target="_blank" rel="noopener" class="short-card hud-panel">
+      <div class="short-thumb">
+        <img src="${s.thumb}" alt="${s.title.replace(/"/g, '&quot;')}" loading="lazy">
+        <span class="play-badge">▶</span>
+      </div>
       <div class="short-title">${s.title}</div>
     </a>
-  `));
-});
+  `);
+}
 
-const blogGrid = document.getElementById('blogGrid');
-POSTS.forEach(p=>{
-  blogGrid.appendChild(el(`
-    <article class="hud-panel reveal">
-      <div class="blog-thumb ${p.thumbClass}"></div>
-      <div class="blog-body">
-        <div class="blog-meta"><span>${p.date}</span><span>${p.read}</span></div>
-        <h3 class="blog-title">${p.title}</h3>
-        <p class="blog-excerpt">${p.excerpt}</p>
-        <a href="${p.link}" class="btn btn-ghost btn-small">Read More</a>
-      </div>
-    </article>
-  `));
-});
+function showFeedError(el, message, fallbackUrl, fallbackLabel) {
+  el.innerHTML = `
+    <div class="loading-msg" style="grid-column:1/-1;">
+      ${message}<br>
+      <a href="${fallbackUrl}" target="_blank" rel="noopener" style="color:var(--cyan);margin-top:12px;display:inline-block;">${fallbackLabel} →</a>
+    </div>`;
+}
 
-const socialGrid = document.getElementById('socialGrid');
-const footerSocial = document.getElementById('footerSocial');
-SOCIALS.forEach(s=>{
-  socialGrid.appendChild(el(`
-    <a href="${s.link}" target="_blank" rel="noopener" class="social-card hud-panel reveal">
-      <div class="social-icon">${ICONS[s.icon]}</div>
-      <div class="social-name">${s.name}</div>
-      <div class="social-handle">${s.handle}</div>
-    </a>
-  `));
-  footerSocial.appendChild(el(`<a href="${s.link}" target="_blank" rel="noopener" aria-label="${s.name}">${ICONS[s.icon]}</a>`));
-});
+function showFeedEmpty(el, message, fallbackUrl, fallbackLabel) {
+  el.innerHTML = `
+    <div class="loading-msg" style="grid-column:1/-1;">
+      ${message}<br>
+      <a href="${fallbackUrl}" target="_blank" rel="noopener" style="color:var(--cyan);margin-top:12px;display:inline-block;">${fallbackLabel} →</a>
+    </div>`;
+}
 
-/* ===================== LOADER ===================== */
-window.addEventListener('load', ()=>{
-  setTimeout(()=>document.getElementById('loader').classList.add('hidden'), 500);
-});
+async function loadYouTube() {
+  const videosEl = document.getElementById('ytVideos');
+  const livesEl  = document.getElementById('ytLives');
+  const shortsEl = document.getElementById('shortsTrack');
 
-/* ===================== NAV ===================== */
-const navbar = document.getElementById('navbar');
-const navLinks = document.getElementById('navLinks');
-const navToggle = document.getElementById('navToggle');
-window.addEventListener('scroll', ()=>{
-  navbar.classList.toggle('scrolled', window.scrollY > 40);
-  backtop.classList.toggle('show', window.scrollY > 700);
-});
-navToggle.addEventListener('click', ()=>{
-  const open = navLinks.classList.toggle('open');
-  navToggle.setAttribute('aria-expanded', open);
-});
-navLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click', ()=>navLinks.classList.remove('open')));
+  // Load the three feeds independently so one failure doesn't break the others
+  const [videosRes, livesRes, shortsRes] = await Promise.allSettled([
+    fetchYtRss(YT_FEEDS.videos),
+    fetchYtRss(YT_FEEDS.lives),
+    fetchYtRss(YT_FEEDS.shorts),
+  ]);
 
-/* ===================== SCROLL REVEAL ===================== */
-const revealEls = document.querySelectorAll('.reveal');
-const io = new IntersectionObserver((entries)=>{
-  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-},{ threshold:0.12 });
-revealEls.forEach(elm=>io.observe(elm));
-// also observe dynamically-added cards
-document.querySelectorAll('.stream-card, .blog-grid > article, .social-card').forEach(elm=>{
-  elm.classList.add('reveal'); io.observe(elm);
-});
+  // --- Videos (long-form) ---
+  if (videosRes.status === 'fulfilled' && videosRes.value.length) {
+    videosEl.innerHTML = '';
+    videosRes.value.slice(0, 6).forEach(v => {
+      videosEl.appendChild(renderYtCard(v));
+    });
+  } else if (videosRes.status === 'fulfilled') {
+    // Fallback to general channel feed if UULF is empty
+    try {
+      const all = await fetchYtRss(YT_FEEDS.all);
+      if (all.length) {
+        videosEl.innerHTML = '';
+        all.slice(0, 6).forEach(v => videosEl.appendChild(renderYtCard(v)));
+      } else {
+        showFeedEmpty(videosEl, 'No videos found yet.', 'https://www.youtube.com/@Bftero/videos', 'View channel videos');
+      }
+    } catch {
+      showFeedError(videosEl, 'Could not load videos right now.', 'https://www.youtube.com/@Bftero/videos', 'Open YouTube Videos');
+    }
+  } else {
+    showFeedError(videosEl, 'Could not load videos right now.', 'https://www.youtube.com/@Bftero/videos', 'Open YouTube Videos');
+  }
 
-/* ===================== CAROUSEL DRAG/SWIPE + BUTTONS ===================== */
-function makeCarousel(trackId, prevId, nextId, cardSelector){
-  const track = document.getElementById(trackId);
-  const prev = document.getElementById(prevId);
-  const next = document.getElementById(nextId);
-  const scrollAmount = ()=> (track.querySelector(cardSelector)?.offsetWidth || 300) + 26;
-  prev.addEventListener('click', ()=> track.scrollBy({left:-scrollAmount(), behavior:'smooth'}));
-  next.addEventListener('click', ()=> track.scrollBy({left:scrollAmount(), behavior:'smooth'}));
+  // --- Live streams ---
+  if (livesRes.status === 'fulfilled' && livesRes.value.length) {
+    livesEl.innerHTML = '';
+    livesRes.value.slice(0, 6).forEach(v => {
+      livesEl.appendChild(renderYtCard(v, { isLive: true }));
+    });
+  } else if (livesRes.status === 'fulfilled') {
+    showFeedEmpty(livesEl, 'No livestreams found yet.', 'https://www.youtube.com/@Bftero/streams', 'View all streams');
+  } else {
+    showFeedError(livesEl, 'Could not load livestreams right now.', 'https://www.youtube.com/@Bftero/streams', 'Open YouTube Streams');
+  }
 
-  let isDown=false, startX, scrollLeft;
-  track.addEventListener('pointerdown', e=>{ isDown=true; startX=e.pageX; scrollLeft=track.scrollLeft; });
-  window.addEventListener('pointerup', ()=> isDown=false);
-  window.addEventListener('pointermove', e=>{
-    if(!isDown) return;
-    track.scrollLeft = scrollLeft - (e.pageX - startX);
+  // --- Shorts (dedicated UUSH feed — never mixed with long-form or lives) ---
+  if (shortsRes.status === 'fulfilled' && shortsRes.value.length) {
+    shortsEl.innerHTML = '';
+    shortsRes.value.slice(0, 12).forEach(s => {
+      shortsEl.appendChild(renderShortCard(s));
+    });
+  } else if (shortsRes.status === 'fulfilled') {
+    showFeedEmpty(shortsEl, 'No Shorts found yet.', 'https://www.youtube.com/@Bftero/shorts', 'View all Shorts');
+  } else {
+    showFeedError(shortsEl, 'Could not load Shorts right now.', 'https://www.youtube.com/@Bftero/shorts', 'Open YouTube Shorts');
+  }
+
+  // Re-observe newly added reveal cards
+  document.querySelectorAll('#ytVideos .reveal, #ytLives .reveal').forEach(elm => {
+    if (window._io) window._io.observe(elm);
   });
+}
+
+/* ========== SOCIALS ========== */
+function renderSocials(){
+  const grid=document.getElementById('socialGrid');
+  const foot=document.getElementById('footerSocial');
+  SOCIALS.forEach(s=>{
+    grid.appendChild(el(`
+      <a href="${s.link}" target="_blank" rel="noopener" class="social-card hud-panel reveal">
+        <div class="social-icon">${s.icon}</div>
+        <div class="social-name">${s.name}</div>
+        <div class="social-handle">${s.handle}</div>
+      </a>
+    `));
+    foot.appendChild(el(`<a href="${s.link}" target="_blank" rel="noopener" aria-label="${s.name}">${s.icon}</a>`));
+  });
+}
+
+/* ========== LOADER ========== */
+window.addEventListener('load',()=>{
+  setTimeout(()=>document.getElementById('loader').classList.add('hidden'),450);
+});
+
+/* ========== NAV ========== */
+const navbar=document.getElementById('navbar');
+const navLinks=document.getElementById('navLinks');
+const navToggle=document.getElementById('navToggle');
+const backtop=document.getElementById('backtop');
+window.addEventListener('scroll',()=>{
+  navbar.classList.toggle('scrolled',window.scrollY>40);
+  backtop.classList.toggle('show',window.scrollY>600);
+});
+navToggle.addEventListener('click',()=>{
+  const open=navLinks.classList.toggle('open');
+  navToggle.setAttribute('aria-expanded',open);
+});
+navLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>navLinks.classList.remove('open')));
+
+/* ========== SCROLL REVEAL ========== */
+window._io=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); window._io.unobserve(e.target); } });
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(elm=>window._io.observe(elm));
+
+/* ========== CAROUSELS ========== */
+function makeCarousel(trackId,prevId,nextId,sel){
+  const track=document.getElementById(trackId);
+  const prev=document.getElementById(prevId);
+  const next=document.getElementById(nextId);
+  if(!track||!prev||!next) return;
+  const amount=()=>(track.querySelector(sel)?.offsetWidth||280)+22;
+  prev.addEventListener('click',()=>track.scrollBy({left:-amount(),behavior:'smooth'}));
+  next.addEventListener('click',()=>track.scrollBy({left:amount(),behavior:'smooth'}));
+  let down=false,sx,sl;
+  track.addEventListener('pointerdown',e=>{down=true;sx=e.pageX;sl=track.scrollLeft;});
+  window.addEventListener('pointerup',()=>down=false);
+  window.addEventListener('pointermove',e=>{ if(!down)return; track.scrollLeft=sl-(e.pageX-sx); });
 }
 makeCarousel('gamesTrack','gamesPrev','gamesNext','.game-card');
 makeCarousel('shortsTrack','shortsPrev','shortsNext','.short-card');
 
-/* ===================== 3D TILT ON GAME CARDS ===================== */
-document.querySelectorAll('.game-card').forEach(card=>{
-  const inner = card.querySelector('.game-card-inner');
-  card.addEventListener('mousemove', e=>{
-    const r = card.getBoundingClientRect();
-    const x = (e.clientX - r.left)/r.width - 0.5;
-    const y = (e.clientY - r.top)/r.height - 0.5;
-    inner.style.transform = `rotateY(${x*12}deg) rotateX(${-y*12}deg) translateZ(10px)`;
+/* ========== PARALLAX ========== */
+const heroVisual=document.getElementById('heroVisual');
+if(heroVisual && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  document.addEventListener('mousemove',e=>{
+    const cx=window.innerWidth/2, cy=window.innerHeight/2;
+    const dx=(e.clientX-cx)/cx, dy=(e.clientY-cy)/cy;
+    heroVisual.querySelectorAll('.float-item').forEach(item=>{
+      const d=parseFloat(item.dataset.depth)||0.1;
+      item.style.transform=`translate(${dx*30*d}px, ${dy*20*d}px)`;
+    });
   });
-  card.addEventListener('mouseleave', ()=>{ inner.style.transform = 'rotateY(0) rotateX(0)'; });
-});
+}
 
-/* ===================== BACK TO TOP ===================== */
-const backtop = document.getElementById('backtop');
-backtop.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+/* ========== BACK TO TOP ========== */
+backtop.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
 
-/* ===================== CONTACT FORM VALIDATION ===================== */
-const form = document.getElementById('contactForm');
-const success = document.getElementById('formSuccess');
-form.addEventListener('submit', e=>{
+/* ========== CONTACT ========== */
+const form=document.getElementById('contactForm');
+const success=document.getElementById('formSuccess');
+form.addEventListener('submit',e=>{
   e.preventDefault();
-  let valid = true;
-  const fields = [
-    { id:'fName', err:'errName', test: v=>v.trim().length>1, msg:'Please enter your name.' },
-    { id:'fEmail', err:'errEmail', test: v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), msg:'Please enter a valid email.' },
-    { id:'fSubject', err:'errSubject', test: v=>v.trim().length>2, msg:'Please add a subject.' },
-    { id:'fMessage', err:'errMessage', test: v=>v.trim().length>5, msg:'Message should be a bit longer.' },
+  let valid=true;
+  const fields=[
+    {id:'fName',err:'errName',test:v=>v.trim().length>1,msg:'Please enter your name.'},
+    {id:'fEmail',err:'errEmail',test:v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),msg:'Please enter a valid email.'},
+    {id:'fSubject',err:'errSubject',test:v=>v.trim().length>2,msg:'Please add a subject.'},
+    {id:'fMessage',err:'errMessage',test:v=>v.trim().length>5,msg:'Message should be a bit longer.'},
   ];
   fields.forEach(f=>{
-    const input = document.getElementById(f.id);
-    const errBox = document.getElementById(f.err);
-    if(!f.test(input.value)){ errBox.textContent = f.msg; valid=false; }
-    else { errBox.textContent=''; }
+    const input=document.getElementById(f.id);
+    const errBox=document.getElementById(f.err);
+    if(!f.test(input.value)){errBox.textContent=f.msg;valid=false;}
+    else errBox.textContent='';
   });
   if(valid){
     success.classList.add('show');
     form.reset();
-    setTimeout(()=> success.classList.remove('show'), 5000);
-  } else {
-    success.classList.remove('show');
-  }
+    setTimeout(()=>success.classList.remove('show'),4500);
+  }else success.classList.remove('show');
 });
 
-/* ===================== PARTICLES ===================== */
-const canvas = document.getElementById('particles');
-const ctx = canvas.getContext('2d');
-let particles = [];
-function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+/* ========== PARTICLES ========== */
+const canvas=document.getElementById('particles');
+const ctx=canvas.getContext('2d');
+let particles=[];
+function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
 resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-const colors = ['rgba(41,241,230,0.5)','rgba(139,92,246,0.5)','rgba(255,63,176,0.4)'];
-for(let i=0;i<60;i++){
+window.addEventListener('resize',resizeCanvas);
+const colors=['rgba(41,241,230,0.45)','rgba(139,92,246,0.4)','rgba(255,63,176,0.35)'];
+const isMobile=window.innerWidth<768;
+const count=isMobile?28:55;
+for(let i=0;i<count;i++){
   particles.push({
-    x: Math.random()*window.innerWidth,
-    y: Math.random()*window.innerHeight,
-    r: Math.random()*1.6+0.4,
-    vy: Math.random()*0.3+0.08,
-    vx: (Math.random()-0.5)*0.15,
-    c: colors[Math.floor(Math.random()*colors.length)]
+    x:Math.random()*window.innerWidth,
+    y:Math.random()*window.innerHeight,
+    r:Math.random()*1.5+0.3,
+    vy:Math.random()*0.28+0.06,
+    vx:(Math.random()-0.5)*0.12,
+    c:colors[Math.floor(Math.random()*colors.length)]
   });
 }
-const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 function animateParticles(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   particles.forEach(p=>{
-    p.y -= p.vy; p.x += p.vx;
-    if(p.y < -10){ p.y = window.innerHeight+10; p.x = Math.random()*window.innerWidth; }
+    p.y-=p.vy; p.x+=p.vx;
+    if(p.y<-10){p.y=window.innerHeight+10;p.x=Math.random()*window.innerWidth;}
     ctx.beginPath();
     ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle = p.c;
+    ctx.fillStyle=p.c;
     ctx.fill();
   });
   if(!reduceMotion) requestAnimationFrame(animateParticles);
 }
 animateParticles();
 
-/* ===================== FOOTER YEAR ===================== */
-document.getElementById('year').textContent = new Date().getFullYear();
+/* ========== INIT ========== */
+document.getElementById('year').textContent=new Date().getFullYear();
+renderSocials();
+loadGames();
+loadYouTube();
+
+// Re-observe dynamically added
+setTimeout(()=>{
+  document.querySelectorAll('.social-card,.cat-card').forEach(elm=>{
+    if(!elm.classList.contains('in')) window._io.observe(elm);
+  });
+},800);
 </script>
 </body>
 </html>
