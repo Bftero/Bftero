@@ -616,7 +616,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
     <div class="section-head reveal">
       <div class="eyebrow">Latest Content</div>
       <h2 class="section-title">YouTube <span>Videos</span></h2>
-      <p class="section-sub">Auto-updating from @Bftero — recent long-form videos. Refreshes with every new upload.</p>
+      <p class="section-sub">Auto-updating from @Bftero — click any card to play inside the site.</p>
     </div>
     <div id="ytVideos" class="content-grid">
       <div class="loading-msg">Loading latest videos…</div>
@@ -629,7 +629,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
     <div class="section-head reveal" style="margin-top:70px;">
       <div class="eyebrow">On Air</div>
       <h2 class="section-title">Live <span>Streams</span></h2>
-      <p class="section-sub">Recent livestreams from @Bftero — pulled directly from the streams feed.</p>
+      <p class="section-sub">Recent livestreams from @Bftero — click any card to play inside the site.</p>
     </div>
     <div id="ytLives" class="content-grid">
       <div class="loading-msg">Loading live streams…</div>
@@ -642,22 +642,27 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
     <div class="section-head reveal" style="margin-top:70px;">
       <div class="eyebrow">Quick Clips</div>
       <h2 class="section-title">Latest <span>Shorts</span></h2>
-      <p class="section-sub">Vertical Shorts from @Bftero — auto-updated from the dedicated Shorts feed.</p>
+      <p class="section-sub">Vertical Shorts from @Bftero — click any card to play inside the site.</p>
     </div>
-    <div class="carousel-controls reveal">
-      <button class="carousel-btn" id="shortsPrev" aria-label="Previous short">←</button>
-      <button class="carousel-btn" id="shortsNext" aria-label="Next short">→</button>
-    </div>
-    <div class="carousel-shell reveal">
-      <div class="carousel-track shorts-track" id="shortsTrack">
-        <div class="loading-msg">Loading Shorts…</div>
-      </div>
+    <div id="shortsTrack" class="shorts-grid reveal">
+      <div class="loading-msg" style="grid-column:1/-1;">Loading Shorts…</div>
     </div>
     <div class="section-foot reveal">
       <a href="https://www.youtube.com/@Bftero/shorts" class="btn btn-ghost" target="_blank" rel="noopener">View All Shorts</a>
     </div>
   </div>
 </section>
+
+<!-- In-site video player modal -->
+<div class="video-modal" id="videoModal" role="dialog" aria-modal="true" aria-label="Video player">
+  <div class="video-modal-inner">
+    <div class="video-modal-header">
+      <div class="video-modal-title" id="videoModalTitle">Playing…</div>
+      <button class="video-modal-close" id="videoModalClose" aria-label="Close player">✕</button>
+    </div>
+    <div class="video-modal-frame" id="videoModalFrame"></div>
+  </div>
+</div>
 
 <!-- ROBLOX PROFILE + COMMUNITY -->
 <section id="roblox">
@@ -862,10 +867,34 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
 <script>
 /* ========== DATA ========== */
 const GAMES = [
-  { title:"Leave Me Alone", desc:"Survive, explore and stay one step ahead in this challenging Roblox experience.", placeId:74760670542558, link:"https://www.roblox.com/games/74760670542558/Leave-me-Alone" },
-  { title:"The Balen City", desc:"Roleplay in the city — create your own stories and enjoy life with other players.", placeId:78061856431889, link:"https://www.roblox.com/games/78061856431889/The-Balen-City" },
-  { title:"MM2 Nepal", desc:"Murder Mystery 2-inspired rounds with mystery, teamwork and high stakes.", placeId:77732687037625, link:"https://www.roblox.com/games/77732687037625/MM2-Nepal" },
-  { title:"Space Tour NP", desc:"Explore space, discover new worlds and experience a futuristic adventure.", placeId:139617873536242, link:"https://www.roblox.com/games/139617873536242/Space-Tour-NP" },
+  {
+    title: "Leave Me Alone",
+    desc: "Survive, explore and stay one step ahead in this challenging Roblox experience.",
+    placeId: "74760670542558",
+    link: "https://www.roblox.com/games/74760670542558/Leave-me-Alone",
+    thumb: "https://tr.rbxcdn.com/180DAY-0ae00cfe9199e4f2789a6f8ef179bb48/512/512/Image/Png/noFilter"
+  },
+  {
+    title: "The Balen City",
+    desc: "Roleplay in the city — create your own stories and enjoy life with other players.",
+    placeId: "78061856431889",
+    link: "https://www.roblox.com/games/78061856431889/The-Balen-City",
+    thumb: "https://tr.rbxcdn.com/180DAY-559c3d51d297933c5e47cff755b14ac2/512/512/Image/Png/noFilter"
+  },
+  {
+    title: "MM2 Nepal",
+    desc: "Murder Mystery 2-inspired rounds with mystery, teamwork and high stakes.",
+    placeId: "77732687037625",
+    link: "https://www.roblox.com/games/77732687037625/MM2-Nepal",
+    thumb: "https://tr.rbxcdn.com/180DAY-29c12814612928b71f1c582ef0c6ce5e/512/512/Image/Png/noFilter"
+  },
+  {
+    title: "Space Tour NP",
+    desc: "Explore space, discover new worlds and experience a futuristic adventure.",
+    placeId: "139617873536242",
+    link: "https://www.roblox.com/games/139617873536242/Space-Tour-NP",
+    thumb: "https://tr.rbxcdn.com/180DAY-a816b4d9c4489082080f385c2d437d06/512/512/Image/Png/noFilter"
+  },
 ];
 
 const SOCIALS = [
@@ -963,19 +992,24 @@ async function fetchYtRss(feedUrl){
   }).filter(v => v.id);
 }
 
-/* ========== RENDER GAMES (live thumbnails) ========== */
+/* ========== RENDER GAMES (unique thumbnails per game) ========== */
 async function loadGames(){
-  const track=document.getElementById('gamesTrack');
-  const placeIds=GAMES.map(g=>g.placeId).join(',');
-  let thumbs={};
-  try{
-    const res=await fetch(`https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeIds}&size=512x512&format=Png&isCircular=false`);
-    const data=await res.json();
-    (data.data||[]).forEach(t=>{ thumbs[t.targetId]=t.imageUrl; });
-  }catch(e){ console.warn('Roblox thumbs failed',e); }
+  const track = document.getElementById('gamesTrack');
+  // Try live API refresh (may fail due to CORS — each game already has its own thumb URL)
+  const liveThumbs = {};
+  try {
+    const placeIds = GAMES.map(g => g.placeId).join(',');
+    const res = await fetch(`https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeIds}&size=512x512&format=Png&isCircular=false`);
+    const data = await res.json();
+    (data.data || []).forEach(t => {
+      liveThumbs[String(t.targetId)] = t.imageUrl;
+    });
+  } catch (e) {
+    console.warn('Roblox live thumbs unavailable, using stored icons', e);
+  }
 
-  GAMES.forEach((g,i)=>{
-    const thumb=thumbs[g.placeId] || `https://tr.rbxcdn.com/180DAY-0ae00cfe9199e4f2789a6f8ef179bb48/512/512/Image/Png/noFilter`;
+  GAMES.forEach((g, i) => {
+    const thumb = liveThumbs[String(g.placeId)] || g.thumb;
     track.appendChild(el(`
       <article class="game-card hud-panel">
         <div class="game-card-inner">
@@ -983,7 +1017,7 @@ async function loadGames(){
             <img src="${thumb}" alt="${g.title}" loading="lazy" width="300" height="170">
           </div>
           <div class="game-body">
-            <span class="game-num">GAME 0${i+1}</span>
+            <span class="game-num">GAME 0${i + 1}</span>
             <h3 class="game-title">${g.title}</h3>
             <p class="game-desc">${g.desc}</p>
             <div class="game-cta">
@@ -996,51 +1030,107 @@ async function loadGames(){
   });
 
   // 3D tilt
-  document.querySelectorAll('.game-card').forEach(card=>{
-    const inner=card.querySelector('.game-card-inner');
-    card.addEventListener('mousemove',e=>{
-      const r=card.getBoundingClientRect();
-      const x=(e.clientX-r.left)/r.width-0.5;
-      const y=(e.clientY-r.top)/r.height-0.5;
-      inner.style.transform=`rotateY(${x*10}deg) rotateX(${-y*10}deg) translateZ(8px)`;
+  document.querySelectorAll('.game-card').forEach(card => {
+    const inner = card.querySelector('.game-card-inner');
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      inner.style.transform = `rotateY(${x * 10}deg) rotateX(${-y * 10}deg) translateZ(8px)`;
     });
-    card.addEventListener('mouseleave',()=>{ inner.style.transform='rotateY(0) rotateX(0)'; });
+    card.addEventListener('mouseleave', () => {
+      inner.style.transform = 'rotateY(0) rotateX(0)';
+    });
   });
 }
 
-/* ========== YOUTUBE RSS — separate feeds for Videos / Shorts / Lives ========== */
+/* ========== IN-SITE VIDEO MODAL ========== */
+const videoModal = document.getElementById('videoModal');
+const videoModalFrame = document.getElementById('videoModalFrame');
+const videoModalTitle = document.getElementById('videoModalTitle');
+const videoModalClose = document.getElementById('videoModalClose');
+
+function openVideoPlayer(videoId, title, isShort) {
+  if (!videoId) return;
+  videoModalTitle.textContent = title || 'Playing…';
+  videoModal.classList.toggle('short-mode', !!isShort);
+  // Official embed. autoplay requires mute in modern browsers (no sound autoplay).
+  // User can unmute inside the player. playsinline helps mobile.
+  const params = new URLSearchParams({
+    autoplay: '1',
+    mute: '1',
+    rel: '0',
+    modestbranding: '1',
+    playsinline: '1',
+    enablejsapi: '1',
+  });
+  const embedSrc = `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
+  videoModalFrame.innerHTML = `
+    <iframe
+      src="${embedSrc}"
+      title="${(title || 'Video').replace(/"/g, '&quot;')}"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen
+      referrerpolicy="strict-origin-when-cross-origin"
+    ></iframe>`;
+  videoModal.classList.add('open');
+  document.body.classList.add('modal-open');
+}
+
+function closeVideoPlayer() {
+  videoModal.classList.remove('open');
+  document.body.classList.remove('modal-open');
+  // Stop playback by clearing iframe
+  videoModalFrame.innerHTML = '';
+  videoModal.classList.remove('short-mode');
+}
+
+if (videoModalClose) videoModalClose.addEventListener('click', closeVideoPlayer);
+if (videoModal) {
+  videoModal.addEventListener('click', (e) => {
+    if (e.target === videoModal) closeVideoPlayer();
+  });
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && videoModal && videoModal.classList.contains('open')) closeVideoPlayer();
+});
+
+/* ========== YOUTUBE CARD RENDERERS (in-site play) ========== */
 function renderYtCard(v, opts = {}) {
   const isLive = opts.isLive || /live|#bfterolive|livestream|live stream/i.test(v.title || '');
-  const watchUrl = opts.short
-    ? `https://www.youtube.com/shorts/${v.id}`
-    : (v.link || `https://www.youtube.com/watch?v=${v.id}`);
-  return el(`
-    <article class="yt-card hud-panel reveal">
-      <a href="${watchUrl}" target="_blank" rel="noopener" class="yt-thumb">
-        <img src="${v.thumb}" alt="${v.title.replace(/"/g, '&quot;')}" loading="lazy" width="320" height="160">
+  const card = el(`
+    <article class="yt-card hud-panel reveal" role="button" tabindex="0" data-vid="${v.id}" data-title="${(v.title||'').replace(/"/g,'&quot;')}">
+      <div class="yt-thumb">
+        <img src="${v.thumb}" alt="${(v.title||'').replace(/"/g,'&quot;')}" loading="lazy" width="240" height="135">
         <span class="play-badge">▶</span>
         ${isLive ? '<span class="live-tag">LIVE</span>' : ''}
-      </a>
+      </div>
       <div class="yt-body">
         <div class="yt-date">${formatDate(v.published)}</div>
         <h3 class="yt-title">${v.title}</h3>
-        <a href="${watchUrl}" class="btn btn-ghost btn-small" target="_blank" rel="noopener">${opts.short ? 'Watch Short' : (isLive ? 'Watch Stream' : 'Watch')}</a>
       </div>
     </article>
   `);
+  const play = () => openVideoPlayer(v.id, v.title, false);
+  card.addEventListener('click', play);
+  card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); play(); } });
+  return card;
 }
 
 function renderShortCard(s) {
-  const url = `https://www.youtube.com/shorts/${s.id}`;
-  return el(`
-    <a href="${url}" target="_blank" rel="noopener" class="short-card hud-panel">
+  const card = el(`
+    <article class="short-card hud-panel" role="button" tabindex="0" data-vid="${s.id}" data-title="${(s.title||'').replace(/"/g,'&quot;')}">
       <div class="short-thumb">
-        <img src="${s.thumb}" alt="${s.title.replace(/"/g, '&quot;')}" loading="lazy">
+        <img src="${s.thumb}" alt="${(s.title||'').replace(/"/g,'&quot;')}" loading="lazy">
         <span class="play-badge">▶</span>
       </div>
       <div class="short-title">${s.title}</div>
-    </a>
+    </article>
   `);
+  const play = () => openVideoPlayer(s.id, s.title, true);
+  card.addEventListener('click', play);
+  card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); play(); } });
+  return card;
 }
 
 function showFeedError(el, message, fallbackUrl, fallbackLabel) {
@@ -1097,7 +1187,7 @@ async function loadYouTube() {
   // --- Live streams ---
   if (livesRes.status === 'fulfilled' && livesRes.value.length) {
     livesEl.innerHTML = '';
-    livesRes.value.slice(0, 6).forEach(v => {
+    livesRes.value.slice(0, 8).forEach(v => {
       livesEl.appendChild(renderYtCard(v, { isLive: true }));
     });
   } else if (livesRes.status === 'fulfilled') {
@@ -1181,7 +1271,6 @@ function makeCarousel(trackId,prevId,nextId,sel){
   window.addEventListener('pointermove',e=>{ if(!down)return; track.scrollLeft=sl-(e.pageX-sx); });
 }
 makeCarousel('gamesTrack','gamesPrev','gamesNext','.game-card');
-makeCarousel('shortsTrack','shortsPrev','shortsNext','.short-card');
 
 /* ========== PARALLAX ========== */
 const heroVisual=document.getElementById('heroVisual');
