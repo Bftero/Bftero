@@ -633,8 +633,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
 @media (max-width:700px){
   #webRope{width:56px; right:0;}
   .dance-buddy{width:56px;height:56px;right:0;}
-  #modelStage{opacity:0.18;}
-  #modelStage canvas{transform:scale(0.85); transform-origin:center center;}
+  #modelStage{opacity:0.28;}
 }
 @media (prefers-reduced-motion: reduce){
   .dance-buddy img{transition:none;}
@@ -1727,8 +1726,8 @@ if (stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const box = new THREE.Box3().setFromObject(model);
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    // Desktop keeps original size; mobile uses a much smaller scale
-    const targetSize = window.innerWidth < 700 ? 0.75 : 2.4;
+    // Desktop keeps original size; mobile is 2× previous mobile size
+    const targetSize = window.innerWidth < 700 ? 1.5 : 2.4;
     const scale = targetSize / maxDim;
     model.scale.setScalar(scale);
     const box2 = new THREE.Box3().setFromObject(model);
