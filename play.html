@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLAY — BFtero Reaction Challenge</title>
+<meta name="description" content="Play the BFtero Reaction Challenge. Beat the clock, climb the global leaderboard.">
+<link rel="icon" type="image/jpeg" href="bftero-avatar.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05030c;--panel:#0f0a22;--panel-2:#150e2e;--line:rgba(160,150,220,0.14);
+  --cyan:#29f1e6;--magenta:#ff3fb0;--violet:#8b5cf6;--amber:#ffb454;--green:#3dff9a;
+  --text:#f2eefc;--muted:#a79cc9;--muted-2:#6f6591;
+  --grad-1:linear-gradient(135deg,var(--cyan),var(--violet) 50%,var(--magenta));
+  --font-display:'Orbitron',sans-serif;--font-body:'Space Grotesk',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --cut:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{overflow-x:hidden;max-width:100%;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.6;}
+a{color:inherit;text-decoration:none;}
+img{max-width:100%;display:block;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+.site-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:url('main-bg.gif');background-size:cover;background-position:center;}
+.site-bg-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;background:rgba(5,3,12,0.78);}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px;width:100%;position:relative;z-index:1;}
+#navbar{position:fixed;top:0;left:0;right:0;z-index:200;padding:14px 0;background:rgba(5,3,12,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;letter-spacing:0.1em;}
+.brand img{width:36px;height:36px;border-radius:50%;border:2px solid var(--cyan);}
+.nav-links{display:flex;flex-wrap:wrap;gap:8px 14px;}
+.nav-links a{font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+.nav-links a:hover,.nav-links a.active{color:var(--cyan);}
+.btn{font-family:var(--font-display);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:0.78rem;padding:12px 22px;display:inline-flex;align-items:center;gap:8px;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);transition:transform .2s,filter .2s;}
+.btn-primary{background:var(--grad-1);color:#05030c;}
+.btn-primary:hover{transform:translateY(-2px);filter:brightness(1.08);}
+.btn-ghost{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--text);}
+.btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
+.btn-small{padding:8px 14px;font-size:0.68rem;}
+main{padding:100px 0 60px;position:relative;z-index:1;}
+.page-head{text-align:center;margin-bottom:28px;}
+.page-head h1{font-family:var(--font-display);font-weight:900;font-size:clamp(1.6rem,5vw,2.6rem);text-transform:uppercase;letter-spacing:0.04em;}
+.page-head h1 span{background:var(--grad-1);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.page-head p{color:var(--muted);margin-top:8px;}
+.hud{background:linear-gradient(160deg,rgba(15,10,34,0.92),rgba(21,14,46,0.88));border:1px solid var(--line);backdrop-filter:blur(12px);clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut));}
+.game-shell{padding:16px;margin-bottom:28px;}
+.game-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.stat{font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;}
+.stat b{color:var(--cyan);font-size:1.1rem;display:block;font-family:var(--font-display);}
+.stats-row{display:flex;gap:18px;flex-wrap:wrap;}
+.rx-stage{position:relative;height:min(420px,58vh);background:rgba(0,0,0,0.35);border:1px solid var(--line);border-radius:8px;overflow:hidden;touch-action:manipulation;user-select:none;}
+.rx-stage.rx-miss{box-shadow:inset 0 0 0 2px rgba(255,63,176,0.5);}
+.rx-target{position:absolute;border-radius:50%;border:none;padding:0;cursor:pointer;background:radial-gradient(circle at 35% 30%,#fff 0%,var(--cyan) 35%,var(--violet) 75%,var(--magenta) 100%);box-shadow:0 0 18px rgba(41,241,230,0.55),0 0 40px rgba(139,92,246,0.35);animation:pop .18s ease-out;}
+.rx-target span{display:block;width:100%;height:100%;border-radius:50%;}
+@keyframes pop{from{transform:scale(0.4);opacity:0;}to{transform:scale(1);opacity:1;}}
+.rx-overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:rgba(5,3,12,0.82);z-index:5;text-align:center;padding:20px;}
+.rx-overlay.show{display:flex;}
+.rx-countdown{font-family:var(--font-display);font-size:clamp(2.5rem,12vw,5rem);font-weight:900;background:var(--grad-1);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.rx-result h3{font-family:var(--font-display);font-size:1.3rem;margin-bottom:8px;}
+.rx-result p{color:var(--muted);margin:4px 0;}
+.rx-result .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px;}
+.submit-box{display:none;margin-top:12px;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;}
+.submit-box.show{display:flex;}
+.submit-box input{background:rgba(255,255,255,0.05);border:1px solid var(--line);color:var(--text);padding:10px 12px;border-radius:6px;font-family:var(--font-body);min-width:140px;}
+.msg{font-size:0.85rem;color:var(--amber);min-height:1.2em;}
+.leaderboard{padding:22px;margin-bottom:40px;}
+.leaderboard h2{font-family:var(--font-display);font-size:1.15rem;margin-bottom:14px;text-transform:uppercase;}
+.lb-table{width:100%;border-collapse:collapse;font-size:0.9rem;}
+.lb-table th,.lb-table td{padding:10px 8px;text-align:left;border-bottom:1px solid var(--line);}
+.lb-table th{font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted-2);}
+.lb-table tr.me{background:rgba(41,241,230,0.08);}
+.lb-table tr.me td{color:var(--cyan);}
+.you-stats{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px;color:var(--muted);font-size:0.9rem;}
+.you-stats b{color:var(--text);}
+footer{padding:24px 0;border-top:1px solid var(--line);text-align:center;color:var(--muted-2);font-size:0.8rem;position:relative;z-index:1;}
+@media (max-width:600px){
+  .rx-stage{height:min(360px,52vh);}
+  .nav-links a{font-size:0.58rem;}
+}
+</style>
+</head>
+<body>
+<div class="site-bg" aria-hidden="true"></div>
+<div class="site-bg-overlay" aria-hidden="true"></div>
+
+<header id="navbar">
+  <div class="wrap nav-inner">
+    <a href="index.html" class="brand"><img src="bftero-avatar.jpg" alt="" width="36" height="36"> BFTERO</a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="play.html" class="active">Play</a>
+      <a href="index.html#youtube">Content</a>
+      <a href="index.html#roblox">Roblox</a>
+      <a href="index.html#nepx">NepX</a>
+      <a href="index.html#about">About</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="page-head">
+      <h1>🎮 BFtero <span>Reaction</span> Challenge</h1>
+      <p>Tap the target as fast as you can. 45 seconds. How high can you climb?</p>
+    </div>
+
+    <div class="hud game-shell" id="gameRoot">
+      <div class="game-bar">
+        <div class="stats-row">
+          <div class="stat">Score <b data-score>0</b></div>
+          <div class="stat">Best <b data-best>0</b></div>
+          <div class="stat">Time <b data-timer>45.0s</b></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button type="button" class="btn btn-ghost btn-small" data-mute title="Mute">🔊</button>
+          <button type="button" class="btn btn-ghost btn-small" id="btnRestart">Restart</button>
+          <button type="button" class="btn btn-primary btn-small" id="btnPlay">Play Now</button>
+        </div>
+      </div>
+      <div class="rx-stage" data-stage>
+        <div class="rx-overlay show" data-overlay>
+          <div class="rx-countdown" data-countdown hidden></div>
+          <div class="rx-result" data-result>
+            <h3>Ready?</h3>
+            <p>Click targets before they vanish. Speed increases with score.</p>
+            <div class="actions">
+              <button type="button" class="btn btn-primary" id="btnPlay2">🎮 Play Now</button>
+            </div>
+            <div data-end-block hidden style="margin-top:8px;">
+              <p>Final Score: <b data-final-score>0</b></p>
+              <p>Best Score: <b data-final-best>0</b></p>
+              <div class="actions">
+                <button type="button" class="btn btn-primary" id="btnAgain">Play Again</button>
+                <button type="button" class="btn btn-ghost" id="btnSubmitShow">Submit Score</button>
+              </div>
+              <div class="submit-box" id="submitBox">
+                <input type="text" id="scoreUser" maxlength="16" placeholder="Username" autocomplete="username">
+                <button type="button" class="btn btn-primary btn-small" id="btnSubmitScore">Submit</button>
+              </div>
+              <p class="msg" id="scoreMsg"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud leaderboard">
+      <h2>🏆 BFtero Global Leaderboard</h2>
+      <div class="you-stats">
+        <span>Your Best Score: <b id="youBest">—</b></span>
+        <span>Your Global Rank: <b id="youRank">—</b></span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="lb-table">
+          <thead><tr><th>Rank</th><th>Username</th><th>Score</th></tr></thead>
+          <tbody id="lbBody"><tr><td colspan="3" style="color:var(--muted-2);">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer><div class="wrap">© <span id="year"></span> BFTERO · <a href="index.html">Back to home</a></div></footer>
+
+<script src="js/bftero-store.js"></script>
+<script src="js/game.js"></script>
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+const root = document.getElementById('gameRoot');
+const endBlock = root.querySelector('[data-end-block]');
+const resultIntro = root.querySelector('[data-result] h3');
+const resultP = root.querySelector('[data-result] > p');
+const actionsReady = root.querySelector('#btnPlay2')?.parentElement;
+
+const game = BfteroGame.createGame(root, {
+  onEnd(score, best) {
+    endBlock.hidden = false;
+    if (resultIntro) resultIntro.textContent = 'Game Over';
+    if (resultP) resultP.textContent = 'Submit your score to the leaderboard!';
+    if (actionsReady) actionsReady.style.display = 'none';
+    document.getElementById('youBest').textContent = best;
+    refreshBoard();
+  }
+});
+
+document.getElementById('btnPlay').onclick = () => game.play();
+document.getElementById('btnPlay2').onclick = () => game.play();
+document.getElementById('btnRestart').onclick = () => game.restart();
+document.getElementById('btnAgain').onclick = () => game.restart();
+document.getElementById('btnSubmitShow').onclick = () => {
+  document.getElementById('submitBox').classList.add('show');
+  const u = BfteroStore.getLastUsername();
+  if (u) document.getElementById('scoreUser').value = u;
+};
+
+document.getElementById('btnSubmitScore').onclick = async () => {
+  const msg = document.getElementById('scoreMsg');
+  const user = document.getElementById('scoreUser').value;
+  const score = game.getScore();
+  try {
+    await BfteroStore.submitScore(user, score);
+    msg.textContent = '✅ Score submitted!';
+    msg.style.color = 'var(--green)';
+    refreshBoard(user);
+  } catch (e) {
+    msg.textContent = '❌ ' + (e.message || 'Failed');
+    msg.style.color = 'var(--magenta)';
+  }
+};
+
+async function refreshBoard(highlightUser) {
+  const scores = await BfteroStore.getScores();
+  const tbody = document.getElementById('lbBody');
+  const me = (highlightUser || BfteroStore.getLastUsername() || '').toLowerCase();
+  document.getElementById('youBest').textContent = BfteroStore.getPersonalBest() || '—';
+  if (me) {
+    const rank = await BfteroStore.getRank(me);
+    document.getElementById('youRank').textContent = rank ? '#' + rank : '—';
+  }
+  if (!scores.length) {
+    tbody.innerHTML = '<tr><td colspan="3" style="color:var(--muted-2);">No scores yet — be the first!</td></tr>';
+    return;
+  }
+  const medals = ['🥇','🥈','🥉'];
+  tbody.innerHTML = scores.slice(0, 100).map((s, i) => {
+    const rank = i < 3 ? medals[i] : (i + 1);
+    const isMe = me && s.username.toLowerCase() === me;
+    return `<tr class="${isMe ? 'me' : ''}"><td>${rank}</td><td>${escapeHtml(s.username)}</td><td>${s.score}</td></tr>`;
+  }).join('');
+}
+function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+refreshBoard();
+root.querySelector('[data-best]').textContent = BfteroStore.getPersonalBest() || 0;
+</script>
+</body>
+</html>
