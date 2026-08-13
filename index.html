@@ -60,27 +60,34 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 html{
   scroll-behavior:smooth;
-  overflow-x: clip;
+  overflow-x: hidden !important;
   max-width: 100%;
+  width: 100%;
 }
 body{
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
-  overflow-x: hidden;
+  overflow-x: hidden !important;
   width: 100%;
-  max-width: 100%;
+  max-width: 100vw;
   position: relative;
   line-height: 1.6;
+  touch-action: pan-y;
+  overscroll-behavior-x: none;
 }
 ::selection{background:var(--magenta);color:#05030c;}
 a{color:inherit;text-decoration:none;}
 ul{list-style:none;}
 img{max-width:100%;display:block;}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
-section, .wrap, main, header, footer { max-width: 100%; }
+section, .wrap, main, header, footer, #navbar, .nav-inner { max-width: 100%; }
 @media (max-width:700px){
-  #particles, #modelStage, #webRope { max-width: 100vw; }
+  #particles, #modelStage, #webRope, .glow-orb, .dance-buddy {
+    max-width: 100vw !important;
+  }
+  /* Kill any residual horizontal pan on mobile */
+  * { overscroll-behavior-x: none; }
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -149,7 +156,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 /* Layout */
 .wrap{max-width:1240px;margin:0 auto;padding:0 24px;width:100%;box-sizing:border-box;}
 @media (max-width:700px){
-  .wrap{padding:0 14px;}
+  .wrap{padding:0 12px;}
+  #navbar .wrap{overflow:hidden;}
 }
 section{position:relative;z-index:1;padding:100px 0;}
 .eyebrow{
@@ -219,39 +227,45 @@ section{position:relative;z-index:1;padding:100px 0;}
 .nav-toggle span{height:2px;background:var(--text);border-radius:2px;transition:transform .25s ease;}
 
 @media (max-width:960px){
-  #navbar{padding:10px 0;}
-  .nav-inner{gap:10px;flex-wrap:nowrap;}
-  .brand{font-size:1.05rem;gap:8px;}
-  .brand-img{width:34px;height:34px;}
-  .nav-links{
+  #navbar{padding:8px 0 6px;}
+  .nav-inner{
     display:flex;
-    flex-direction:row;
-    flex-wrap:nowrap;
+    flex-wrap:wrap;
     align-items:center;
-    gap:8px;
-    position:static;
-    transform:none;
-    background:transparent;
-    inset:auto;
-    backdrop-filter:none;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-    scrollbar-width:none;
-    max-width:none;
-    padding:0;
-    margin:0;
+    justify-content:space-between;
+    gap:6px 10px;
   }
-  .nav-links::-webkit-scrollbar{display:none;}
-  .nav-links.open{transform:none;}
+  .brand{font-size:1rem;gap:8px;}
+  .brand-img{width:32px;height:32px;}
+  .nav-links{
+    display:flex !important;
+    flex-direction:row !important;
+    flex-wrap:wrap !important;
+    align-items:center;
+    justify-content:flex-start;
+    gap:4px 10px;
+    position:static !important;
+    transform:none !important;
+    background:transparent !important;
+    inset:auto !important;
+    backdrop-filter:none !important;
+    width:100%;
+    order:3;
+    overflow:visible;
+    padding:4px 0 0;
+    margin:0;
+    border-top:1px solid rgba(160,150,220,0.12);
+  }
+  .nav-links.open{transform:none !important;}
   .nav-links a{
-    font-size:0.58rem;
-    letter-spacing:0.06em;
-    padding:4px 2px;
+    font-size:0.62rem !important;
+    letter-spacing:0.08em;
+    padding:6px 4px;
     white-space:nowrap;
     flex-shrink:0;
   }
-  .nav-toggle{display:none;}
-  .nav-cta{display:none;}
+  .nav-toggle{display:none !important;}
+  .nav-cta{display:none !important;}
 }
 
 /* Hero */
@@ -318,11 +332,24 @@ section{position:relative;z-index:1;padding:100px 0;}
 @keyframes floatY{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-18px) rotate(6deg);}}
 
 @media (max-width:980px){
+  #hero{padding-top:100px; min-height:auto;}
   .hero-grid{grid-template-columns:1fr;}
-  .hero-visual{height:360px;order:-1;overflow:hidden;}
-  .avatar-shell{width:200px;height:200px;}
-  .float-5,.float-6{left:4%;right:4%;}
-  .float-item{font-size:1.4rem;}
+  .hero-visual{height:300px;order:-1;overflow:hidden; max-width:100%;}
+  .avatar-shell{width:180px;height:180px;}
+  .avatar-ring{inset:-12px;}
+  .avatar-ring.r2{inset:-24px;}
+  .avatar-ring.r3{inset:-36px;}
+  .float-1,.float-2,.float-3,.float-4,.float-5,.float-6{
+    left:auto; right:auto;
+    max-width:40px;
+  }
+  .float-1{top:6%; left:6%;}
+  .float-2{top:14%; right:8%;}
+  .float-3{bottom:18%; left:8%;}
+  .float-4{bottom:10%; right:10%;}
+  .float-5{display:none;}
+  .float-6{display:none;}
+  .float-item{font-size:1.25rem;}
 }
 
 /* Cards shared */
@@ -604,9 +631,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
 #modelStage canvas{width:100%!important;height:100%!important;display:block;max-width:100%;}
 
 @media (max-width:700px){
-  #webRope{width:70px;}
-  .dance-buddy{width:64px;height:64px;right:2px;}
-  #modelStage{opacity:0.28;}
+  #webRope{width:56px; right:0;}
+  .dance-buddy{width:56px;height:56px;right:0;}
+  #modelStage{opacity:0.18;}
+  #modelStage canvas{transform:scale(0.85); transform-origin:center center;}
 }
 @media (prefers-reduced-motion: reduce){
   .dance-buddy img{transition:none;}
@@ -1694,18 +1722,20 @@ if (stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   // Place your file as: shiv.glb next to index.html
   function applyModelScale() {
     if (!model) return;
+    // Always reset to 1 first so repeated resize calls don't compound the scale
+    model.scale.setScalar(1);
     const box = new THREE.Box3().setFromObject(model);
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    // Desktop keeps original size; mobile uses a smaller scale so the model does not dominate the screen
-    const targetSize = window.innerWidth < 700 ? 1.35 : 2.4;
+    // Desktop keeps original size; mobile uses a much smaller scale
+    const targetSize = window.innerWidth < 700 ? 0.75 : 2.4;
     const scale = targetSize / maxDim;
     model.scale.setScalar(scale);
-    box.setFromObject(model);
-    const center = box.getCenter(new THREE.Vector3());
+    const box2 = new THREE.Box3().setFromObject(model);
+    const center = box2.getCenter(new THREE.Vector3());
     model.position.x -= center.x;
     model.position.z -= center.z;
-    // keep y driven by scroll, only recenter x/z
+    // y is driven by scroll — do not reset it here
   }
 
   loader.load(
