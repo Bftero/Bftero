@@ -684,6 +684,67 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
 
 .loading-msg{text-align:center;color:var(--muted);padding:40px;font-family:var(--font-mono);font-size:0.85rem;}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+
+/* Live status bar */
+.live-status-bar{position:relative;z-index:50;padding:8px 0;border-bottom:1px solid var(--line);background:rgba(15,10,34,0.85);backdrop-filter:blur(10px);margin-top:70px;}
+.live-status-bar.live{background:rgba(255,40,80,0.12);border-color:rgba(255,63,100,0.35);}
+.live-status-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;}
+.live-status-bar.live .live-status-cta{color:#05030c;background:var(--grad-1);padding:6px 12px;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);}
+.live-status-cta{color:var(--cyan);}
+
+/* Engagement + poll + wall + nepx */
+.engage-section{padding:50px 0;}
+.engage-card{padding:28px;text-align:center;}
+.engage-card h2{font-family:var(--font-display);font-size:clamp(1.3rem,4vw,1.9rem);text-transform:uppercase;margin-bottom:8px;}
+.engage-card p{color:var(--muted);margin-bottom:18px;}
+.engage-stats{display:flex;justify-content:center;gap:28px;flex-wrap:wrap;margin-top:18px;font-family:var(--font-mono);font-size:0.75rem;color:var(--muted-2);letter-spacing:0.08em;text-transform:uppercase;}
+.engage-stats b{display:block;color:var(--cyan);font-size:1.15rem;font-family:var(--font-display);}
+
+.poll-section{padding:40px 0 60px;}
+.poll-card{padding:24px;}
+.poll-card h2{font-family:var(--font-display);font-size:1.25rem;margin-bottom:6px;text-transform:uppercase;}
+.poll-q{color:var(--muted);margin-bottom:18px;}
+.poll-opt{display:block;width:100%;text-align:left;margin-bottom:12px;padding:12px 14px;border:1px solid var(--line);background:rgba(255,255,255,0.03);border-radius:8px;cursor:pointer;transition:border-color .2s,background .2s;}
+.poll-opt:hover{border-color:var(--cyan);background:rgba(41,241,230,0.06);}
+.poll-opt.selected{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan);}
+.poll-opt .bar{height:6px;background:rgba(255,255,255,0.06);border-radius:4px;margin-top:8px;overflow:hidden;}
+.poll-opt .bar > i{display:block;height:100%;width:0;background:var(--grad-1);transition:width .5s ease;}
+.poll-meta{font-family:var(--font-mono);font-size:0.68rem;color:var(--muted-2);margin-top:10px;}
+
+.wall-section{padding:40px 0 70px;}
+.wall-board{position:relative;min-height:320px;padding:24px 16px 40px;background:
+  linear-gradient(180deg,rgba(90,60,30,0.35),rgba(40,25,12,0.5)),
+  repeating-linear-gradient(90deg,rgba(255,255,255,0.03) 0 2px,transparent 2px 28px);
+  border:1px solid rgba(180,140,80,0.25);border-radius:12px;overflow:hidden;}
+.wall-form{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;position:relative;z-index:2;}
+.wall-form input,.wall-form textarea{background:rgba(0,0,0,0.35);border:1px solid var(--line);color:var(--text);padding:10px 12px;border-radius:6px;font-family:var(--font-body);flex:1;min-width:140px;}
+.wall-form textarea{min-height:42px;resize:vertical;}
+.sticky-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;position:relative;z-index:1;}
+.sticky-note{padding:14px 12px 18px;border-radius:2px;box-shadow:2px 3px 10px rgba(0,0,0,0.35);font-size:0.88rem;color:#1a1a1a;transform:rotate(var(--rot,0deg));transition:transform .2s,box-shadow .2s;}
+.sticky-note:hover{transform:rotate(0deg) scale(1.03);box-shadow:4px 8px 18px rgba(0,0,0,0.4);z-index:3;}
+.sticky-note .sn-user{font-family:var(--font-display);font-weight:700;font-size:0.72rem;text-transform:uppercase;margin-bottom:6px;opacity:0.85;}
+.sticky-note .sn-text{line-height:1.35;word-break:break-word;}
+.wall-msg{font-size:0.8rem;color:var(--amber);margin-top:6px;}
+
+.nepx-section{padding:50px 0;}
+.nepx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;}
+.nepx-card{overflow:hidden;transition:transform .25s,box-shadow .25s;padding:0;}
+.nepx-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px -12px rgba(139,92,246,0.45);}
+.nepx-card img{width:100%;aspect-ratio:16/10;object-fit:cover;}
+.nepx-body{padding:16px;}
+.nepx-body h3{font-family:var(--font-display);font-size:1rem;text-transform:uppercase;margin-bottom:6px;}
+.nepx-body p{color:var(--muted);font-size:0.88rem;margin-bottom:12px;}
+.nepx-status{font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);margin-bottom:8px;}
+
+.egg-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120%);z-index:500;background:rgba(15,10,34,0.95);border:1px solid var(--cyan);padding:14px 20px;border-radius:10px;text-align:center;transition:transform .35s ease;pointer-events:none;max-width:90vw;}
+.egg-toast.show{transform:translateX(-50%) translateY(0);}
+.egg-toast b{color:var(--cyan);}
+.form-error-msg{color:#ff6b9d;font-size:0.85rem;margin-top:8px;display:none;}
+.form-error-msg.show{display:block;}
+@media (max-width:700px){
+  .live-status-bar{margin-top:88px;font-size:0.65rem;}
+  .sticky-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
+}
 </style>
 </head>
 <body>
@@ -715,15 +776,15 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
     </a>
     <nav class="nav-links" id="navLinks">
       <a href="#hero">Home</a>
-      <a href="#youtube">YouTube</a>
+      <a href="play.html">Play</a>
+      <a href="#youtube">Content</a>
       <a href="#roblox">Roblox</a>
-      <a href="#games">Games</a>
-      <a href="#play">What I Play</a>
-      <a href="#socials">Socials</a>
+      <a href="#nepx">NepX Universe</a>
       <a href="#about">About</a>
+      <a href="#contact">Contact</a>
     </nav>
     <div class="nav-cta">
-      <a href="https://www.youtube.com/@Bftero" class="btn btn-ghost btn-small" target="_blank" rel="noopener">Watch Live</a>
+      <a href="https://www.youtube.com/@Bftero" class="btn btn-ghost btn-small" target="_blank" rel="noopener" id="navLiveBtn">Watch Live</a>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
@@ -731,11 +792,19 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
   </div>
 </header>
 
+<!-- Live status bar -->
+<div id="liveStatusBar" class="live-status-bar offline" aria-live="polite">
+  <div class="wrap live-status-inner">
+    <span id="liveStatusText">⚫ BFTERO IS OFFLINE</span>
+    <a id="liveStatusLink" href="https://www.youtube.com/@Bftero" target="_blank" rel="noopener" class="live-status-cta">Channel →</a>
+  </div>
+</div>
+
 <!-- HERO -->
 <section id="hero">
   <div class="wrap hero-grid">
     <div>
-      <div class="hero-tag"><span class="live-dot"></span> Live on YouTube • Roblox • Twitch</div>
+      <div class="hero-tag"><span class="live-dot" id="heroLiveDot"></span> <span id="heroLiveLabel">Live on YouTube • Roblox • Twitch</span></div>
       <h1 class="hero-title">BF<span class="grad">TERO</span></h1>
       <div class="hero-role">
         <span>Gamer</span><span class="sep">•</span>
@@ -746,9 +815,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
       <p class="hero-platforms">PS5 Gamer | Roblox | Minecraft | GTA | Rockstar Games | Gaming &amp; Live Streaming</p>
       <p class="hero-bio">Building worlds, breaking records, and streaming the whole journey. From Roblox experiences to PS5 adventures — every stream is a chance to play together.</p>
       <div class="hero-actions">
-        <a href="https://www.youtube.com/@Bftero" class="btn btn-primary" target="_blank" rel="noopener">Watch on YouTube</a>
+        <a href="play.html" class="btn btn-primary">🎮 Play BFtero Game</a>
+        <a href="https://www.youtube.com/@Bftero" class="btn btn-ghost" target="_blank" rel="noopener">Watch on YouTube</a>
         <a href="#games" class="btn btn-ghost">Play My Roblox Games</a>
-        <a href="#socials" class="btn btn-ghost">Follow Me</a>
       </div>
       <div class="hero-stats">
         <div class="hero-stat"><b>4</b><span>Original Games</span></div>
@@ -768,6 +837,22 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
       <div class="avatar-ring r3"></div>
       <div class="avatar-shell">
         <img src="bftero-avatar.jpg" alt="Bftero Avatar" width="260" height="260">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ENGAGE -->
+<section class="engage-section" id="engage">
+  <div class="wrap">
+    <div class="hud-panel engage-card reveal">
+      <h2>🎮 Don't Just Watch. <span style="background:var(--grad-1);-webkit-background-clip:text;background-clip:text;color:transparent;">Play.</span></h2>
+      <p>Challenge yourself on the BFtero leaderboard — reaction speed, high scores, global ranks.</p>
+      <a href="play.html" class="btn btn-primary">🎮 Play Now</a>
+      <div class="engage-stats">
+        <div><b id="homeTopScore">—</b> Top Score</div>
+        <div><b id="homePlayers">—</b> Players</div>
+        <div><a href="#vote" style="color:var(--cyan);">🗳️ Vote for the next stream</a></div>
       </div>
     </div>
   </div>
@@ -846,15 +931,17 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
       </div>
     </div>
 
-    <div class="section-head reveal">
-      <div class="eyebrow">Community</div>
-      <h2 class="section-title">NepX <span>Universe</span></h2>
+    <div class="section-head reveal" id="nepx">
+      <div class="eyebrow">🌎 Universe</div>
+      <h2 class="section-title">Enter the NepX <span>Universe</span></h2>
+      <p class="section-sub">A connected gaming universe — experiences, community, and adventures built by BFtero.</p>
     </div>
-    <div class="hud-panel community-banner reveal">
-      <h3>NepX Universe</h3>
+    <div class="hud-panel community-banner reveal" style="margin-bottom:24px;">
+      <h3>NepX Universe Community</h3>
       <p>Official Roblox community for Bftero & NepX players. Roleplay, events, game updates and hangouts.</p>
       <a href="https://www.roblox.com/communities/481373678/NepX-Universe#!/about" class="btn btn-primary" target="_blank" rel="noopener">Join Community</a>
     </div>
+    <div class="nepx-grid reveal" id="nepxGrid"></div>
   </div>
 </section>
 
@@ -970,6 +1057,39 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
   </div>
 </section>
 
+<!-- WEEKLY VOTE -->
+<section class="poll-section" id="vote">
+  <div class="wrap">
+    <div class="hud-panel poll-card reveal">
+      <div class="eyebrow">🗳️ Community Vote</div>
+      <h2>What Should BFtero Do Next?</h2>
+      <p class="poll-q" id="pollQuestion">Loading poll…</p>
+      <div id="pollOptions"></div>
+      <p class="poll-meta" id="pollMeta"></p>
+    </div>
+  </div>
+</section>
+
+<!-- COMMUNITY WALL -->
+<section class="wall-section" id="wall">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">💬 Community</div>
+      <h2 class="section-title">BFtero <span>Community Wall</span></h2>
+      <p class="section-sub">Leave a message for the BFtero community. Latest 100 notes stay on the board.</p>
+    </div>
+    <div class="wall-board reveal">
+      <form class="wall-form" id="wallForm">
+        <input type="text" id="wallUser" maxlength="16" placeholder="Username" required autocomplete="username">
+        <textarea id="wallText" maxlength="180" placeholder="Your message…" required></textarea>
+        <button type="submit" class="btn btn-primary btn-small">Post Message</button>
+      </form>
+      <p class="wall-msg" id="wallMsg"></p>
+      <div class="sticky-grid" id="stickyGrid"></div>
+    </div>
+  </div>
+</section>
+
 <!-- CONTACT -->
 <section id="contact">
   <div class="wrap contact-layout">
@@ -1012,8 +1132,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
         <textarea id="fMessage" name="message" placeholder="Write your message..."></textarea>
         <div class="field-error" id="errMessage"></div>
       </div>
-      <button type="submit" class="btn btn-primary" style="margin-top:12px;">Send Message</button>
-      <div class="form-success" id="formSuccess">✓ Message received — thanks for reaching out!</div>
+      <button type="submit" class="btn btn-primary" style="margin-top:12px;" id="contactSubmit">Send Message</button>
+      <div class="form-success" id="formSuccess">✅ Message Sent Successfully!</div>
+      <div class="form-error-msg" id="formError">❌ Something went wrong. Please try again.</div>
     </form>
   </div>
 </section>
@@ -1178,26 +1299,17 @@ async function fetchYtRss(feedUrl){
 /* ========== RENDER GAMES (unique thumbnails per game) ========== */
 async function loadGames(){
   const track = document.getElementById('gamesTrack');
-  // Try live API refresh (may fail due to CORS — each game already has its own thumb URL)
-  const liveThumbs = {};
-  try {
-    const placeIds = GAMES.map(g => g.placeId).join(',');
-    const res = await fetch(`https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeIds}&size=512x512&format=Png&isCircular=false`);
-    const data = await res.json();
-    (data.data || []).forEach(t => {
-      liveThumbs[String(t.targetId)] = t.imageUrl;
-    });
-  } catch (e) {
-    console.warn('Roblox live thumbs unavailable, using stored icons', e);
-  }
+  // Use stored thumb URLs only — thumbnails.roblox.com is blocked by CORS in browsers
+  // and caused: TypeError: Failed to fetch
+  if (!track) return;
 
   GAMES.forEach((g, i) => {
-    const thumb = liveThumbs[String(g.placeId)] || g.thumb;
+    const thumb = g.thumb || '';
     track.appendChild(el(`
       <article class="game-card hud-panel">
         <div class="game-card-inner">
           <div class="game-thumb">
-            <img src="${thumb}" alt="${g.title}" loading="lazy" width="300" height="170">
+            <img src="${thumb}" alt="${g.title}" loading="lazy" width="300" height="170" onerror="this.style.opacity='0.3'">
           </div>
           <div class="game-body">
             <span class="game-num">GAME 0${i + 1}</span>
@@ -1652,11 +1764,15 @@ backtop.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}))
   window.addEventListener('resize', placeOnRope);
 })();
 
-/* ========== CONTACT ========== */
+/* ========== CONTACT (FormSubmit → pravindewan72@gmail.com, no password in frontend) ========== */
 const form=document.getElementById('contactForm');
 const success=document.getElementById('formSuccess');
-form.addEventListener('submit',e=>{
+const formError=document.getElementById('formError');
+const contactSubmit=document.getElementById('contactSubmit');
+form.addEventListener('submit',async e=>{
   e.preventDefault();
+  formError.classList.remove('show');
+  success.classList.remove('show');
   let valid=true;
   const fields=[
     {id:'fName',err:'errName',test:v=>v.trim().length>1,msg:'Please enter your name.'},
@@ -1670,11 +1786,42 @@ form.addEventListener('submit',e=>{
     if(!f.test(input.value)){errBox.textContent=f.msg;valid=false;}
     else errBox.textContent='';
   });
-  if(valid){
+  if(!valid) return;
+  // Rate limit
+  const lastSend=Number(localStorage.getItem('bf_last_contact')||0);
+  if(Date.now()-lastSend<30000){
+    formError.textContent='❌ Please wait 30 seconds before sending another message.';
+    formError.classList.add('show');
+    return;
+  }
+  contactSubmit.disabled=true;
+  contactSubmit.textContent='Sending…';
+  try{
+    const fd=new FormData();
+    fd.append('name',document.getElementById('fName').value.trim());
+    fd.append('email',document.getElementById('fEmail').value.trim());
+    fd.append('subject',document.getElementById('fSubject').value.trim());
+    fd.append('message',document.getElementById('fMessage').value.trim());
+    fd.append('_subject','BFtero website contact: '+document.getElementById('fSubject').value.trim());
+    fd.append('_template','table');
+    fd.append('_captcha','false');
+    const res=await fetch('https://formsubmit.co/ajax/pravindewan72@gmail.com',{
+      method:'POST',
+      body:fd,
+      headers:{'Accept':'application/json'}
+    });
+    if(!res.ok) throw new Error('send failed');
+    localStorage.setItem('bf_last_contact',String(Date.now()));
     success.classList.add('show');
     form.reset();
-    setTimeout(()=>success.classList.remove('show'),4500);
-  }else success.classList.remove('show');
+    setTimeout(()=>success.classList.remove('show'),5000);
+  }catch(err){
+    formError.textContent='❌ Something went wrong. Please try again.';
+    formError.classList.add('show');
+  }finally{
+    contactSubmit.disabled=false;
+    contactSubmit.textContent='Send Message';
+  }
 });
 
 /* ========== PARTICLES ========== */
@@ -1718,12 +1865,185 @@ renderSocials();
 loadGames();
 loadYouTube();
 
+// NepX universe cards (reuse GAMES data)
+(function renderNepx(){
+  const grid=document.getElementById('nepxGrid');
+  if(!grid||typeof GAMES==='undefined') return;
+  grid.innerHTML=GAMES.map(g=>`
+    <article class="hud-panel nepx-card">
+      <img src="${g.thumb}" alt="${g.title}" loading="lazy" width="480" height="300">
+      <div class="nepx-body">
+        <div class="nepx-status">● Online in NepX</div>
+        <h3>${g.title}</h3>
+        <p>${g.desc}</p>
+        <a href="${g.link}" class="btn btn-primary btn-small" target="_blank" rel="noopener">Play on Roblox</a>
+      </div>
+    </article>`).join('');
+})();
+
+// Live status via recent livestreams RSS (no API key)
+(async function updateLiveStatus(){
+  const bar=document.getElementById('liveStatusBar');
+  const text=document.getElementById('liveStatusText');
+  const link=document.getElementById('liveStatusLink');
+  const heroLabel=document.getElementById('heroLiveLabel');
+  try{
+    const items=await fetchYtRss(YT_FEEDS.lives);
+    // Heuristic: a stream published in last 4 hours may still be live / recently live
+    let live=false;
+    let liveUrl='https://www.youtube.com/@Bftero/streams';
+    if(items&&items.length){
+      const newest=items[0];
+      const age=Date.now()-new Date(newest.published||0).getTime();
+      if(age<4*3600*1000){
+        live=true;
+        liveUrl=newest.link||liveUrl;
+      }
+    }
+    if(live){
+      bar.classList.add('live');bar.classList.remove('offline');
+      text.textContent='🔴 BFTERO IS LIVE NOW';
+      link.textContent='WATCH LIVE →';
+      link.href=liveUrl;
+      if(heroLabel) heroLabel.textContent='🔴 LIVE NOW — Watch on YouTube';
+    }else{
+      bar.classList.add('offline');bar.classList.remove('live');
+      text.textContent='⚫ BFTERO IS OFFLINE';
+      link.textContent='Channel →';
+      link.href='https://www.youtube.com/@Bftero';
+      if(heroLabel) heroLabel.textContent='Live on YouTube • Roblox • Twitch';
+    }
+  }catch(_){}
+})();
+
+// Poll + Wall + stats (requires BfteroStore)
+async function initCommunity(){
+  if(!window.BfteroStore) return;
+  try{
+    const stats=await BfteroStore.getStats();
+    const ts=document.getElementById('homeTopScore');
+    const pl=document.getElementById('homePlayers');
+    if(ts) ts.textContent=stats.topScore?stats.topScore.toLocaleString():'0';
+    if(pl) pl.textContent=stats.players?stats.players.toLocaleString():'0';
+  }catch(_){}
+
+  // Poll
+  async function renderPoll(){
+    const poll=await BfteroStore.getPoll();
+    document.getElementById('pollQuestion').textContent=poll.question;
+    const total=poll.options.reduce((s,o)=>s+o.votes,0)||0;
+    const voted=BfteroStore.hasVoted(poll.id);
+    const box=document.getElementById('pollOptions');
+    box.innerHTML=poll.options.map(o=>{
+      const pct=total?Math.round((o.votes/total)*100):0;
+      return `<button type="button" class="poll-opt ${voted===o.id?'selected':''}" data-opt="${o.id}" ${voted?'disabled':''}>
+        <div style="display:flex;justify-content:space-between;gap:8px;"><span>${o.label}</span><span>${pct}% · ${o.votes}</span></div>
+        <div class="bar"><i style="width:${pct}%"></i></div>
+      </button>`;
+    }).join('');
+    document.getElementById('pollMeta').textContent=total+' total votes · one vote per visitor per week';
+    if(!voted){
+      box.querySelectorAll('.poll-opt').forEach(btn=>{
+        btn.addEventListener('click',async()=>{
+          try{
+            await BfteroStore.vote(btn.dataset.opt);
+            renderPoll();
+          }catch(e){document.getElementById('pollMeta').textContent=e.message||'Vote failed';}
+        });
+      });
+    }
+  }
+  renderPoll();
+
+  // Wall
+  async function renderWall(){
+    const list=await BfteroStore.getComments();
+    const grid=document.getElementById('stickyGrid');
+    if(!list.length){grid.innerHTML='<p style="color:var(--muted);">No messages yet — be the first to post!</p>';return;}
+    grid.innerHTML=list.map(c=>`
+      <div class="sticky-note" style="background:${c.color};--rot:${c.rot||0}deg">
+        <div class="sn-user">${escapeHtml(c.username)}</div>
+        <div class="sn-text">${escapeHtml(c.text)}</div>
+      </div>`).join('');
+  }
+  function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  renderWall();
+  document.getElementById('wallForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const msg=document.getElementById('wallMsg');
+    try{
+      await BfteroStore.postComment(document.getElementById('wallUser').value,document.getElementById('wallText').value);
+      msg.textContent='✅ Posted!';
+      document.getElementById('wallText').value='';
+      renderWall();
+    }catch(err){msg.textContent='❌ '+(err.message||'Failed');}
+  });
+}
+
+// Easter eggs
+(function easterEggs(){
+  let found=Number(localStorage.getItem('bf_eggs')||0);
+  const toast=document.createElement('div');
+  toast.className='egg-toast';
+  toast.innerHTML='🎉 <b>SECRET FOUND!</b><br>You discovered a BFtero Easter Egg!<br><small>Easter Eggs Found: <span id="eggCount">0</span>/5</small>';
+  document.body.appendChild(toast);
+  function unlock(id){
+    const key='bf_egg_'+id;
+    if(localStorage.getItem(key)) return;
+    localStorage.setItem(key,'1');
+    found=Math.min(5,found+1);
+    localStorage.setItem('bf_eggs',String(found));
+    document.getElementById('eggCount').textContent=found;
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'),3200);
+  }
+  // 1: logo click x5
+  let logoClicks=0;
+  document.querySelector('.brand')?.addEventListener('click',e=>{
+    if(e.target.closest('a.brand')||e.currentTarget){
+      logoClicks++;
+      if(logoClicks>=5){unlock('logo');logoClicks=0;}
+    }
+  });
+  // 2: Konami
+  const seq=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  let si=0;
+  window.addEventListener('keydown',e=>{
+    const k=e.key.length===1?e.key.toLowerCase():e.key;
+    if(k===seq[si]||(seq[si].startsWith('Arrow')&&k===seq[si])){si++;if(si===seq.length){unlock('konami');si=0;}}
+    else si=0;
+  });
+  // 3: hidden diamond float click x5
+  let dClicks=0;
+  document.querySelector('.float-4')?.addEventListener('click',()=>{
+    dClicks++;
+    if(dClicks>=5){unlock('diamond');dClicks=0;}
+  });
+  // 4: footer year triple click
+  let yC=0;
+  document.getElementById('year')?.addEventListener('click',()=>{
+    yC++;
+    if(yC>=3){unlock('year');yC=0;}
+  });
+  // 5: hold shift and click hero title
+  document.querySelector('.hero-title')?.addEventListener('click',e=>{
+    if(e.shiftKey) unlock('shift');
+  });
+  document.getElementById('eggCount').textContent=found;
+})();
+
 // Re-observe dynamically added
 setTimeout(()=>{
-  document.querySelectorAll('.social-card,.cat-card').forEach(elm=>{
-    if(!elm.classList.contains('in')) window._io.observe(elm);
+  document.querySelectorAll('.social-card,.cat-card,.nepx-card').forEach(elm=>{
+    if(!elm.classList.contains('in')) window._io?.observe?.(elm);
   });
 },800);
+
+// Load store then community
+const s=document.createElement('script');
+s.src='js/bftero-store.js';
+s.onload=()=>initCommunity();
+document.head.appendChild(s);
 </script>
 
 <!-- Three.js for center background model: shiv.glb -->
