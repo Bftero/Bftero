@@ -167,27 +167,59 @@ footer{padding:24px 0;border-top:1px solid var(--line);text-align:center;color:v
 <footer><div class="wrap">© <span id="year"></span> BFTERO · <a href="index.html">Back to home</a></div></footer>
 
 <script>
-/* Inline store + game so play.html works without js/ folder */
+/* Shared scores — use SAME Firebase URL as index.html for global leaderboard */
+window.BFTERO_DB_URL = window.BFTERO_DB_URL || 'https://bftero-website-default-rtdb.firebaseio.com';
+
 (function(global){
+  const MAX_SCORES=100;
+  const DB=()=>String(window.BFTERO_DB_URL||'').replace(/\/$/,'');
+  const useCloud=()=>!!DB();
   function sanitize(str,max){return String(str||'').replace(/[<>&"'`]/g,'').replace(/\s+/g,' ').trim().slice(0,max);}
+  function uid(){return 'u_'+Math.random().toString(36).slice(2)+Date.now().toString(36);}
   function lsGet(k,f){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f;}catch{return f;}}
   function lsSet(k,v){localStorage.setItem(k,JSON.stringify(v));}
+  async function cloudGet(path){const r=await fetch(DB()+'/'+path+'.json');if(!r.ok)throw new Error('DB read failed');return r.json();}
+  async function cloudPut(path,data){const r=await fetch(DB()+'/'+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(!r.ok)throw new Error('DB write failed');return r.json();}
+
   global.BfteroStore={
+    isGlobal:useCloud,
     getPersonalBest(){return Number(localStorage.getItem('bf_personal_best')||0);},
     getLastUsername(){return localStorage.getItem('bf_last_user')||'';},
-    async getScores(){return lsGet('bf_scores',[]).filter(x=>x&&x.username).sort((a,b)=>b.score-a.score).slice(0,100);},
+    async getScores(){
+      if(useCloud()){
+        try{
+          const data=await cloudGet('scores');
+          if(!data) return [];
+          const list=Object.keys(data).map(k=>({id:k,...data[k]})).filter(x=>x.username&&typeof x.score==='number');
+          const best={};
+          list.forEach(s=>{const k=String(s.username).toLowerCase();if(!best[k]||s.score>best[k].score)best[k]=s;});
+          return Object.values(best).sort((a,b)=>b.score-a.score).slice(0,MAX_SCORES);
+        }catch(e){console.warn(e);}
+      }
+      return lsGet('bf_scores',[]).filter(x=>x&&x.username).sort((a,b)=>b.score-a.score).slice(0,MAX_SCORES);
+    },
     async submitScore(username,score){
       username=sanitize(username,16);score=Math.floor(Number(score));
       if(!username||username.length<2) throw new Error('Username required (2–16 chars)');
       if(!Number.isFinite(score)||score<0||score>500000) throw new Error('Invalid score');
       const entry={username,score,ts:Date.now()};
-      let list=lsGet('bf_scores',[]);
-      const i=list.findIndex(x=>x.username.toLowerCase()===username.toLowerCase());
-      if(i>=0){if(score>list[i].score)list[i]=entry;}else list.push(entry);
-      list.sort((a,b)=>b.score-a.score);lsSet('bf_scores',list.slice(0,300));
+      const key=username.toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,24)||uid();
+      if(useCloud()){
+        try{
+          const existing=await cloudGet('scores/'+key);
+          if(!(existing&&typeof existing.score==='number'&&existing.score>=score))
+            await cloudPut('scores/'+key,entry);
+        }catch(_){await cloudPut('scores/'+key,entry);}
+      }else{
+        let list=lsGet('bf_scores',[]);
+        const i=list.findIndex(x=>x.username.toLowerCase()===username.toLowerCase());
+        if(i>=0){if(score>list[i].score)list[i]=entry;}else list.push(entry);
+        list.sort((a,b)=>b.score-a.score);lsSet('bf_scores',list.slice(0,300));
+      }
       const pb=Number(localStorage.getItem('bf_personal_best')||0);
       if(score>pb) localStorage.setItem('bf_personal_best',String(score));
-      localStorage.setItem('bf_last_user',username);return entry;
+      localStorage.setItem('bf_last_user',username);
+      return entry;
     },
     async getRank(username){const s=await this.getScores();const i=s.findIndex(x=>x.username.toLowerCase()===String(username).toLowerCase());return i>=0?i+1:null;}
   };
@@ -282,7 +314,14 @@ async function refreshBoard(highlightUser) {
 }
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 refreshBoard();
+setInterval(refreshBoard, 20000); // refresh so everyone sees new scores
 root.querySelector('[data-best]').textContent = BfteroStore.getPersonalBest() || 0;
+const lbHint = document.createElement('p');
+lbHint.style.cssText = 'margin-top:10px;font-size:0.72rem;color:var(--muted-2);font-family:var(--font-mono)';
+lbHint.textContent = BfteroStore.isGlobal()
+  ? '🌐 Global leaderboard — visible to all players'
+  : '💾 Scores on this device only — set BFTERO_DB_URL in play.html + index.html for a global board';
+document.querySelector('.leaderboard')?.appendChild(lbHint);
 </script>
 </body>
 </html>
