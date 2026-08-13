@@ -785,6 +785,29 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
   background:radial-gradient(circle at 35% 30%,#fff 0%,#c0392b 40%,#7b1e1e 100%);
   box-shadow:0 2px 4px rgba(0,0,0,0.35);
 }
+/* Read-only zoom of a wall note */
+.note-read-modal{
+  position:fixed;inset:0;z-index:9100;display:none;align-items:center;justify-content:center;
+  background:rgba(5,3,12,0.78);backdrop-filter:blur(8px);padding:16px;
+}
+.note-read-modal.open{display:flex;}
+.note-read-paper{
+  width:min(420px,94vw);min-height:200px;padding:36px 28px 28px 44px;border-radius:4px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.55);position:relative;
+  background-image:
+    linear-gradient(90deg,transparent 28px,rgba(255,180,180,0.35) 28px,rgba(255,180,180,0.35) 30px,transparent 30px),
+    repeating-linear-gradient(180deg,transparent 0,transparent 31px,rgba(100,140,200,0.18) 32px);
+  animation:notePop .28s ease-out;cursor:default;
+}
+.note-read-paper .nr-user{font-family:'Caveat',cursive;font-size:1.6rem;font-weight:700;color:#2a2030;margin-bottom:12px;border-bottom:1px dashed rgba(0,0,0,0.2);padding-bottom:6px;}
+.note-read-paper .nr-text{font-family:'Caveat',cursive;font-size:1.55rem;line-height:1.45;color:#1a1520;word-break:break-word;white-space:pre-wrap;}
+.note-read-paper .nr-close{
+  position:absolute;top:10px;right:12px;border:none;background:rgba(0,0,0,0.08);
+  width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;color:#333;
+}
+.sticky-note{cursor:pointer;}
+.sticky-note:focus{outline:2px solid var(--cyan);}
+.wall-global-hint{text-align:center;font-size:0.75rem;color:rgba(255,255,255,0.45);margin-top:12px;font-family:var(--font-mono);}
 
 .nepx-section{padding:50px 0;}
 .nepx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;}
@@ -1148,7 +1171,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
   </div>
 </section>
 
-<!-- Paper note popup -->
+<!-- Paper note popup (write) -->
 <div class="note-modal" id="noteModal" role="dialog" aria-modal="true" aria-label="Write a note">
   <div class="note-paper">
     <div class="note-pin" aria-hidden="true"></div>
@@ -1162,6 +1185,16 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
       <button type="button" class="btn-pin" id="pinNoteBtn">📌 Pin to Wall</button>
       <button type="button" class="btn-cancel" id="cancelNoteBtn">Cancel</button>
     </div>
+  </div>
+</div>
+
+<!-- Read-only zoom popup (cannot edit) -->
+<div class="note-read-modal" id="noteReadModal" role="dialog" aria-modal="true" aria-label="Read note">
+  <div class="note-read-paper" id="noteReadPaper">
+    <div class="note-pin" aria-hidden="true"></div>
+    <button type="button" class="nr-close" id="noteReadClose" aria-label="Close">✕</button>
+    <div class="nr-user" id="noteReadUser"></div>
+    <div class="nr-text" id="noteReadText"></div>
   </div>
 </div>
 
@@ -1991,60 +2024,172 @@ loadYouTube();
   }catch(_){}
 })();
 
-/* ========== INLINE STORE (works even if js/ folder is missing) ========== */
+/* ========== SHARED STORE (global when BFTERO_DB_URL is set) ==========
+   Everyone can see the same notes & scores once you paste a free Firebase URL.
+   Setup (5 min):
+   1) https://console.firebase.google.com → Create project
+   2) Build → Realtime Database → Create database → Start in TEST MODE
+   3) Copy the database URL (https://xxxx-default-rtdb.firebaseio.com)
+   4) Paste it into window.BFTERO_DB_URL below
+*/
+window.BFTERO_DB_URL = window.BFTERO_DB_URL || ''; // e.g. 'https://bftero-xxxx-default-rtdb.firebaseio.com'
+
 (function(global){
   if(global.BfteroStore) return;
   const MAX_COMMENTS=100;
+  const MAX_SCORES=100;
+  const DB = () => String(window.BFTERO_DB_URL||'').replace(/\/$/,'');
+  const useCloud = () => !!DB();
+
   function sanitize(str,max){return String(str||'').replace(/[<>&"'`]/g,'').replace(/\s+/g,' ').trim().slice(0,max);}
   function uid(){return 'u_'+Math.random().toString(36).slice(2)+Date.now().toString(36);}
   function lsGet(k,f){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f;}catch{return f;}}
   function lsSet(k,v){localStorage.setItem(k,JSON.stringify(v));}
   function weekKey(){const d=new Date();const o=new Date(d.getFullYear(),0,1);return d.getFullYear()+'-W'+Math.ceil(((d-o)/86400000+o.getDay()+1)/7);}
   function defaultPoll(){return{id:'week-'+weekKey(),question:'What game should BFtero stream next?',options:[{id:'roblox',label:'🎮 Roblox',votes:0},{id:'minecraft',label:'⛏️ Minecraft',votes:0},{id:'spiderman',label:'🕷️ Spider-Man',votes:0},{id:'gta',label:'🚗 GTA',votes:0}],start:Date.now(),end:Date.now()+7*864e5};}
-  global.BfteroStore={
-    sanitize,
-    getPersonalBest(){return Number(localStorage.getItem('bf_personal_best')||0);},
-    getLastUsername(){return localStorage.getItem('bf_last_user')||'';},
-    async getScores(){return lsGet('bf_scores',[]).filter(x=>x&&x.username).sort((a,b)=>b.score-a.score).slice(0,100);},
-    async submitScore(username,score){
-      username=sanitize(username,16);score=Math.floor(Number(score));
-      if(!username||username.length<2) throw new Error('Username required (2–16 chars)');
-      if(!Number.isFinite(score)||score<0||score>500000) throw new Error('Invalid score');
-      const entry={username,score,ts:Date.now()};
+
+  async function cloudGet(path){
+    const res=await fetch(DB()+'/'+path+'.json');
+    if(!res.ok) throw new Error('DB read failed');
+    return res.json();
+  }
+  async function cloudPost(path,data){
+    const res=await fetch(DB()+'/'+path+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    if(!res.ok) throw new Error('DB write failed');
+    return res.json(); // { name: "generatedId" }
+  }
+  async function cloudPut(path,data){
+    const res=await fetch(DB()+'/'+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    if(!res.ok) throw new Error('DB write failed');
+    return res.json();
+  }
+  async function cloudDel(path){
+    await fetch(DB()+'/'+path+'.json',{method:'DELETE'});
+  }
+
+  // --- Comments ---
+  async function getComments(){
+    if(useCloud()){
+      try{
+        const data=await cloudGet('comments');
+        if(!data) return [];
+        return Object.keys(data).map(id=>({id,...data[id]})).filter(c=>c.username&&c.text).sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,MAX_COMMENTS);
+      }catch(e){console.warn('Cloud comments fallback',e);return lsGet('bf_comments',[]);}
+    }
+    return lsGet('bf_comments',[]);
+  }
+  async function postComment(username,text){
+    username=sanitize(username,16);text=sanitize(text,180);
+    if(!username||username.length<2) throw new Error('Name required');
+    if(!text||text.length<2) throw new Error('Write a message first');
+    const last=Number(localStorage.getItem('bf_last_comment')||0);
+    if(Date.now()-last<12000) throw new Error('Wait a few seconds…');
+    const colors=['#fef08a','#bfdbfe','#bbf7d0','#fecaca','#e9d5ff','#fed7aa','#fde68a','#a5f3fc'];
+    const entry={username,text,ts:Date.now(),color:colors[Math.floor(Math.random()*colors.length)],rot:(Math.random()*8-4).toFixed(1)};
+    if(useCloud()){
+      const r=await cloudPost('comments',entry);
+      entry.id=r&&r.name?r.name:uid();
+      // Keep only latest 100: delete oldest beyond limit
+      try{
+        const all=await getComments();
+        if(all.length>MAX_COMMENTS){
+          const extra=all.slice(MAX_COMMENTS);
+          for(const c of extra){if(c.id) await cloudDel('comments/'+c.id);}
+        }
+      }catch(_){}
+    }else{
+      entry.id=uid();
+      let list=lsGet('bf_comments',[]);list.unshift(entry);if(list.length>MAX_COMMENTS)list=list.slice(0,MAX_COMMENTS);
+      lsSet('bf_comments',list);
+    }
+    localStorage.setItem('bf_last_comment',String(Date.now()));
+    return entry;
+  }
+
+  // --- Scores ---
+  async function getScores(){
+    if(useCloud()){
+      try{
+        const data=await cloudGet('scores');
+        if(!data) return [];
+        // data is object keyed by username_lower or push ids
+        const list=Object.keys(data).map(k=>({id:k,...data[k]})).filter(x=>x.username&&typeof x.score==='number');
+        // best per username
+        const best={};
+        list.forEach(s=>{
+          const k=String(s.username).toLowerCase();
+          if(!best[k]||s.score>best[k].score) best[k]=s;
+        });
+        return Object.values(best).sort((a,b)=>b.score-a.score).slice(0,MAX_SCORES);
+      }catch(e){console.warn('Cloud scores fallback',e);return lsGet('bf_scores',[]).sort((a,b)=>b.score-a.score).slice(0,MAX_SCORES);}
+    }
+    return lsGet('bf_scores',[]).filter(x=>x&&x.username).sort((a,b)=>b.score-a.score).slice(0,MAX_SCORES);
+  }
+  async function submitScore(username,score){
+    username=sanitize(username,16);score=Math.floor(Number(score));
+    if(!username||username.length<2) throw new Error('Username required (2–16 chars)');
+    if(!Number.isFinite(score)||score<0||score>500000) throw new Error('Invalid score');
+    const entry={username,score,ts:Date.now()};
+    const key=username.toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,24)||uid();
+    if(useCloud()){
+      // Only overwrite if new score is higher
+      try{
+        const existing=await cloudGet('scores/'+key);
+        if(existing&&typeof existing.score==='number'&&existing.score>=score){
+          // keep higher existing
+        }else{
+          await cloudPut('scores/'+key,entry);
+        }
+      }catch(_){await cloudPut('scores/'+key,entry);}
+    }else{
       let list=lsGet('bf_scores',[]);
       const i=list.findIndex(x=>x.username.toLowerCase()===username.toLowerCase());
       if(i>=0){if(score>list[i].score)list[i]=entry;}else list.push(entry);
       list.sort((a,b)=>b.score-a.score);lsSet('bf_scores',list.slice(0,300));
-      const pb=Number(localStorage.getItem('bf_personal_best')||0);
-      if(score>pb) localStorage.setItem('bf_personal_best',String(score));
-      localStorage.setItem('bf_last_user',username);return entry;
-    },
-    async getRank(username){const s=await this.getScores();const i=s.findIndex(x=>x.username.toLowerCase()===String(username).toLowerCase());return i>=0?i+1:null;},
-    async getComments(){return lsGet('bf_comments',[]);},
-    async postComment(username,text){
-      username=sanitize(username,16);text=sanitize(text,180);
-      if(!username||username.length<2) throw new Error('Name required');
-      if(!text||text.length<2) throw new Error('Write a message first');
-      const last=Number(localStorage.getItem('bf_last_comment')||0);
-      if(Date.now()-last<15000) throw new Error('Wait a few seconds…');
-      const colors=['#fef08a','#bfdbfe','#bbf7d0','#fecaca','#e9d5ff','#fed7aa','#fde68a','#a5f3fc'];
-      const entry={id:uid(),username,text,ts:Date.now(),color:colors[Math.floor(Math.random()*colors.length)],rot:(Math.random()*8-4).toFixed(1)};
-      let list=lsGet('bf_comments',[]);list.unshift(entry);if(list.length>MAX_COMMENTS)list=list.slice(0,MAX_COMMENTS);
-      lsSet('bf_comments',list);localStorage.setItem('bf_last_comment',String(Date.now()));return entry;
-    },
-    async getPoll(){
-      let poll=lsGet('bf_poll',null);
-      if(!poll||poll.id!=='week-'+weekKey()){if(poll){const a=lsGet('bf_poll_archive',[]);a.unshift(poll);lsSet('bf_poll_archive',a.slice(0,20));}poll=defaultPoll();lsSet('bf_poll',poll);}
-      return poll;
-    },
-    async vote(optionId){
-      const poll=await this.getPoll();const key='bf_voted_'+poll.id;
-      if(localStorage.getItem(key)) throw new Error('You already voted this week');
-      const opt=poll.options.find(o=>o.id===optionId);if(!opt) throw new Error('Invalid option');
-      opt.votes+=1;lsSet('bf_poll',poll);localStorage.setItem(key,optionId);return poll;
-    },
+    }
+    const pb=Number(localStorage.getItem('bf_personal_best')||0);
+    if(score>pb) localStorage.setItem('bf_personal_best',String(score));
+    localStorage.setItem('bf_last_user',username);
+    return entry;
+  }
+
+  // --- Polls (local or cloud) ---
+  async function getPoll(){
+    if(useCloud()){
+      try{
+        let poll=await cloudGet('poll');
+        if(!poll||poll.id!=='week-'+weekKey()){
+          poll=defaultPoll();
+          await cloudPut('poll',poll);
+        }
+        return poll;
+      }catch(_){}
+    }
+    let poll=lsGet('bf_poll',null);
+    if(!poll||poll.id!=='week-'+weekKey()){poll=defaultPoll();lsSet('bf_poll',poll);}
+    return poll;
+  }
+  async function vote(optionId){
+    const poll=await getPoll();const key='bf_voted_'+poll.id;
+    if(localStorage.getItem(key)) throw new Error('You already voted this week');
+    const opt=poll.options.find(o=>o.id===optionId);if(!opt) throw new Error('Invalid option');
+    opt.votes+=1;
+    if(useCloud()) await cloudPut('poll',poll); else lsSet('bf_poll',poll);
+    localStorage.setItem(key,optionId);
+    return poll;
+  }
+
+  global.BfteroStore={
+    isGlobal:useCloud,
+    sanitize,
+    getPersonalBest(){return Number(localStorage.getItem('bf_personal_best')||0);},
+    getLastUsername(){return localStorage.getItem('bf_last_user')||'';},
+    getScores,submitScore,
+    async getRank(username){const s=await getScores();const i=s.findIndex(x=>x.username.toLowerCase()===String(username).toLowerCase());return i>=0?i+1:null;},
+    getComments,postComment,
+    getPoll,vote,
     hasVoted(pollId){return localStorage.getItem('bf_voted_'+pollId)||null;},
-    async getStats(){const scores=await this.getScores();return{topScore:scores[0]?scores[0].score:0,players:scores.length};}
+    async getStats(){const scores=await getScores();return{topScore:scores[0]?scores[0].score:0,players:scores.length};}
   };
 })(window);
 
@@ -2087,23 +2232,66 @@ async function initCommunity(){
 
   function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
+  let wallCache=[];
+
   async function renderWall(){
     const grid=document.getElementById('stickyGrid');
     if(!grid) return;
     const list=await BfteroStore.getComments();
+    wallCache=list;
+    // Global status hint
+    let hint=document.getElementById('wallGlobalHint');
+    if(!hint){
+      hint=document.createElement('p');
+      hint.id='wallGlobalHint';
+      hint.className='wall-global-hint';
+      grid.parentElement?.appendChild(hint);
+    }
+    hint.textContent=BfteroStore.isGlobal()
+      ? '🌐 Shared with everyone · showing latest '+list.length+'/100 notes · auto-refreshes'
+      : '💾 Notes are on this device only — set BFTERO_DB_URL (Firebase) so everyone can see each other';
+
     if(!list.length){
       grid.innerHTML='<p style="color:rgba(255,255,255,0.55);text-align:center;grid-column:1/-1;font-family:Caveat,cursive;font-size:1.4rem;">No notes yet — pin the first one!</p>';
       return;
     }
-    grid.innerHTML=list.map(c=>`
-      <div class="sticky-note" style="background:${c.color};--rot:${c.rot||0}deg">
+    grid.innerHTML=list.map((c,idx)=>`
+      <div class="sticky-note" role="button" tabindex="0" data-idx="${idx}" style="background:${c.color};--rot:${c.rot||0}deg" title="Click to read">
         <div class="sn-user">${escapeHtml(c.username)}</div>
-        <div class="sn-text">${escapeHtml(c.text)}</div>
+        <div class="sn-text">${escapeHtml(c.text.length>80?c.text.slice(0,80)+'…':c.text)}</div>
       </div>`).join('');
+
+    grid.querySelectorAll('.sticky-note').forEach(el=>{
+      const open=()=>{
+        const c=wallCache[Number(el.dataset.idx)];
+        if(!c) return;
+        openReadModal(c);
+      };
+      el.addEventListener('click',open);
+      el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
+    });
   }
   renderWall();
+  // Auto-refresh so others' posts appear
+  setInterval(renderWall,25000);
 
-  // Paper note modal
+  // Read-only zoom modal
+  const readModal=document.getElementById('noteReadModal');
+  function openReadModal(c){
+    document.getElementById('noteReadUser').textContent=c.username||'';
+    document.getElementById('noteReadText').textContent=c.text||'';
+    document.getElementById('noteReadPaper').style.backgroundColor=c.color||'#fef08a';
+    readModal.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeReadModal(){
+    readModal.classList.remove('open');
+    if(!document.getElementById('noteModal').classList.contains('open')) document.body.style.overflow='';
+  }
+  document.getElementById('noteReadClose')?.addEventListener('click',closeReadModal);
+  readModal?.addEventListener('click',e=>{if(e.target===readModal) closeReadModal();});
+
+  // Paper note write modal
   const modal=document.getElementById('noteModal');
   const openBtn=document.getElementById('openNoteBtn');
   const cancelBtn=document.getElementById('cancelNoteBtn');
@@ -2122,19 +2310,27 @@ async function initCommunity(){
   openBtn?.addEventListener('click',openModal);
   cancelBtn?.addEventListener('click',closeModal);
   modal?.addEventListener('click',e=>{if(e.target===modal) closeModal();});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open')) closeModal();});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      if(readModal.classList.contains('open')) closeReadModal();
+      else if(modal.classList.contains('open')) closeModal();
+    }
+  });
 
   pinBtn?.addEventListener('click',async()=>{
     noteErr.textContent='';
+    pinBtn.disabled=true;
     try{
       await BfteroStore.postComment(document.getElementById('wallUser').value,document.getElementById('wallText').value);
       document.getElementById('wallText').value='';
       const msg=document.getElementById('wallMsg');
-      if(msg) msg.textContent='✅ Note pinned to the wall!';
+      if(msg) msg.textContent='✅ Note pinned — everyone can see it'+(BfteroStore.isGlobal()?' online':' on this device');
       closeModal();
       renderWall();
     }catch(err){
       noteErr.textContent=err.message||'Could not pin note';
+    }finally{
+      pinBtn.disabled=false;
     }
   });
 }
