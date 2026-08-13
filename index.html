@@ -98,18 +98,30 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   outline:2px solid var(--cyan);outline-offset:3px;
 }
 
-/* Backdrop */
+/* Main website background GIF */
+.site-bg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url('main-bg.gif');
+  background-size:cover;
+  background-position:center center;
+  background-repeat:no-repeat;
+}
+.site-bg-overlay{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:rgba(5,3,12,0.72);
+}
+/* Backdrop grid (kept above main GIF for subtle HUD feel) */
 .grid-backdrop{
   position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image:
     linear-gradient(var(--line) 1px, transparent 1px),
     linear-gradient(90deg, var(--line) 1px, transparent 1px);
   background-size:48px 48px;
-  opacity:0.28;
+  opacity:0.18;
   mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,black 25%,transparent 85%);
 }
 #particles{position:fixed;inset:0;z-index:0;pointer-events:none;}
-.glow-orb{position:fixed;border-radius:50%;filter:blur(120px);z-index:0;pointer-events:none;opacity:0.32;}
+.glow-orb{position:fixed;border-radius:50%;filter:blur(120px);z-index:0;pointer-events:none;opacity:0.22;}
 .orb-1{width:560px;height:560px;background:var(--violet);top:-140px;left:-140px;}
 .orb-2{width:480px;height:480px;background:var(--cyan);top:35%;right:-180px;opacity:0.2;}
 .orb-3{width:440px;height:440px;background:var(--magenta);bottom:-160px;left:15%;opacity:0.2;}
@@ -117,6 +129,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   .orb-1{width:320px;height:320px;top:-80px;left:-100px;}
   .orb-2{width:280px;height:280px;right:-120px;}
   .orb-3{width:260px;height:260px;bottom:-100px;}
+  .site-bg{background-position:center top;}
 }
 
 /* Loader */
@@ -124,19 +137,49 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   position:fixed;inset:0;z-index:9999;background:var(--bg);
   display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;
   transition:opacity .55s ease,visibility .55s ease;
+  overflow:hidden;
 }
 #loader.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.loader-bg{
+  position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:url('loader-bg.gif');
+  background-size:cover;
+  background-position:center center;
+  background-repeat:no-repeat;
+}
+.loader-bg::after{
+  content:'';position:absolute;inset:0;
+  background:rgba(5,3,12,0.55);
+}
+.loader-spidey{
+  position:absolute;z-index:1;pointer-events:none;
+  width:min(280px,52vw);height:auto;
+  object-fit:contain;
+  bottom:12%;
+  left:50%;
+  transform:translateX(-50%);
+  filter:drop-shadow(0 8px 24px rgba(0,0,0,0.55));
+}
+.loader-content{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;
+}
 .loader-mark{
   font-family:var(--font-display);font-weight:800;font-size:2.4rem;letter-spacing:0.28em;
   background:var(--grad-1);-webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 2px 20px rgba(0,0,0,0.45);
 }
-.loader-bar{width:230px;height:3px;background:rgba(255,255,255,0.07);position:relative;overflow:hidden;border-radius:2px;}
+.loader-bar{width:230px;height:3px;background:rgba(255,255,255,0.12);position:relative;overflow:hidden;border-radius:2px;}
 .loader-bar::after{
   content:'';position:absolute;inset:0;width:38%;background:var(--grad-1);
   animation:loadsweep 1s ease-in-out infinite;
 }
 @keyframes loadsweep{0%{transform:translateX(-120%);}100%{transform:translateX(340%);}}
-.loader-tag{font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.28em;color:var(--muted-2);text-transform:uppercase;}
+.loader-tag{font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.28em;color:var(--muted);text-transform:uppercase;}
+@media (max-width:700px){
+  .loader-spidey{width:min(200px,58vw);bottom:10%;}
+  .loader-mark{font-size:1.8rem;letter-spacing:0.2em;}
+}
 
 /* HUD Panel */
 .hud-panel{
@@ -646,11 +689,17 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
 <body>
 
 <div id="loader">
-  <div class="loader-mark">BFTERO</div>
-  <div class="loader-bar"></div>
-  <div class="loader-tag">Loading world…</div>
+  <div class="loader-bg" aria-hidden="true"></div>
+  <img class="loader-spidey" src="loader-spiderman.gif" alt="" width="280" height="280" decoding="async">
+  <div class="loader-content">
+    <div class="loader-mark">BFTERO</div>
+    <div class="loader-bar"></div>
+    <div class="loader-tag">Loading world…</div>
+  </div>
 </div>
 
+<div class="site-bg" aria-hidden="true"></div>
+<div class="site-bg-overlay" aria-hidden="true"></div>
 <div class="grid-backdrop" aria-hidden="true"></div>
 <canvas id="particles" aria-hidden="true"></canvas>
 <div class="glow-orb orb-1" aria-hidden="true"></div>
@@ -1702,14 +1751,27 @@ if (stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   renderer.setClearColor(0x000000, 0);
   stage.appendChild(renderer.domElement);
 
-  const amb = new THREE.AmbientLight(0xffffff, 0.65);
+  // Soft fill so the model is never pure black in shadows
+  const amb = new THREE.AmbientLight(0xb8c4ff, 0.28);
   scene.add(amb);
-  const key = new THREE.DirectionalLight(0x29f1e6, 1.1);
-  key.position.set(3, 5, 4);
+
+  // Gentle cyan key from upper-front (kept low so spotlight dominates)
+  const key = new THREE.DirectionalLight(0x29f1e6, 0.35);
+  key.position.set(2, 4, 3);
   scene.add(key);
-  const rim = new THREE.DirectionalLight(0xff3fb0, 0.55);
-  rim.position.set(-4, 2, -3);
+
+  // Soft magenta rim from behind-right for edge separation
+  const rim = new THREE.DirectionalLight(0xff3fb0, 0.25);
+  rim.position.set(3, 1.5, -3);
   scene.add(rim);
+
+  // Main spotlight: LEFT → RIGHT across the Shiv model (cinematic, not blown out)
+  const spot = new THREE.SpotLight(0xfff2e0, 2.4, 22, Math.PI / 5.5, 0.5, 1.1);
+  spot.position.set(-5.2, 2.2, 3.8); // left side, slightly elevated, in front
+  spot.target.position.set(0.8, 0.15, 0); // aim across the model toward the right
+  spot.castShadow = false;
+  scene.add(spot);
+  scene.add(spot.target);
 
   let model = null;
   let targetY = 0;
