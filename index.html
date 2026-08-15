@@ -946,7 +946,7 @@ body.bftero-modal-open{overflow:hidden;}
 /* ===== BFTЕRO CHAT END ===== */
 
 </style>
-<link rel="stylesheet" href="bftero-chat.css">
+<link rel="stylesheet" href="bftero-chat/bftero-chat.css">
 <!-- ===== BFTЕRO CHAT END ===== -->
 </head>
 <body>
@@ -3139,7 +3139,7 @@ if (stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         window.BfteroChat.open();
       } else if(tries>20){
         clearInterval(t);
-        alert('Chat files not found.\n\nUpload the folder:\nbftero-chat.js\nbftero-chat.css\n\nnext to index.html');
+        alert('Chat files not found.\n\nUpload the folder:\nbftero-chat/bftero-chat.js\nbftero-chat/bftero-chat.css\n\nnext to index.html');
       }
     }, 250);
   });
@@ -3149,7 +3149,7 @@ if (stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 
 <!-- ===== BFTЕRO CHAT START ===== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="bftero-chat.js" defer></script>
+<script src="bftero-chat/bftero-chat.js" defer></script>
 <!-- ===== BFTЕRO CHAT END ===== -->
 </body>
 </html>

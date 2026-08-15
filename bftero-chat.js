@@ -343,9 +343,19 @@
     }
   }
 
+  function hideFabs(hide) {
+    try {
+      var fab = document.getElementById('bfteroChatFab');
+      var fb = document.getElementById('bfteroChatFallbackFab');
+      if (fab) fab.style.display = hide ? 'none' : '';
+      if (fb) fb.style.display = hide ? 'none' : 'none'; // always hide fallback after boot
+    } catch (_) {}
+  }
+
   function openChat() {
     els.overlay.classList.add('open');
     els.overlay.setAttribute('aria-hidden', 'false');
+    hideFabs(true);
     setBadge(0);
     if (joined) showView(privatePeer ? 'private' : 'global');
     else showView('join');
@@ -356,6 +366,7 @@
     els.overlay.setAttribute('aria-hidden', 'true');
     els.menu.classList.remove('open');
     els.emojiPanel.classList.remove('open');
+    hideFabs(false);
   }
 
   function updateSoundBtn() {
@@ -665,7 +676,7 @@
       els.messages.scrollTop = els.messages.scrollHeight;
     } catch (e) {
       console.warn(e);
-      showBanner('⚠️ Could not load messages. Check Supabase tables & RLS.');
+      showBanner('⚠️ Database tables missing. Run the SQL in Supabase SQL Editor (see setup).');
     }
   }
 
