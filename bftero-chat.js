@@ -14,6 +14,15 @@
 (function () {
   'use strict';
 
+  // Safe storage (avoids SecurityError in sandboxed iframes)
+  const __memStore = {};
+  function safeGetItem(k) {
+    try { return window.safeGetItem(k); } catch (e) { return __memStore[k] || null; }
+  }
+  function safeSetItem(k, v) {
+    try { window.safeSetItem(k, v); } catch (e) { __memStore[k] = String(v); }
+  }
+
   // ========== CONFIG — paste your Supabase public credentials ==========
   const BFTERO_CHAT_CONFIG = {
     supabaseUrl: 'https://cwlocgnpquxyikuovfqn.supabase.co', // e.g. 'https://xxxx.supabase.co'
@@ -43,7 +52,7 @@
   }
   function lsGet(k, f) {
     try {
-      const v = localStorage.getItem(k);
+      const v = safeGetItem(k);
       return v == null ? f : JSON.parse(v);
     } catch {
       return f;
@@ -51,7 +60,7 @@
   }
   function lsSet(k, v) {
     try {
-      localStorage.setItem(k, JSON.stringify(v));
+      safeSetItem(k, JSON.stringify(v));
     } catch (_) {}
   }
   function sanitizeName(s) {
@@ -87,14 +96,14 @@
   // State
   let supabase = null;
   let configured = false;
-  let myId = localStorage.getItem(LS.uid) || '';
+  let myId = safeGetItem(LS.uid) || '';
   if (!myId) {
     myId = uid();
-    localStorage.setItem(LS.uid, myId);
+    safeSetItem(LS.uid, myId);
   }
   let myName = '';
   try {
-    myName = localStorage.getItem(LS.name) || '';
+    myName = safeGetItem(LS.name) || '';
   } catch (_) {}
   let joined = false;
   let onlineCount = 0;
@@ -570,7 +579,7 @@
     }
     myName = name;
     try {
-      localStorage.setItem(LS.name, myName);
+      safeSetItem(LS.name, myName);
     } catch (_) {}
     els.joinError.textContent = '';
     joined = true;
