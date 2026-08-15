@@ -267,6 +267,11 @@
       <div class="bftero-chat-toast" id="bfteroChatToast"></div>
     `;
     document.body.appendChild(root);
+    // Hide static fallback button once real chat UI is ready
+    try {
+      var fb = document.getElementById('bfteroChatFallbackFab');
+      if (fb) fb.style.display = 'none';
+    } catch (_) {}
 
     els = {
       fabBtn: document.getElementById('bfteroChatFabBtn'),
