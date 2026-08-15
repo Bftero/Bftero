@@ -946,7 +946,7 @@ body.bftero-modal-open{overflow:hidden;}
 /* ===== BFTЕRO CHAT END ===== */
 
 </style>
-<link rel="stylesheet" href="bftero-chat/bftero-chat.css">
+<link rel="stylesheet" href="bftero-chat.css">
 <!-- ===== BFTЕRO CHAT END ===== -->
 </head>
 <body>
@@ -3123,33 +3123,61 @@ if (stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 </div>
 <script>
 (function(){
+  function loadScript(src){
+    return new Promise(function(resolve, reject){
+      var s=document.createElement('script');
+      s.src=src;
+      s.onload=function(){resolve(src);};
+      s.onerror=function(){reject(src);};
+      document.head.appendChild(s);
+    });
+  }
+  function loadCss(href){
+    var l=document.createElement('link');
+    l.rel='stylesheet';
+    l.href=href;
+    document.head.appendChild(l);
+  }
+  // Prefer ROOT files (how they are on GitHub now)
+  loadCss('bftero-chat.css');
+  loadScript('bftero-chat.js').catch(function(){
+    return loadScript('bftero-chat/bftero-chat.js');
+  }).then(function(){
+    /* loaded */
+  }).catch(function(){
+    console.warn('Bftero chat JS missing');
+  });
+
   var btn=document.getElementById('bfteroChatFallbackBtn');
   if(!btn) return;
   btn.addEventListener('click', function(){
-    if(window.BfteroChat && typeof window.BfteroChat.open==='function'){
+    if(window.BfteroChat && window.BfteroChat.open){
       window.BfteroChat.open();
       return;
     }
-    // If module not loaded yet, try to open once scripts arrive
     var tries=0;
     var t=setInterval(function(){
       tries++;
       if(window.BfteroChat && window.BfteroChat.open){
         clearInterval(t);
         window.BfteroChat.open();
-      } else if(tries>20){
+      } else if(tries>25){
         clearInterval(t);
-        alert('Chat files not found.\n\nUpload the folder:\nbftero-chat/bftero-chat.js\nbftero-chat/bftero-chat.css\n\nnext to index.html');
+        alert('Chat still loading or bftero-chat.js is missing from the website root.
+
+Make sure these files exist:
+https://www.bftero.com/bftero-chat.js
+https://www.bftero.com/bftero-chat.css');
       }
-    }, 250);
+    }, 200);
   });
 })();
 </script>
 <!-- ===== BFTЕRO CHAT END ===== -->
 
 <!-- ===== BFTЕRO CHAT START ===== -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="bftero-chat/bftero-chat.js" defer></script>
 <!-- ===== BFTЕRO CHAT END ===== -->
 </body>
 </html>
