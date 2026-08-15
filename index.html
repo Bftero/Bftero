@@ -3114,70 +3114,37 @@ if (stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 </script>
 
 
-<!-- ===== BFTЕRO CHAT START (fallback button) ===== -->
+
+<!-- ===== BFTЕRO CHAT START ===== -->
 <div id="bfteroChatFallbackFab" style="position:fixed;right:16px;bottom:80px;z-index:99950;">
-  <button type="button" id="bfteroChatFallbackBtn" style="display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-radius:16px;border:1px solid rgba(41,241,230,0.35);background:linear-gradient(145deg,rgba(15,10,34,0.96),rgba(21,14,46,0.94));color:#f2eefc;cursor:pointer;box-shadow:0 10px 28px rgba(0,0,0,0.5),0 0 22px rgba(139,92,246,0.35);font-family:Orbitron,sans-serif;font-size:0.78rem;letter-spacing:0.06em;text-transform:uppercase;">
-    <span>💬 BFTЕRO CHAT</span>
-    <span style="font-family:Space Grotesk,sans-serif;font-size:0.72rem;color:#a79cc9;text-transform:none;letter-spacing:0;">Click to open</span>
-  </button>
+  <button type="button" id="bfteroChatFallbackBtn" style="padding:12px 16px;border-radius:16px;border:1px solid rgba(41,241,230,0.35);background:rgba(15,10,34,0.96);color:#f2eefc;cursor:pointer;font-family:Orbitron,sans-serif;font-size:0.78rem;letter-spacing:0.06em;text-transform:uppercase;">CHAT - Click to open</button>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="bftero-chat.js" defer></script>
 <script>
 (function(){
-  function loadScript(src){
-    return new Promise(function(resolve, reject){
-      var s=document.createElement('script');
-      s.src=src;
-      s.onload=function(){resolve(src);};
-      s.onerror=function(){reject(src);};
-      document.head.appendChild(s);
-    });
-  }
-  function loadCss(href){
-    var l=document.createElement('link');
-    l.rel='stylesheet';
-    l.href=href;
-    document.head.appendChild(l);
-  }
-  // Prefer ROOT files (how they are on GitHub now)
-  loadCss('bftero-chat.css');
-  loadScript('bftero-chat.js').catch(function(){
-    return loadScript('bftero-chat/bftero-chat.js');
-  }).then(function(){
-    /* loaded */
-  }).catch(function(){
-    console.warn('Bftero chat JS missing');
-  });
-
-  var btn=document.getElementById('bfteroChatFallbackBtn');
-  if(!btn) return;
-  btn.addEventListener('click', function(){
-    if(window.BfteroChat && window.BfteroChat.open){
+  var btn = document.getElementById("bfteroChatFallbackBtn");
+  if (!btn) return;
+  btn.onclick = function(){
+    if (window.BfteroChat && window.BfteroChat.open) {
       window.BfteroChat.open();
       return;
     }
-    var tries=0;
-    var t=setInterval(function(){
-      tries++;
-      if(window.BfteroChat && window.BfteroChat.open){
+    var n = 0;
+    var t = setInterval(function(){
+      n++;
+      if (window.BfteroChat && window.BfteroChat.open) {
         clearInterval(t);
         window.BfteroChat.open();
-      } else if(tries>25){
+      } else if (n > 30) {
         clearInterval(t);
-        alert('Chat still loading or bftero-chat.js is missing from the website root.
-
-Make sure these files exist:
-https://www.bftero.com/bftero-chat.js
-https://www.bftero.com/bftero-chat.css');
+        alert("Upload bftero-chat.js next to index.html");
       }
     }, 200);
-  });
+  };
 })();
 </script>
 <!-- ===== BFTЕRO CHAT END ===== -->
-
-<!-- ===== BFTЕRO CHAT START ===== -->
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- ===== BFTЕRO CHAT END ===== -->
 </body>
+
 </html>
