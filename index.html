@@ -3526,7 +3526,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     _box.getSize(_size);
     const maxDim = Math.max(_size.x, _size.y, _size.z, 0.001);
     // Compact on-screen size — full body should fit
-    const targetSize = isMobile() ? 0.75 : 1.1;
+    const targetSize = isMobile() ? 2.25 : 3.3; // 3× previous size
     dino.scale.setScalar(targetSize / maxDim);
     dino.updateMatrixWorld(true);
     _box.setFromObject(dino);
