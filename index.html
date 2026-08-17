@@ -3488,9 +3488,16 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
   const stage = document.getElementById('dinoStage');
   if (!stage) return;
 
-  let renderer = null, scene = null, camera = null, dino = null, mixer = null, clock = null, animId = null;
+  let renderer = null, scene = null, camera = null;
+  let dino = null;          // the gltf scene (skinned mesh)
+  let dinoRoot = null;      // wrapper group we scale/position (stays centered)
+  let mixer = null, clock = null, animId = null;
   let loadPromise = null;
+  let clips = [];
   const isMobile = () => window.innerWidth < 700 || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || '');
+  const _box = new THREE.Box3();
+  const _size = new THREE.Vector3();
+  const _center = new THREE.Vector3();
 
   function makeOpaque(root) {
     root.traverse((child) => {
@@ -3507,24 +3514,118 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     });
   }
 
+  /** Strip root translation from clips so the body doesn't walk out of frame */
+  function neutralizeRootMotion(gltfScene, animClips) {
+    if (!animClips || !animClips.length) return;
+    // Find likely root: first bone, or object named like root/hips/armature
+    let rootBone = null;
+    gltfScene.traverse((o) => {
+      if (rootBone) return;
+      const n = (o.name || '').toLowerCase();
+      if (o.isBone && (n.includes('root') || n.includes('hips') || n === 'bip01' || n.includes('pelvis'))) {
+        rootBone = o;
+      }
+    });
+    if (!rootBone) {
+      gltfScene.traverse((o) => {
+        if (!rootBone && o.isBone) rootBone = o;
+      });
+    }
+    animClips.forEach((clip) => {
+      // Remove position tracks that move the whole character out of view
+      clip.tracks = clip.tracks.filter((track) => {
+        const name = track.name || '';
+        // Keep rotation/scale; drop .position on root-like nodes
+        if (!/\.position$/.test(name)) return true;
+        const node = name.split('.')[0].toLowerCase();
+        if (node.includes('root') || node.includes('hips') || node.includes('pelvis') ||
+            node.includes('armature') || node === 'bip01' ||
+            (rootBone && name.startsWith(rootBone.name + '.'))) {
+          return false; // drop root position track
+        }
+        // Also drop position track on the scene root itself
+        if (name === 'position' || name.startsWith(gltfScene.name + '.position')) return false;
+        return true;
+      });
+    });
+  }
+
+  /**
+   * Scale using the LARGEST bounds across the animation (not just bind pose),
+   * then center inside dinoRoot so the full body stays on screen.
+   */
   function fitDinoToView() {
-    if (!dino || !camera) return;
-    dino.scale.setScalar(1);
+    if (!dino || !dinoRoot || !camera) return;
+
     dino.position.set(0, 0, 0);
     dino.rotation.set(0, 0, 0);
-    const box = new THREE.Box3().setFromObject(dino);
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    // Clearly smaller than full-screen — full body visible on phone + desktop
-    // (much smaller than Shiva's 1.5/2.4 so it doesn't fill the viewport)
-    const targetSize = isMobile() ? 0.55 : 0.85;
-    dino.scale.setScalar(targetSize / maxDim);
-    const box2 = new THREE.Box3().setFromObject(dino);
-    const center = box2.getCenter(new THREE.Vector3());
-    dino.position.x -= center.x;
-    dino.position.y -= center.y;
-    dino.position.z -= center.z;
-    dino.userData._fitScale = dino.scale.x;
+    dino.scale.setScalar(1);
+    dinoRoot.position.set(0, 0, 0);
+    dinoRoot.rotation.set(0, 0, 0);
+    dinoRoot.scale.setScalar(1);
+
+    // Union of bounds over animation samples (or bind pose if no clips)
+    const union = new THREE.Box3();
+    union.makeEmpty();
+
+    if (mixer && clips.length) {
+      const actions = clips.map((clip) => {
+        const a = mixer.clipAction(clip);
+        a.reset();
+        a.play();
+        a.paused = true;
+        return a;
+      });
+      const duration = Math.max.apply(null, clips.map((c) => c.duration || 0.1)) || 1;
+      const steps = 12;
+      for (let i = 0; i <= steps; i++) {
+        const t = (i / steps) * duration;
+        actions.forEach((a) => { a.time = Math.min(t, a.getClip().duration); });
+        mixer.update(0);
+        dino.updateMatrixWorld(true);
+        _box.setFromObject(dino);
+        if (!_box.isEmpty()) union.union(_box);
+      }
+      actions.forEach((a) => { a.paused = false; a.stop(); });
+      mixer.stopAllAction();
+    } else {
+      dino.updateMatrixWorld(true);
+      _box.setFromObject(dino);
+      if (!_box.isEmpty()) union.copy(_box);
+    }
+
+    if (union.isEmpty()) {
+      union.setFromObject(dino);
+    }
+
+    union.getSize(_size);
+    const maxDim = Math.max(_size.x, _size.y, _size.z) || 1;
+    // Small enough that the FULL animated body stays in view
+    const targetSize = isMobile() ? 0.7 : 1.0;
+    const s = targetSize / maxDim;
+    dino.scale.setScalar(s);
+
+    dino.updateMatrixWorld(true);
+    _box.setFromObject(dino);
+    _box.getCenter(_center);
+    // Offset model so its animated-aware center sits at origin of the root
+    dino.position.sub(_center);
+
+    dinoRoot.userData._fitScale = 1;
+    dino.userData._fitScale = s;
+  }
+
+  /** Keep the visible mesh centered every frame (handles residual root motion) */
+  function recenterLive() {
+    if (!dino || !dino.visible) return;
+    dino.updateMatrixWorld(true);
+    _box.setFromObject(dino);
+    if (_box.isEmpty()) return;
+    _box.getCenter(_center);
+    // Nudge dino so center stays near origin (smoothly)
+    dino.position.x -= _center.x * 0.35;
+    dino.position.y -= _center.y * 0.35;
+    dino.position.z -= _center.z * 0.35;
   }
 
   function ensureScene() {
@@ -3532,9 +3633,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     try {
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(35, window.innerWidth / Math.max(window.innerHeight, 1), 0.1, 100);
-      // Pull camera back so a small model stays centered and fully visible
-      camera.position.set(0, 0.35, isMobile() ? 4.2 : 5.0);
-      camera.lookAt(0, 0.15, 0);
+      camera.position.set(0, 0.4, isMobile() ? 4.5 : 5.2);
+      camera.lookAt(0, 0.2, 0);
       renderer = new THREE.WebGLRenderer({
         alpha: true,
         antialias: !isMobile(),
@@ -3554,12 +3654,12 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
       scene.add(rim);
       const spot = new THREE.SpotLight(0xfff5e8, 4.0, 24, Math.PI / 5, 0.3, 1.0);
       spot.position.set(-2.2, 2.5, 3.2);
-      spot.target.position.set(0, 0.1, 0);
+      spot.target.position.set(0, 0.15, 0);
       scene.add(spot);
       scene.add(spot.target);
       const spot2 = new THREE.SpotLight(0xdce8ff, 1.8, 20, Math.PI / 4.5, 0.45, 1.1);
       spot2.position.set(2.4, 1.6, 2.8);
-      spot2.target.position.set(0, 0.1, 0);
+      spot2.target.position.set(0, 0.15, 0);
       scene.add(spot2);
       scene.add(spot2.target);
       clock = new THREE.Clock();
@@ -3580,7 +3680,6 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     loadPromise = new Promise((resolve) => {
       let settled = false;
       const done = (v) => { if (!settled) { settled = true; resolve(v); } };
-      // Hard timeout so mobile never hangs forever
       const t = setTimeout(() => done(false), 8000);
       new GLTFLoader().load(
         'Dino.glb',
@@ -3589,20 +3688,19 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
           try {
             dino = gltf.scene;
             makeOpaque(dino);
+
+            dinoRoot = new THREE.Group();
+            dinoRoot.name = 'dinoRoot';
+            dinoRoot.add(dino);
+            dinoRoot.visible = false;
+            scene.add(dinoRoot);
+
+            clips = (gltf.animations && gltf.animations.length) ? gltf.animations.slice() : [];
+            // Prevent walk-cycle root motion from dragging the body off-screen
+            neutralizeRootMotion(dino, clips);
+
+            mixer = clips.length ? new THREE.AnimationMixer(dino) : null;
             fitDinoToView();
-            dino.visible = false;
-            scene.add(dino);
-            dino.userData._clips = (gltf.animations && gltf.animations.length) ? gltf.animations.slice() : [];
-            mixer = null;
-            if (dino.userData._clips.length) {
-              mixer = new THREE.AnimationMixer(dino);
-              dino.userData._clips.forEach((clip) => {
-                const action = mixer.clipAction(clip);
-                action.reset();
-                action.setLoop(THREE.LoopRepeat, Infinity);
-                action.play();
-              });
-            }
             done(true);
           } catch (e) {
             console.warn('Dino setup failed', e);
@@ -3624,7 +3722,10 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     animId = requestAnimationFrame(renderLoop);
     const dt = clock ? clock.getDelta() : 0.016;
     if (mixer) mixer.update(dt);
-    if (dino && dino.visible) dino.rotation.y += 0.006;
+    // Keep full body framed while animation plays
+    recenterLive();
+    // Gentle turn of the whole root (not the skinned mesh alone)
+    if (dinoRoot && dinoRoot.visible) dinoRoot.rotation.y += 0.004;
     if (renderer && scene && camera) renderer.render(scene, camera);
   }
   function stopLoop() {
@@ -3636,74 +3737,83 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     camera.aspect = window.innerWidth / Math.max(window.innerHeight, 1);
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.position.z = isMobile() ? 4.2 : 5.0;
+    camera.position.z = isMobile() ? 4.5 : 5.2;
     if (dino) fitDinoToView();
   });
 
-  // Preload after a short delay (desktop + mobile)
   setTimeout(() => { loadDino(); }, 1500);
 
   window.__bfteroDino = {
     show() {
       return loadDino().then((ok) => {
-        if (!ok || !dino || !renderer) return false;
+        if (!ok || !dino || !dinoRoot || !renderer) return false;
         stage.classList.add('active');
         stage.setAttribute('aria-hidden', 'false');
-        // Ensure canvas size is correct (mobile address bar changes height)
         renderer.setSize(window.innerWidth, window.innerHeight);
         camera.aspect = window.innerWidth / Math.max(window.innerHeight, 1);
         camera.updateProjectionMatrix();
+
         fitDinoToView();
-        const base = dino.userData._fitScale || dino.scale.x;
-        dino.userData._fitScale = base;
+        dinoRoot.visible = true;
         dino.visible = true;
-        dino.scale.setScalar(0.01);
+
+        // Scale the ROOT for intro (keeps animation bounds stable)
+        const base = 1;
+        dinoRoot.scale.setScalar(0.01);
         const t0 = performance.now();
         (function intro(now) {
           const t = Math.min(1, (now - t0) / 650);
           const e = 1 - Math.pow(1 - t, 3);
-          if (dino) dino.scale.setScalar(0.01 + e * (base - 0.01));
+          if (dinoRoot) dinoRoot.scale.setScalar(0.01 + e * (base - 0.01));
           if (t < 1) requestAnimationFrame(intro);
+          else if (dinoRoot) dinoRoot.scale.setScalar(1);
         })(t0);
-        if (!animId) {
-          if (clock) clock.start();
-          renderLoop();
-        }
-        if (mixer && dino.userData._clips) {
+
+        // Start built-in clips AFTER first layout so first painted frame is centered
+        if (mixer && clips.length) {
           try {
             mixer.stopAllAction();
-            dino.userData._clips.forEach((clip) => {
+            clips.forEach((clip) => {
               const action = mixer.clipAction(clip);
               action.reset();
               action.setLoop(THREE.LoopRepeat, Infinity);
+              // Start near a mid frame so we don't begin on an extreme pose
+              action.time = Math.min((clip.duration || 1) * 0.15, Math.max((clip.duration || 1) - 0.05, 0));
               action.play();
             });
           } catch (_) {}
+        }
+
+        if (!animId) {
+          if (clock) clock.start();
+          renderLoop();
         }
         return true;
       }).catch(() => false);
     },
     hide() {
       return new Promise((resolve) => {
-        if (!dino) {
+        if (!dinoRoot) {
           stage.classList.remove('active');
           stage.setAttribute('aria-hidden', 'true');
           stopLoop();
           resolve();
           return;
         }
-        const base = dino.scale.x;
+        const base = dinoRoot.scale.x;
         const t0 = performance.now();
         (function outro(now) {
           const t = Math.min(1, (now - t0) / 500);
           const e = t * t;
-          if (dino) dino.scale.setScalar(base * (1 - e) + 0.01 * e);
+          if (dinoRoot) dinoRoot.scale.setScalar(base * (1 - e) + 0.01 * e);
           if (t < 1) requestAnimationFrame(outro);
           else {
-            if (dino) {
-              dino.visible = false;
-              if (dino.userData._fitScale) dino.scale.setScalar(dino.userData._fitScale);
+            if (dinoRoot) {
+              dinoRoot.visible = false;
+              dinoRoot.scale.setScalar(1);
             }
+            if (dino) dino.visible = false;
+            if (mixer) try { mixer.stopAllAction(); } catch (_) {}
             stage.classList.remove('active');
             stage.setAttribute('aria-hidden', 'true');
             stopLoop();
@@ -3715,7 +3825,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
   };
 })();
 </script>
-<!-- ===== DINO EASTER EGG END ===== -->
+<!-- ===== DINO EASTER EGG END ===== --><!-- ===== DINO EASTER EGG END ===== -->
 
 </body>
 </html>
