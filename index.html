@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3057903989640965"
+     crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bftero | Gamer • Streamer • Roblox Developer</title>
@@ -26,8 +29,8 @@
 <meta name="twitter:description" content="PS5 • Roblox • Minecraft • GTA • Live Streaming">
 <meta name="twitter:image" content="bftero-avatar.jpg">
 
-<link rel="icon" type="image/jpeg" href="bftero-avatar.jpg">
-<link rel="apple-touch-icon" href="bftero-avatar.jpg">
+<link rel="icon" type="image/jpeg" href="Logo%20bftero.jpeg">
+<link rel="apple-touch-icon" href="Logo%20bftero.jpeg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -101,7 +104,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 /* Main website background GIF */
 .site-bg{
   position:fixed;inset:0;z-index:0;pointer-events:none;
-  background-image:url('main-bg.gif');
+  background-image:url('main-bg.jpg');
   background-size:cover;
   background-position:center center;
   background-repeat:no-repeat;
@@ -828,7 +831,123 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
   .live-status-bar{margin-top:88px;font-size:0.65rem;}
   .sticky-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
 }
+
+/* ========== Bftero Funny Question Machine ========== */
+.bftero-question-section{padding:70px 0 90px;position:relative;z-index:1;}
+.bftero-fqm-head{text-align:center;margin-bottom:36px;max-width:720px;margin-left:auto;margin-right:auto;}
+.bftero-fqm-head h2{font-family:var(--font-display);font-weight:900;font-size:clamp(1.5rem,4.5vw,2.4rem);text-transform:uppercase;letter-spacing:0.03em;line-height:1.15;}
+.bftero-fqm-head h2 span{background:var(--grad-1);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.bftero-fqm-head p{color:var(--muted);margin-top:12px;font-size:1.02rem;}
+.bftero-question-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media (max-width:960px){.bftero-question-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:560px){.bftero-question-grid{grid-template-columns:1fr;}}
+.bftero-question-card{
+  text-align:left;padding:16px 18px;cursor:pointer;
+  background:linear-gradient(160deg,rgba(15,10,34,0.92),rgba(21,14,46,0.88));
+  border:1px solid var(--line);border-radius:10px;
+  font-family:var(--font-body);font-size:0.95rem;font-weight:600;color:var(--text);
+  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease,filter .22s;
+  box-shadow:0 8px 24px -12px rgba(0,0,0,0.5);
+  min-height:64px;display:flex;align-items:center;gap:10px;line-height:1.35;
+}
+.bftero-question-card:hover{
+  transform:translateY(-4px) scale(1.015);
+  border-color:rgba(41,241,230,0.45);
+  box-shadow:0 14px 36px -10px rgba(139,92,246,0.45),0 0 0 1px rgba(41,241,230,0.2);
+  filter:brightness(1.06);
+}
+.bftero-question-card:active{transform:translateY(-1px) scale(0.99);}
+.bftero-question-card .bq-emoji{font-size:1.25rem;flex:none;}
+.bftero-question-card .bq-text{flex:1;}
+.bftero-modal{
+  position:fixed;inset:0;z-index:9200;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(5,3,12,0.82);backdrop-filter:blur(10px);padding:16px;
+}
+.bftero-modal.open{display:flex;}
+.bftero-modal-panel{
+  position:relative;width:min(480px,96vw);
+  max-height:min(92vh,720px);overflow-y:auto;
+  background:linear-gradient(160deg,rgba(15,10,34,0.98),rgba(21,14,46,0.96));
+  border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 28px 80px rgba(0,0,0,0.65),0 0 40px rgba(139,92,246,0.2);
+  padding:22px 20px 24px;animation:bfteroPop .28s ease-out;
+}
+@keyframes bfteroPop{from{transform:scale(0.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+.bftero-modal-close{
+  position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;
+  border:1px solid var(--line);background:rgba(255,255,255,0.04);
+  color:var(--muted);font-size:1.15rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:color .2s,border-color .2s;z-index:2;
+}
+.bftero-modal-close:hover{color:var(--cyan);border-color:var(--cyan);}
+.bftero-modal-title{
+  font-family:var(--font-display);font-weight:800;font-size:1rem;
+  text-transform:uppercase;letter-spacing:0.06em;text-align:center;
+  margin:4px 0 16px;color:var(--text);
+}
+.bftero-gif-container{
+  width:100%;max-width:420px;height:260px;margin:0 auto;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;border-radius:10px;
+  background:rgba(0,0,0,0.35);border:1px solid var(--line);
+}
+.bftero-gif-container img{width:100%;height:100%;object-fit:contain;display:block;}
+.bftero-answer-container{
+  width:100%;margin-top:20px;padding:18px 16px;
+  background:rgba(41,241,230,0.06);border:1px solid rgba(41,241,230,0.18);
+  border-radius:10px;text-align:center;
+}
+.bftero-answer-label{
+  font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--cyan);margin-bottom:10px;
+}
+.bftero-answer-text{
+  font-size:1.12rem;line-height:1.5;color:var(--text);
+  word-wrap:break-word;overflow-wrap:anywhere;white-space:pre-wrap;
+}
+.bftero-modal-actions{display:flex;justify-content:center;margin-top:18px;}
+.bftero-modal-actions .btn{min-width:160px;}
+body.bftero-modal-open{overflow:hidden;}
+
 </style>
+
+<!-- ===== BFTЕRO CHAT START ===== -->
+<style>
+
+/* ===== BFTЕRO CHAT START (inline fallback) ===== */
+#bfteroChatRoot .bftero-chat-fab,
+.bftero-chat-fab {
+  position: fixed !important;
+  right: 16px !important;
+  bottom: 80px !important;
+  z-index: 99950 !important;
+  pointer-events: none;
+}
+#bfteroChatFabBtn,
+.bftero-chat-fab-btn {
+  pointer-events: auto !important;
+  display: flex !important;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(41,241,230,0.35) !important;
+  background: linear-gradient(145deg, rgba(15,10,34,0.96), rgba(21,14,46,0.94)) !important;
+  color: #f2eefc !important;
+  cursor: pointer !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.5), 0 0 22px rgba(139,92,246,0.35) !important;
+  font-family: Orbitron, sans-serif !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+/* ===== BFTЕRO CHAT END ===== */
+
+</style>
+<link rel="stylesheet" href="bftero-chat.css">
+<!-- ===== BFTЕRO CHAT END ===== -->
 </head>
 <body>
 
@@ -940,6 +1059,36 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
     </div>
   </div>
 </section>
+
+
+<!-- BFTRO FUNNY QUESTION MACHINE -->
+<section class="bftero-question-section" id="funny-machine">
+  <div class="wrap">
+    <div class="bftero-fqm-head reveal">
+      <h2>😂 Bftero <span>Funny Question</span> Machine</h2>
+      <p>सवाल पूछो… जवाब की गारंटी हम नहीं देते 💀</p>
+    </div>
+    <div class="bftero-question-grid" id="bfteroQuestionGrid" aria-label="Funny questions"></div>
+  </div>
+</section>
+
+<!-- Funny Question Modal -->
+<div class="bftero-modal" id="bfteroFunnyModal" role="dialog" aria-modal="true" aria-labelledby="bfteroModalTitle" hidden>
+  <div class="bftero-modal-panel" id="bfteroModalPanel">
+    <button type="button" class="bftero-modal-close" id="bfteroModalClose" aria-label="Close">✕</button>
+    <div class="bftero-modal-title" id="bfteroModalTitle">😂 RANDOM MEME</div>
+    <div class="bftero-gif-container">
+      <img id="bfteroResultGif" alt="Funny meme GIF" width="420" height="260">
+    </div>
+    <div class="bftero-answer-container">
+      <div class="bftero-answer-label">😂 ANSWER</div>
+      <p class="bftero-answer-text" id="bfteroResultAnswer"></p>
+    </div>
+    <div class="bftero-modal-actions">
+      <button type="button" class="btn btn-primary" id="bfteroAskAgain">🔄 फिर से पूछो</button>
+    </div>
+  </div>
+</div>
 
 <!-- YOUTUBE -->
 <section id="youtube">
@@ -2032,7 +2181,7 @@ loadYouTube();
    3) Copy the database URL (https://xxxx-default-rtdb.firebaseio.com)
    4) Paste it into window.BFTERO_DB_URL below
 */
-window.BFTERO_DB_URL = window.BFTERO_DB_URL || ''; // e.g. 'https://bftero-xxxx-default-rtdb.firebaseio.com'
+window.BFTERO_DB_URL = window.BFTERO_DB_URL || 'https://bftero-website-default-rtdb.firebaseio.com';
 
 (function(global){
   if(global.BfteroStore) return;
@@ -2394,6 +2543,453 @@ setTimeout(()=>{
   });
 },800);
 
+/* ========== BFTRO FUNNY QUESTION MACHINE ========== */
+/* Add more GIFs to this array anytime */
+const funnyGifs = [
+  "SP Dance.gif",
+  "Shocked dog.gif",
+  "cat-dance-cat.gif",
+  "shocked cat.gif",
+  "Depression.gif",
+  "lavde de bhujyam.gif",
+  "Ye sab doglapan he.gif",
+  "movie scan.gif",
+  "Dog ai dance.gif"
+];
+
+/* Add more questions / answers here — each question needs its own answers array */
+const bfteroFunnyQuestions = [
+  {
+    q: "मेरा दोस्त Gay है क्या?",
+    emoji: "😂",
+    answers: [
+      "😂 भाई, ये सवाल पूछने की हिम्मत कहाँ से आई?",
+      "💀 System ने जवाब देने से मना कर दिया।",
+      "👀 भाई हमें भी शक है।",
+      "🤡 पहले अपने दोस्त से पूछ, हम क्यों फँसे?",
+      "🗿 Classified information है भाई।",
+      "😂 भाई इतना ध्यान अपने दोस्त पर क्यों है?"
+    ]
+  },
+  {
+    q: "मेरी शादी कब होगी?",
+    emoji: "💍",
+    answers: [
+      "💀 शादी का Server अभी offline है।",
+      "😂 पहले कोई पसंद तो कर ले भाई।",
+      "🗿 404: शादी Not Found.",
+      "😭 भाई उम्मीद रख… लेकिन ज्यादा नहीं।",
+      "💰 Bank balance देखकर तारीख तय होगी।",
+      "🔮 जब किस्मत बोलेगी—“चल भाई अब तेरी बारी।”"
+    ]
+  },
+  {
+    q: "क्या मेरी GF/BF मुझसे प्यार करता है?",
+    emoji: "❤️",
+    answers: [
+      "👀 शायद… लेकिन पहले Phone Check मत करना।",
+      "💀 भाई Password माँगकर प्यार मत नापना।",
+      "😂 प्यार करता है… या Acting बहुत अच्छी है।",
+      "❤️ हाँ भाई, आज तो बच गया।",
+      "🤡 ये सवाल तू अपने Partner से क्यों नहीं पूछता?",
+      "🗿 Relationship Status: Loading…"
+    ]
+  },
+  {
+    q: "मेरी Crush मुझे पसंद करती है?",
+    emoji: "💘",
+    answers: [
+      "👀 वो तुम्हारी Story देखती है… आगे भगवान जाने।",
+      "💀 भाई उसने तुम्हें “भाई” कहा था।",
+      "😂 50% प्यार, 50% तेरी imagination।",
+      "❤️ Chance है भाई, कोशिश कर।",
+      "🤡 पहले उसका नाम तो सही से जान ले।",
+      "🗿 Crush Online है, Feelings Offline हैं।"
+    ]
+  },
+  {
+    q: "मेरी Crush मुझे कब Reply करेगी?",
+    emoji: "💬",
+    answers: [
+      "💀 जब GTA 7 आएगा।",
+      "😂 भाई Seen भी नहीं किया उसने।",
+      "🗿 Reply Server Maintenance में है।",
+      "😭 भाई एक और “Hi” मत भेजना।",
+      "👀 शायद वो Reply लिख रही है… 2029 से।",
+      "🤡 Double Text करने का मन हो रहा है ना?"
+    ]
+  },
+  {
+    q: "मैं कब अमीर बनूँगा?",
+    emoji: "💰",
+    answers: [
+      "😂 पहले Salary आने दे भाई।",
+      "💀 जब तेरी किस्मत Update होगी।",
+      "💰 मेहनत कर भाई, Lottery पर भरोसा मत कर।",
+      "🗿 करोड़पति बनने का सपना Loading…",
+      "😂 अभी तो महीने की 25 तारीख को Account रोता है।",
+      "🔥 मेहनत जारी रख, एक दिन Bank Balance भी तुझे सलाम करेगा।"
+    ]
+  },
+  {
+    q: "मैं Famous कब होऊँगा?",
+    emoji: "🌟",
+    answers: [
+      "🚀 जब Algorithm तुझे पहचान लेगा।",
+      "😂 जब तेरी माँ भी तेरे Videos Share करेगी।",
+      "💀 अभी Algorithm तुझसे नाराज़ है।",
+      "🔥 एक Viral Video पूरा Game बदल सकता है।",
+      "🗿 Fame.exe अभी Install हो रहा है।",
+      "👀 भाई तू Famous होने वाला है… शायद।"
+    ]
+  },
+  {
+    q: "मेरा दोस्त इतना Single क्यों है?",
+    emoji: "😔",
+    answers: [
+      "😂 क्योंकि उसकी Standards NASA से भी ऊपर हैं।",
+      "💀 भाई कोई उसे Date नहीं करना चाहता।",
+      "🗿 उसका Relationship Status Permanent है।",
+      "🤣 वो प्यार नहीं, Wi-Fi ढूँढ रहा है।",
+      "😭 शायद भगवान ने उसे बचा रखा है।",
+      "👀 भाई वो खुद ही Red Flag है।"
+    ]
+  },
+  {
+    q: "मेरी किस्मत इतनी खराब क्यों है?",
+    emoji: "🎲",
+    answers: [
+      "😂 किस्मत ने भी तुझे Block कर दिया।",
+      "💀 Luck.exe has stopped working.",
+      "🗿 तेरी किस्मत अभी Maintenance में है।",
+      "😭 भाई तेरे साथ तो Tutorial में ही धोखा हो गया।",
+      "😂 Calculator ने भी जवाब देने से मना कर दिया।",
+      "🔥 चिंता मत कर, अगला Chapter अच्छा होगा।"
+    ]
+  },
+  {
+    q: "मेरा Ex मुझे याद करता है?",
+    emoji: "💭",
+    answers: [
+      "👀 रात को शायद… दिन में नहीं।",
+      "😂 भाई पहले ये देख कि उसने Block तो नहीं किया।",
+      "💀 याद करता है, लेकिन वापस नहीं आना चाहता।",
+      "🗿 Ex.exe has stopped working.",
+      "😭 शायद… लेकिन Move On कर भाई।",
+      "🤡 तू उसे याद करता है, वो नहीं।"
+    ]
+  },
+  {
+    q: "क्या मेरा Ex वापस आएगा?",
+    emoji: "🔄",
+    answers: [
+      "💀 GTA 6 पहले आ गया।",
+      "😂 संभावना है… लेकिन क्यों चाहिए?",
+      "🗿 Return Policy Expired.",
+      "😭 भाई पुरानी File क्यों खोल रहा है?",
+      "👀 शायद जब उसे कोई और न मिले।",
+      "🤡 वापस आए तो भी सोच लेना।"
+    ]
+  },
+  {
+    q: "मेरी Love Life कब शुरू होगी?",
+    emoji: "💕",
+    answers: [
+      "🗿 अभी Beta Version में है।",
+      "😂 पहले “Hi” भेजना सीख।",
+      "💀 Love Life Server Currently Offline.",
+      "❤️ जल्द ही भाई… शायद।",
+      "🤡 अभी तो तू खुद से ही लड़ रहा है।",
+      "🔮 अगले Update में Love Feature आएगा।"
+    ]
+  },
+  {
+    q: "मेरी शादी Love होगी या Arrange?",
+    emoji: "💒",
+    answers: [
+      "❤️ Love… अगर Crush ने हाँ बोल दी।",
+      "😂 Arrange, क्योंकि घरवालों का Wi-Fi तेज है।",
+      "💀 दोनों का Combo Pack मिलेगा।",
+      "🗿 शादी होगी, बाकी Details Classified.",
+      "👀 पहले Partner तो खोज।",
+      "🔮 किस्मत खुद Decide करेगी भाई।"
+    ]
+  },
+  {
+    q: "मेरा दोस्त मुझे पैसे कब लौटाएगा?",
+    emoji: "💸",
+    answers: [
+      "💀 Never.",
+      "😂 जब उसे याद आएगा कि तू भी इंसान है।",
+      "🗿 Payment Processing Since 2024.",
+      "😭 भाई पैसे गए समझ।",
+      "💰 उसके पास पैसे आए तो सबसे पहले नया Phone खरीदेगा।",
+      "🤡 दोस्ती गई, पैसे भी गए।"
+    ]
+  },
+  {
+    q: "क्या मैं Pro Gamer हूँ?",
+    emoji: "🎮",
+    answers: [
+      "😂 भाई पहले Tutorial पूरा कर।",
+      "💀 Aim देखकर दुश्मन भी हँस रहा है।",
+      "🔥 Pro बनने का Potential है।",
+      "🗿 Skill.exe Not Found.",
+      "🤡 तू Pro नहीं, Professional Noob है।",
+      "👑 आज से तू Gaming का राजा है।"
+    ]
+  },
+  {
+    q: "मेरा Aim इतना खराब क्यों है?",
+    emoji: "🎯",
+    answers: [
+      "😂 हाथ नहीं, किस्मत खराब है।",
+      "💀 Crosshair भी तुझसे परेशान है।",
+      "🗿 Aim Assist ने भी Resign कर दिया।",
+      "🤡 भाई दुश्मन सामने था!",
+      "😭 Mouse को दोष मत दे।",
+      "🔥 Practice कर भाई, Headshot आएगा।"
+    ]
+  },
+  {
+    q: "क्या मेरी अगली Video Viral होगी?",
+    emoji: "📹",
+    answers: [
+      "🔥 हाँ भाई, Algorithm आज तेरे साथ है।",
+      "💀 17 Views incoming.",
+      "😂 Viral होगी… तेरे दोस्तों के WhatsApp Group में।",
+      "👀 Thumbnail देखकर Algorithm सोच रहा है।",
+      "🚀 बस Upload कर और Consistency रख।",
+      "🗿 Processing… 99% से आगे नहीं बढ़ रहा।"
+    ]
+  },
+  {
+    q: "कौन मेरा Secret Hater है?",
+    emoji: "🕵️",
+    answers: [
+      "😂 जो ये सवाल पढ़ रहा है।",
+      "👀 तेरे आसपास ही है।",
+      "💀 शायद तेरा सबसे अच्छा दोस्त।",
+      "🗿 Classified information.",
+      "🤡 जो तेरी हर Story देखता है।",
+      "😂 नाम बताऊँ तो दोस्ती खत्म हो जाएगी।"
+    ]
+  },
+  {
+    q: "कौन मेरा Secret Admirer है?",
+    emoji: "🥰",
+    answers: [
+      "👀 शायद वही जो हमेशा आपकी Story देखता है।",
+      "❤️ तेरे सामने है, तू ही Blind है।",
+      "😂 भाई Clues तो दिए हैं उसने।",
+      "💀 शायद कोई नहीं… Sorry.",
+      "🗿 Admirer.exe Loading…",
+      "🔥 हो सकता है तू सोच भी नहीं सकता।"
+    ]
+  },
+  {
+    q: "मेरा दोस्त इतना झूठ क्यों बोलता है?",
+    emoji: "🤥",
+    answers: [
+      "😂 क्योंकि सच बोलने से उसकी Story छोटी हो जाएगी।",
+      "💀 भाई वो खुद अपनी बातों पर विश्वास करता है।",
+      "🤡 उसका जन्म ही Clickbait के लिए हुआ था।",
+      "👀 शायद उसे अपनी कहानी ज्यादा अच्छी लगती है।",
+      "😂 भाई उसका Imagination बहुत तेज है।",
+      "🗿 Truth.exe Not Installed."
+    ]
+  },
+  {
+    q: "क्या मेरी GF/BF मुझे Cheat कर रहा है?",
+    emoji: "🚨",
+    answers: [
+      "👀 ये सवाल Website से नहीं, Partner से पूछ।",
+      "💀 भाई Detective Mode बंद कर।",
+      "😂 Password देखकर सब पता चल जाएगा… शायद।",
+      "🗿 Relationship Security Scan Failed.",
+      "😭 भरोसा है तो चिंता मत कर।",
+      "👀 कुछ तो गड़बड़ है दया… बहुत गड़बड़ है।"
+    ]
+  },
+  {
+    q: "क्या मैं विदेश जाऊँगा?",
+    emoji: "✈️",
+    answers: [
+      "✈️ Passport तैयार रख भाई।",
+      "😂 पहले घर से बाहर निकल।",
+      "💀 Airport तक पहुँच गया तो बड़ी बात है।",
+      "🌎 Chances हैं भाई।",
+      "🗿 Visa.exe Loading…",
+      "😂 Google Maps ने भी रास्ता ढूँढना छोड़ दिया।"
+    ]
+  },
+  {
+    q: "मैं Job कब छोड़ूँगा?",
+    emoji: "💼",
+    answers: [
+      "😂 Salary आने तक तो नहीं।",
+      "💀 जब Boss बोले “एक छोटा सा काम है…”",
+      "🗿 Resignation.exe Loading…",
+      "😭 Monday आते ही मन करता है।",
+      "💰 जब Side Income Salary से ज्यादा होगी।",
+      "😂 भाई तू Job नहीं छोड़ता, Job तुझे छोड़ती है।"
+    ]
+  },
+  {
+    q: "मेरी Salary कब बढ़ेगी?",
+    emoji: "📈",
+    answers: [
+      "😂 जब Boss का Mood अच्छा होगा।",
+      "💀 अगले साल भी शायद वही Salary।",
+      "💰 Appraisal Loading…",
+      "🗿 Salary Update Failed.",
+      "😭 मेहनत तू करता है, Credit कोई और ले जाता है।",
+      "🔥 मांग भाई, बिना मांगे कुछ नहीं मिलता।"
+    ]
+  },
+  {
+    q: "मेरा दोस्त Party कब देगा?",
+    emoji: "🎉",
+    answers: [
+      "💀 जब सूरज पश्चिम से निकलेगा।",
+      "😂 उसके पैसे बच गए तो।",
+      "🗿 Party.exe Not Found.",
+      "😭 भाई वो सिर्फ बोलता है, देता नहीं।",
+      "💰 Salary Day का इंतजार कर।",
+      "🤡 Party का नाम सुनते ही उसका Phone बंद हो जाता है।"
+    ]
+  },
+  {
+    q: "मैं करोड़पति बनूँगा?",
+    emoji: "🏦",
+    answers: [
+      "🔥 हाँ भाई, मेहनत कर।",
+      "😂 सपना बड़ा है, Bank Balance छोटा।",
+      "💀 अभी तो 100 रुपये उधार चाहिए।",
+      "💰 Potential है Boss!",
+      "🗿 Crorepati.exe Downloading…",
+      "😂 पहले करोड़पति बनने की EMI भरने के पैसे ला।"
+    ]
+  },
+  {
+    q: "क्या मैं सच में बेवकूफ हूँ?",
+    emoji: "🤡",
+    answers: [
+      "💀 सवाल देखकर जवाब मिल गया।",
+      "😂 थोड़ा सा… प्यार से।",
+      "🗿 Evidence बहुत मजबूत है।",
+      "🤡 भाई तूने खुद ये सवाल पूछा है।",
+      "😭 मैं झूठ बोलकर तुझे खुश कर सकता हूँ।",
+      "🔥 नहीं भाई, तू बस अलग है। बहुत अलग।"
+    ]
+  },
+  {
+    q: "क्या मैं Handsome/Beautiful हूँ?",
+    emoji: "✨",
+    answers: [
+      "🔥 भाई Mirror भी जल गया।",
+      "😂 Camera ने Auto-Beauty खुद ON कर दिया।",
+      "❤️ तेरी माँ के हिसाब से तू Superstar है।",
+      "👀 सही Light में तो तू ठीक है।",
+      "🗿 Beauty Loading…",
+      "😂 Filter हटाकर फिर पूछना।"
+    ]
+  },
+  {
+    q: "क्या मैं Smart हूँ?",
+    emoji: "🧠",
+    answers: [
+      "🔥 इतना Smart कि खुद से ही सवाल पूछ रहा है।",
+      "😂 कभी-कभी।",
+      "💀 Wi-Fi Signal से ज्यादा Stable नहीं है।",
+      "🗿 Brain.exe Running…",
+      "👀 Potential है भाई।",
+      "🤡 Google भी तुझे देखकर Confused है।"
+    ]
+  },
+  {
+    q: "आज मेरा दिन कैसा रहेगा?",
+    emoji: "☀️",
+    answers: [
+      "🔥 आज तेरा दिन है Boss!",
+      "😂 शुरुआत अच्छी होगी, बाकी भगवान भरोसे।",
+      "💀 सावधान: Monday जैसा Feel आ सकता है।",
+      "💰 पैसा आने की संभावना… फिर जाने की भी।",
+      "❤️ Love का Chance है।",
+      "🗿 आज कुछ भी हो सकता है… कुछ भी!"
+    ]
+  }
+];
+
+(function initBfteroFunnyMachine(){
+  const grid = document.getElementById('bfteroQuestionGrid');
+  const modal = document.getElementById('bfteroFunnyModal');
+  const panel = document.getElementById('bfteroModalPanel');
+  const gifEl = document.getElementById('bfteroResultGif');
+  const ansEl = document.getElementById('bfteroResultAnswer');
+  const closeBtn = document.getElementById('bfteroModalClose');
+  const againBtn = document.getElementById('bfteroAskAgain');
+  if(!grid || !modal || !gifEl || !ansEl) return;
+
+  let currentQ = null;
+  let lastGif = null;
+
+  function pickRandom(arr, avoid){
+    if(!arr || !arr.length) return null;
+    if(arr.length === 1) return arr[0];
+    let item;
+    let tries = 0;
+    do {
+      item = arr[Math.floor(Math.random() * arr.length)];
+      tries++;
+    } while(item === avoid && tries < 12);
+    return item;
+  }
+
+  function showResult(item){
+    currentQ = item;
+    const answer = pickRandom(item.answers);
+    const gif = pickRandom(funnyGifs, lastGif);
+    lastGif = gif;
+    gifEl.src = encodeURI(gif);
+    gifEl.alt = 'Funny meme';
+    ansEl.textContent = answer || '';
+    modal.hidden = false;
+    modal.classList.add('open');
+    document.body.classList.add('bftero-modal-open');
+  }
+
+  function closeModal(){
+    modal.classList.remove('open');
+    modal.hidden = true;
+    document.body.classList.remove('bftero-modal-open');
+    gifEl.removeAttribute('src');
+  }
+
+  grid.innerHTML = '';
+  bfteroFunnyQuestions.forEach((item, idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'bftero-question-card';
+    btn.setAttribute('data-idx', String(idx));
+    btn.innerHTML = '<span class="bq-emoji">' + (item.emoji || '😂') + '</span><span class="bq-text">' + item.q + '</span>';
+    btn.addEventListener('click', () => showResult(item));
+    grid.appendChild(btn);
+  });
+
+  closeBtn && closeBtn.addEventListener('click', closeModal);
+  againBtn && againBtn.addEventListener('click', () => {
+    if(currentQ) showResult(currentQ);
+  });
+  modal.addEventListener('click', (e) => {
+    if(e.target === modal) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+  });
+  panel && panel.addEventListener('click', (e) => e.stopPropagation());
+})();
+
 // Community works inline (no external js required)
 initCommunity();
 </script>
@@ -2516,5 +3112,72 @@ if (stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   animate();
 }
 </script>
+
+
+<!-- ===== BFTЕRO CHAT START (fallback button) ===== -->
+<div id="bfteroChatFallbackFab" style="position:fixed;right:16px;bottom:80px;z-index:99950;">
+  <button type="button" id="bfteroChatFallbackBtn" style="display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-radius:16px;border:1px solid rgba(41,241,230,0.35);background:linear-gradient(145deg,rgba(15,10,34,0.96),rgba(21,14,46,0.94));color:#f2eefc;cursor:pointer;box-shadow:0 10px 28px rgba(0,0,0,0.5),0 0 22px rgba(139,92,246,0.35);font-family:Orbitron,sans-serif;font-size:0.78rem;letter-spacing:0.06em;text-transform:uppercase;">
+    <span>💬 BFTЕRO CHAT</span>
+    <span style="font-family:Space Grotesk,sans-serif;font-size:0.72rem;color:#a79cc9;text-transform:none;letter-spacing:0;">Click to open</span>
+  </button>
+</div>
+<script>
+(function(){
+  function loadScript(src){
+    return new Promise(function(resolve, reject){
+      var s=document.createElement('script');
+      s.src=src;
+      s.onload=function(){resolve(src);};
+      s.onerror=function(){reject(src);};
+      document.head.appendChild(s);
+    });
+  }
+  function loadCss(href){
+    var l=document.createElement('link');
+    l.rel='stylesheet';
+    l.href=href;
+    document.head.appendChild(l);
+  }
+  // Prefer ROOT files (how they are on GitHub now)
+  loadCss('bftero-chat.css');
+  loadScript('bftero-chat.js').catch(function(){
+    return loadScript('bftero-chat/bftero-chat.js');
+  }).then(function(){
+    /* loaded */
+  }).catch(function(){
+    console.warn('Bftero chat JS missing');
+  });
+
+  var btn=document.getElementById('bfteroChatFallbackBtn');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    if(window.BfteroChat && window.BfteroChat.open){
+      window.BfteroChat.open();
+      return;
+    }
+    var tries=0;
+    var t=setInterval(function(){
+      tries++;
+      if(window.BfteroChat && window.BfteroChat.open){
+        clearInterval(t);
+        window.BfteroChat.open();
+      } else if(tries>25){
+        clearInterval(t);
+        alert('Chat still loading or bftero-chat.js is missing from the website root.
+
+Make sure these files exist:
+https://www.bftero.com/bftero-chat.js
+https://www.bftero.com/bftero-chat.css');
+      }
+    }, 200);
+  });
+})();
+</script>
+<!-- ===== BFTЕRO CHAT END ===== -->
+
+<!-- ===== BFTЕRO CHAT START ===== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- ===== BFTЕRO CHAT END ===== -->
 </body>
 </html>
