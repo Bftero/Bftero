@@ -3505,15 +3505,14 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     const box = new THREE.Box3().setFromObject(dino);
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    // ~5× smaller than first version — full body fits on screen
-    const target = window.innerWidth < 700 ? 0.28 : 0.42;
-    dino.scale.setScalar(target / maxDim);
+    // Match Shiva model sizing (same target world size as shiv.glb)
+    const targetSize = window.innerWidth < 700 ? 1.5 : 2.4;
+    dino.scale.setScalar(targetSize / maxDim);
     const box2 = new THREE.Box3().setFromObject(dino);
     const center = box2.getCenter(new THREE.Vector3());
     dino.position.x -= center.x;
     dino.position.y -= center.y;
     dino.position.z -= center.z;
-    dino.position.y += 0.05;
     dino.userData._fitScale = dino.scale.x;
   }
 
@@ -3521,9 +3520,10 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     if (renderer) return true;
     try {
       scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.05, 100);
-      camera.position.set(0, 0.15, 2.4);
-      camera.lookAt(0, 0.1, 0);
+      // Same framing as Shiva model so Dino appears the same on-screen size
+      camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.set(0, 0.4, 5.5);
+      camera.lookAt(0, 0.2, 0);
       renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(window.innerWidth, window.innerHeight);
