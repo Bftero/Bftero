@@ -3258,12 +3258,12 @@ https://www.bftero.com/bftero-chat.css');
   'use strict';
   var EVENT_MS = 6000;
   var btn = document.getElementById('dontTouchBtn');
-  var stage = document.getElementById('dinoStage');
   if (!btn) return;
 
   var reduce = false;
   try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
   var busy = false;
+  var resetTimer = null;
 
   // Never include html/body — closest('body') would skip every element
   var STAY_PUT = '#navbar, #loader, #dinoStage, #dontTouchBtn, #bfteroChatRoot, #bfteroChatFallbackFab, #particles, #webRope, .site-bg, .site-bg-overlay, .grid-backdrop, .glow-orb';
@@ -3273,9 +3273,7 @@ https://www.bftero.com/bftero-chat.css');
     if (el === document.body || el === document.documentElement) return true;
     if (el.id === 'dontTouchBtn') return true;
     if (el.classList && el.classList.contains('btn-dont-touch')) return true;
-    try {
-      if (el.closest(STAY_PUT)) return true;
-    } catch (e) {}
+    try { if (el.closest(STAY_PUT)) return true; } catch (e) {}
     var tag = el.tagName;
     if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK' || tag === 'META' || tag === 'NOSCRIPT' || tag === 'HEAD' || tag === 'HTML' || tag === 'BODY') return true;
     var st;
@@ -3422,7 +3420,6 @@ https://www.bftero.com/bftero-chat.css');
     });
   }
 
-  // Dino 3D API (filled by module below if WebGL works)
   window.__bfteroDino = window.__bfteroDino || {
     show: function () { return Promise.resolve(false); },
     hide: function () { return Promise.resolve(); }
@@ -3435,33 +3432,45 @@ https://www.bftero.com/bftero-chat.css');
 
     var targets = collectTargets();
     var physics = null;
+    var finished = false;
 
     document.body.classList.add('dino-chaos');
+
+    // Hide Shiva briefly so mobile GPUs can free a WebGL slot for Dino
+    var shiva = document.getElementById('modelStage');
+    var shivaPrevVis = shiva ? shiva.style.visibility : '';
+    if (shiva) shiva.style.visibility = 'hidden';
 
     if (!reduce && targets.length) {
       physics = fallElements(targets);
     }
 
-    var dinoP = Promise.resolve(false);
-    try { dinoP = window.__bfteroDino.show(); } catch (e) {}
+    // Dino is best-effort — NEVER block the 6s reset on it
+    try { window.__bfteroDino.show(); } catch (e) {}
 
-    setTimeout(function () {
-      Promise.resolve(dinoP).catch(function () {}).then(function () {
-        if (physics) physics.stop();
-        var restoreP = physics ? restoreElements(physics.bodies) : Promise.resolve();
-        return restoreP.then(function () {
-          return window.__bfteroDino.hide();
-        });
+    function finish() {
+      if (finished) return;
+      finished = true;
+      if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
+      if (physics) physics.stop();
+      var restoreP = physics ? restoreElements(physics.bodies) : Promise.resolve();
+      restoreP.then(function () {
+        try { return window.__bfteroDino.hide(); } catch (e) { return null; }
       }).then(function () {
+        if (shiva) shiva.style.visibility = shivaPrevVis;
         document.body.classList.remove('dino-chaos');
         btn.disabled = false;
         busy = false;
       }).catch(function () {
+        if (shiva) shiva.style.visibility = shivaPrevVis;
         document.body.classList.remove('dino-chaos');
         btn.disabled = false;
         busy = false;
       });
-    }, EVENT_MS);
+    }
+
+    // Hard guarantee: always reset after EVENT_MS regardless of Dino/WebGL
+    resetTimer = setTimeout(finish, EVENT_MS);
   }
 
   btn.addEventListener('click', function (e) {
@@ -3481,6 +3490,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
   let renderer = null, scene = null, camera = null, dino = null, mixer = null, clock = null, animId = null;
   let loadPromise = null;
+  const isMobile = () => window.innerWidth < 700 || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || '');
 
   function makeOpaque(root) {
     root.traverse((child) => {
@@ -3505,8 +3515,9 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     const box = new THREE.Box3().setFromObject(dino);
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    // Match Shiva model sizing (same target world size as shiv.glb)
-    const targetSize = window.innerWidth < 700 ? 1.5 : 2.4;
+    // Clearly smaller than full-screen — full body visible on phone + desktop
+    // (much smaller than Shiva's 1.5/2.4 so it doesn't fill the viewport)
+    const targetSize = isMobile() ? 0.55 : 0.85;
     dino.scale.setScalar(targetSize / maxDim);
     const box2 = new THREE.Box3().setFromObject(dino);
     const center = box2.getCenter(new THREE.Vector3());
@@ -3520,28 +3531,33 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     if (renderer) return true;
     try {
       scene = new THREE.Scene();
-      // Same framing as Shiva model so Dino appears the same on-screen size
-      camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
-      camera.position.set(0, 0.4, 5.5);
-      camera.lookAt(0, 0.2, 0);
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      camera = new THREE.PerspectiveCamera(35, window.innerWidth / Math.max(window.innerHeight, 1), 0.1, 100);
+      // Pull camera back so a small model stays centered and fully visible
+      camera.position.set(0, 0.35, isMobile() ? 4.2 : 5.0);
+      camera.lookAt(0, 0.15, 0);
+      renderer = new THREE.WebGLRenderer({
+        alpha: true,
+        antialias: !isMobile(),
+        powerPreference: 'default',
+        failIfMajorPerformanceCaveat: false
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile() ? 1.25 : 2));
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setClearColor(0x000000, 0);
       stage.appendChild(renderer.domElement);
-      scene.add(new THREE.AmbientLight(0xd0dcff, 0.7));
-      const key = new THREE.DirectionalLight(0x29f1e6, 0.65);
+      scene.add(new THREE.AmbientLight(0xd0dcff, 0.75));
+      const key = new THREE.DirectionalLight(0x29f1e6, 0.7);
       key.position.set(2, 3.5, 3);
       scene.add(key);
       const rim = new THREE.DirectionalLight(0xff3fb0, 0.4);
       rim.position.set(-2.5, 1.2, -2);
       scene.add(rim);
-      const spot = new THREE.SpotLight(0xfff5e8, 4.0, 20, Math.PI / 5, 0.3, 1.0);
+      const spot = new THREE.SpotLight(0xfff5e8, 4.0, 24, Math.PI / 5, 0.3, 1.0);
       spot.position.set(-2.2, 2.5, 3.2);
       spot.target.position.set(0, 0.1, 0);
       scene.add(spot);
       scene.add(spot.target);
-      const spot2 = new THREE.SpotLight(0xdce8ff, 1.8, 18, Math.PI / 4.5, 0.45, 1.1);
+      const spot2 = new THREE.SpotLight(0xdce8ff, 1.8, 20, Math.PI / 4.5, 0.45, 1.1);
       spot2.position.set(2.4, 1.6, 2.8);
       spot2.target.position.set(0, 0.1, 0);
       scene.add(spot2);
@@ -3562,31 +3578,42 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
       return loadPromise;
     }
     loadPromise = new Promise((resolve) => {
+      let settled = false;
+      const done = (v) => { if (!settled) { settled = true; resolve(v); } };
+      // Hard timeout so mobile never hangs forever
+      const t = setTimeout(() => done(false), 8000);
       new GLTFLoader().load(
         'Dino.glb',
         (gltf) => {
-          dino = gltf.scene;
-          makeOpaque(dino);
-          fitDinoToView();
-          dino.visible = false;
-          scene.add(dino);
-          dino.userData._clips = (gltf.animations && gltf.animations.length) ? gltf.animations.slice() : [];
-          mixer = null;
-          if (dino.userData._clips.length) {
-            mixer = new THREE.AnimationMixer(dino);
-            dino.userData._clips.forEach((clip) => {
-              const action = mixer.clipAction(clip);
-              action.reset();
-              action.setLoop(THREE.LoopRepeat, Infinity);
-              action.play();
-            });
+          clearTimeout(t);
+          try {
+            dino = gltf.scene;
+            makeOpaque(dino);
+            fitDinoToView();
+            dino.visible = false;
+            scene.add(dino);
+            dino.userData._clips = (gltf.animations && gltf.animations.length) ? gltf.animations.slice() : [];
+            mixer = null;
+            if (dino.userData._clips.length) {
+              mixer = new THREE.AnimationMixer(dino);
+              dino.userData._clips.forEach((clip) => {
+                const action = mixer.clipAction(clip);
+                action.reset();
+                action.setLoop(THREE.LoopRepeat, Infinity);
+                action.play();
+              });
+            }
+            done(true);
+          } catch (e) {
+            console.warn('Dino setup failed', e);
+            done(false);
           }
-          resolve(true);
         },
         undefined,
         (err) => {
+          clearTimeout(t);
           console.warn('Dino.glb not found — place Dino.glb next to index.html', err);
-          resolve(false);
+          done(false);
         }
       );
     });
@@ -3606,20 +3633,26 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
   window.addEventListener('resize', () => {
     if (!renderer || !camera) return;
-    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = window.innerWidth / Math.max(window.innerHeight, 1);
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.position.z = isMobile() ? 4.2 : 5.0;
     if (dino) fitDinoToView();
   });
 
-  setTimeout(() => { loadDino(); }, 2000);
+  // Preload after a short delay (desktop + mobile)
+  setTimeout(() => { loadDino(); }, 1500);
 
   window.__bfteroDino = {
     show() {
       return loadDino().then((ok) => {
-        if (!ok || !dino) return false;
+        if (!ok || !dino || !renderer) return false;
         stage.classList.add('active');
         stage.setAttribute('aria-hidden', 'false');
+        // Ensure canvas size is correct (mobile address bar changes height)
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / Math.max(window.innerHeight, 1);
+        camera.updateProjectionMatrix();
         fitDinoToView();
         const base = dino.userData._fitScale || dino.scale.x;
         dino.userData._fitScale = base;
@@ -3629,7 +3662,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         (function intro(now) {
           const t = Math.min(1, (now - t0) / 650);
           const e = 1 - Math.pow(1 - t, 3);
-          dino.scale.setScalar(0.01 + e * (base - 0.01));
+          if (dino) dino.scale.setScalar(0.01 + e * (base - 0.01));
           if (t < 1) requestAnimationFrame(intro);
         })(t0);
         if (!animId) {
@@ -3648,7 +3681,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
           } catch (_) {}
         }
         return true;
-      });
+      }).catch(() => false);
     },
     hide() {
       return new Promise((resolve) => {
@@ -3664,11 +3697,13 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         (function outro(now) {
           const t = Math.min(1, (now - t0) / 500);
           const e = t * t;
-          dino.scale.setScalar(base * (1 - e) + 0.01 * e);
+          if (dino) dino.scale.setScalar(base * (1 - e) + 0.01 * e);
           if (t < 1) requestAnimationFrame(outro);
           else {
-            dino.visible = false;
-            if (dino.userData._fitScale) dino.scale.setScalar(dino.userData._fitScale);
+            if (dino) {
+              dino.visible = false;
+              if (dino.userData._fitScale) dino.scale.setScalar(dino.userData._fitScale);
+            }
             stage.classList.remove('active');
             stage.setAttribute('aria-hidden', 'true');
             stopLoop();
