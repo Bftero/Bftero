@@ -682,6 +682,51 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
   .dance-buddy{width:56px;height:56px;right:0;}
   #modelStage{opacity:1;}
 }
+
+/* ===== Dino Easter Egg (DON'T TOUCH) — additive only ===== */
+.btn-dont-touch{
+  font-family:var(--font-display);font-weight:800;letter-spacing:0.05em;text-transform:uppercase;
+  font-size:0.78rem;padding:12px 18px;display:inline-flex;align-items:center;gap:8px;
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);
+  background:linear-gradient(135deg,#ff3fb0,#ffb454 55%,#ff6b35);
+  color:#05030c;border:none;cursor:pointer;
+  box-shadow:0 0 18px rgba(255,63,176,0.35),0 8px 22px rgba(0,0,0,0.35);
+  transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;
+  animation:dontTouchPulse 2.4s ease-in-out infinite;
+}
+.btn-dont-touch:hover{transform:translateY(-3px) scale(1.03);filter:brightness(1.08);
+  box-shadow:0 0 28px rgba(255,63,176,0.55),0 12px 28px rgba(0,0,0,0.4);}
+.btn-dont-touch:disabled{opacity:0.55;cursor:not-allowed;animation:none;transform:none;}
+@keyframes dontTouchPulse{
+  0%,100%{box-shadow:0 0 14px rgba(255,63,176,0.3),0 8px 22px rgba(0,0,0,0.35);}
+  50%{box-shadow:0 0 26px rgba(255,180,84,0.55),0 8px 22px rgba(0,0,0,0.35);}
+}
+#dinoStage{
+  position:fixed;inset:0;z-index:120;pointer-events:none;
+  opacity:0;visibility:hidden;overflow:hidden;
+  transition:opacity .45s ease,visibility .45s ease;
+}
+#dinoStage.active{opacity:1;visibility:visible;}
+#dinoStage canvas{width:100%!important;height:100%!important;display:block;max-width:100%;}
+body.dino-chaos{overflow:hidden !important;}
+body.dino-chaos #navbar,
+body.dino-chaos #bfteroChatRoot,
+body.dino-chaos #bfteroChatFallbackFab,
+body.dino-chaos #dinoStage,
+body.dino-chaos #dontTouchBtn{/* keep above falling world */}
+.dino-falling{
+  will-change:transform;
+  pointer-events:none !important;
+  transition:none !important;
+  z-index:50 !important;
+}
+@media (max-width:700px){
+  .btn-dont-touch{font-size:0.68rem;padding:10px 14px;}
+}
+@media (prefers-reduced-motion: reduce){
+  .btn-dont-touch{animation:none;}
+}
+/* ===== end Dino Easter Egg CSS ===== */
 @media (prefers-reduced-motion: reduce){
   .dance-buddy img{transition:none;}
 }
@@ -1021,6 +1066,7 @@ body.bftero-modal-open{overflow:hidden;}
         <a href="play.html" class="btn btn-primary">🎮 Play BFtero Game</a>
         <a href="https://www.youtube.com/@Bftero" class="btn btn-ghost" target="_blank" rel="noopener">Watch on YouTube</a>
         <a href="#games" class="btn btn-ghost">Play My Roblox Games</a>
+        <button type="button" class="btn-dont-touch" id="dontTouchBtn" aria-label="Don't Touch Easter Egg">⚠️ DON'T TOUCH</button>
       </div>
       <div class="hero-stats">
         <div class="hero-stat"><b>4</b><span>Original Games</span></div>
@@ -1407,6 +1453,9 @@ body.bftero-modal-open{overflow:hidden;}
 
 <!-- Center 3D model background (place shiv.glb next to index.html) -->
 <div id="modelStage" aria-hidden="true"></div>
+
+<!-- Dino Easter Egg stage (hidden until DON'T TOUCH) — place Dino.glb next to index.html -->
+<div id="dinoStage" aria-hidden="true"></div>
 
 <!-- Spider-Man style web rope with particles -->
 <canvas id="webRope" aria-hidden="true"></canvas>
@@ -3202,5 +3251,430 @@ https://www.bftero.com/bftero-chat.css');
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <!-- ===== BFTЕRO CHAT END ===== -->
+
+<!-- ===== DINO EASTER EGG START (additive — does not alter Shiva or site design) ===== -->
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+(function () {
+  const EVENT_MS = 6000;
+  const btn = document.getElementById('dontTouchBtn');
+  const stage = document.getElementById('dinoStage');
+  if (!btn || !stage) return;
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let busy = false;
+  let renderer = null;
+  let scene = null;
+  let camera = null;
+  let dino = null;
+  let mixer = null;
+  let clock = null;
+  let animId = null;
+  let spot = null;
+  let spot2 = null;
+  let amb = null;
+  let ready = false;
+  let loadPromise = null;
+
+  const SKIP_SEL = [
+    '#navbar', '#loader', '#dinoStage', '#modelStage', '#particles',
+    '#webRope', '#danceBuddy', '#backtop', '#bfteroChatRoot',
+    '#bfteroChatFallbackFab', '#dontTouchBtn', 'script', 'style', 'link',
+    'meta', 'head', 'html', 'body', 'iframe', 'canvas', 'noscript'
+  ].join(',');
+
+  function isSkippable(el) {
+    if (!el || el.nodeType !== 1) return true;
+    if (el.closest(SKIP_SEL)) return true;
+    if (el.id === 'dontTouchBtn' || el.classList.contains('btn-dont-touch')) return true;
+    const tag = el.tagName;
+    if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK' || tag === 'META') return true;
+    const st = window.getComputedStyle(el);
+    if (st.display === 'none' || st.visibility === 'hidden') return true;
+    if (st.position === 'fixed' || st.position === 'sticky') return true;
+    const r = el.getBoundingClientRect();
+    if (r.width < 8 || r.height < 8) return true;
+    if (r.bottom < -40 || r.top > window.innerHeight + 40) return true;
+    return false;
+  }
+
+  function collectTargets() {
+    const selectors = [
+      '.hud-panel', '.btn', '.hero-title', '.hero-bio', '.hero-role', '.hero-platforms',
+      '.hero-stat', '.hero-tag', '.section-title', '.section-sub', '.eyebrow',
+      '.game-card', '.yt-card', '.short-card', '.social-card', '.cat-card', '.nepx-card',
+      '.avatar-shell', '.float-item', '.sticky-note', '.profile-card', '.community-banner',
+      '.engage-card', '.poll-card', '.bftero-question-card', '.live-status-bar',
+      'footer .footer-copy', 'footer .footer-social a', '.nav-links a'
+    ];
+    const set = new Set();
+    selectors.forEach((sel) => {
+      document.querySelectorAll(sel).forEach((el) => {
+        if (!isSkippable(el)) set.add(el);
+      });
+    });
+    // Cap for performance
+    return Array.from(set).slice(0, 80);
+  }
+
+  function makeOpaque(root) {
+    root.traverse((child) => {
+      if (!child.isMesh) return;
+      const mats = Array.isArray(child.material) ? child.material : [child.material];
+      mats.forEach((m) => {
+        if (!m) return;
+        m.transparent = false;
+        m.opacity = 1;
+        m.depthWrite = true;
+        if (m.alphaTest !== undefined) m.alphaTest = 0;
+        m.needsUpdate = true;
+      });
+    });
+  }
+
+  function ensureScene() {
+    if (renderer) return true;
+    try {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.set(0, 0.6, 5.2);
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x000000, 0);
+      stage.appendChild(renderer.domElement);
+
+      amb = new THREE.AmbientLight(0xc8d4ff, 0.55);
+      scene.add(amb);
+      const key = new THREE.DirectionalLight(0x29f1e6, 0.55);
+      key.position.set(2.5, 4, 3);
+      scene.add(key);
+      const rim = new THREE.DirectionalLight(0xff3fb0, 0.35);
+      rim.position.set(-2.5, 1.5, -2);
+      scene.add(rim);
+      spot = new THREE.SpotLight(0xfff5e8, 3.6, 30, Math.PI / 5.5, 0.32, 1.0);
+      spot.position.set(-3.5, 3.2, 4.5);
+      spot.target.position.set(0, 0.2, 0);
+      scene.add(spot);
+      scene.add(spot.target);
+      spot2 = new THREE.SpotLight(0xdce8ff, 1.6, 26, Math.PI / 5, 0.5, 1.1);
+      spot2.position.set(3.8, 2.0, 3.5);
+      spot2.target.position.set(0, 0.15, 0);
+      scene.add(spot2);
+      scene.add(spot2.target);
+      clock = new THREE.Clock();
+      return true;
+    } catch (e) {
+      console.warn('Dino WebGL unavailable', e);
+      renderer = null;
+      return false;
+    }
+  }
+
+  function loadDino() {
+    if (loadPromise) return loadPromise;
+    if (!ensureScene()) {
+      loadPromise = Promise.resolve(false);
+      return loadPromise;
+    }
+    loadPromise = new Promise((resolve) => {
+      const loader = new GLTFLoader();
+      loader.load(
+        'Dino.glb',
+        (gltf) => {
+          dino = gltf.scene;
+          makeOpaque(dino);
+          // Fit size
+          const box = new THREE.Box3().setFromObject(dino);
+          const size = box.getSize(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.y, size.z) || 1;
+          const target = window.innerWidth < 700 ? 1.35 : 2.15;
+          dino.scale.setScalar(target / maxDim);
+          const box2 = new THREE.Box3().setFromObject(dino);
+          const center = box2.getCenter(new THREE.Vector3());
+          dino.position.x -= center.x;
+          dino.position.y -= center.y;
+          dino.position.z -= center.z;
+          dino.position.y += 0.15;
+          dino.visible = false;
+          scene.add(dino);
+
+          mixer = null;
+          dino.userData._clips = (gltf.animations && gltf.animations.length) ? gltf.animations.slice() : [];
+          if (dino.userData._clips.length) {
+            mixer = new THREE.AnimationMixer(dino);
+            // Use only the animations already inside Dino.glb — do not invent new ones
+            dino.userData._clips.forEach((clip) => {
+              const action = mixer.clipAction(clip);
+              action.reset();
+              action.setLoop(THREE.LoopRepeat, Infinity);
+              action.play();
+            });
+          }
+          ready = true;
+          resolve(true);
+        },
+        undefined,
+        (err) => {
+          console.warn('Dino.glb not found — place Dino.glb next to index.html', err);
+          resolve(false);
+        }
+      );
+    });
+    return loadPromise;
+  }
+
+  // Preload quietly so first click is fast
+  if (!reduce) {
+    setTimeout(() => { loadDino(); }, 2500);
+  }
+
+  function renderLoop() {
+    animId = requestAnimationFrame(renderLoop);
+    const dt = clock ? clock.getDelta() : 0.016;
+    if (mixer) mixer.update(dt);
+    if (dino && dino.visible) {
+      dino.rotation.y += 0.004;
+    }
+    if (renderer && scene && camera) renderer.render(scene, camera);
+  }
+
+  function stopLoop() {
+    if (animId) {
+      cancelAnimationFrame(animId);
+      animId = null;
+    }
+  }
+
+  function onResize() {
+    if (!renderer || !camera) return;
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+  window.addEventListener('resize', onResize);
+
+  // ---- Gravity physics (temporary transforms only) ----
+  function fallElements(els) {
+    const bodies = [];
+    els.forEach((el, i) => {
+      const rect = el.getBoundingClientRect();
+      // Freeze layout position with fixed + exact coords, then animate transform
+      const prev = {
+        position: el.style.position,
+        left: el.style.left,
+        top: el.style.top,
+        width: el.style.width,
+        height: el.style.height,
+        margin: el.style.margin,
+        transform: el.style.transform,
+        zIndex: el.style.zIndex,
+        transition: el.style.transition,
+        pointerEvents: el.style.pointerEvents,
+        willChange: el.style.willChange,
+      };
+      el.style.position = 'fixed';
+      el.style.left = rect.left + 'px';
+      el.style.top = rect.top + 'px';
+      el.style.width = rect.width + 'px';
+      el.style.height = rect.height + 'px';
+      el.style.margin = '0';
+      el.style.zIndex = String(40 + (i % 10));
+      el.style.transition = 'none';
+      el.style.pointerEvents = 'none';
+      el.style.willChange = 'transform';
+      el.classList.add('dino-falling');
+
+      bodies.push({
+        el,
+        prev,
+        x: 0,
+        y: 0,
+        vx: (Math.random() - 0.5) * 6,
+        vy: Math.random() * 2 + 1,
+        rot: 0,
+        vr: (Math.random() - 0.5) * 4,
+        g: 0.55 + Math.random() * 0.45,
+        bounce: 0.35 + Math.random() * 0.25,
+        settled: false,
+        floorY: Math.max(40, window.innerHeight - rect.top - rect.height - 12 + Math.random() * 40),
+      });
+    });
+
+    let raf = null;
+    const start = performance.now();
+    function tick(now) {
+      const t = now - start;
+      bodies.forEach((b) => {
+        if (b.settled) return;
+        b.vy += b.g;
+        b.y += b.vy;
+        b.x += b.vx;
+        b.rot += b.vr;
+        // soft floor bounce within viewport chaos
+        if (b.y > b.floorY) {
+          b.y = b.floorY;
+          b.vy *= -b.bounce;
+          b.vx *= 0.92;
+          b.vr *= 0.85;
+          if (Math.abs(b.vy) < 1.2) {
+            b.vy = 0;
+            b.settled = true;
+          }
+        }
+        b.el.style.transform =
+          'translate(' + b.x.toFixed(1) + 'px,' + b.y.toFixed(1) + 'px) rotate(' + b.rot.toFixed(1) + 'deg)';
+      });
+      if (t < EVENT_MS - 900) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        raf = null;
+      }
+    }
+    raf = requestAnimationFrame(tick);
+    return { bodies, stop: () => { if (raf) cancelAnimationFrame(raf); raf = null; } };
+  }
+
+  function restoreElements(bodies) {
+    return new Promise((resolve) => {
+      bodies.forEach((b) => {
+        b.el.style.transition = 'transform 0.85s cubic-bezier(0.22, 1.2, 0.36, 1), opacity 0.5s ease';
+        b.el.style.transform = 'translate(0px, 0px) rotate(0deg)';
+      });
+      setTimeout(() => {
+        bodies.forEach((b) => {
+          const el = b.el;
+          const prev = b.prev;
+          el.classList.remove('dino-falling');
+          el.style.position = prev.position;
+          el.style.left = prev.left;
+          el.style.top = prev.top;
+          el.style.width = prev.width;
+          el.style.height = prev.height;
+          el.style.margin = prev.margin;
+          el.style.transform = prev.transform;
+          el.style.zIndex = prev.zIndex;
+          el.style.transition = prev.transition;
+          el.style.pointerEvents = prev.pointerEvents;
+          el.style.willChange = prev.willChange;
+        });
+        resolve();
+      }, 900);
+    });
+  }
+
+  async function showDino() {
+    const ok = await loadDino();
+    if (!ok || !dino) return false;
+    stage.classList.add('active');
+    stage.setAttribute('aria-hidden', 'false');
+    // Remember fitted scale once
+    if (!dino.userData._fitScale) dino.userData._fitScale = dino.scale.x;
+    const base = dino.userData._fitScale;
+    dino.visible = true;
+    dino.scale.setScalar(0.01);
+    const t0 = performance.now();
+    function intro(now) {
+      const t = Math.min(1, (now - t0) / 700);
+      const e = 1 - Math.pow(1 - t, 3);
+      dino.scale.setScalar(0.01 + e * (base - 0.01));
+      if (t < 1) requestAnimationFrame(intro);
+    }
+    requestAnimationFrame(intro);
+    if (!animId) {
+      if (clock) clock.start();
+      renderLoop();
+    }
+    if (mixer) {
+      try {
+        mixer.stopAllAction();
+        // re-play existing clips from the GLB only
+        if (dino.userData._clips) {
+          dino.userData._clips.forEach((clip) => {
+            const action = mixer.clipAction(clip);
+            action.reset();
+            action.setLoop(THREE.LoopRepeat, Infinity);
+            action.play();
+          });
+        }
+      } catch (_) {}
+    }
+    return true;
+  }
+
+  function hideDino() {
+    return new Promise((resolve) => {
+      if (!dino) {
+        stage.classList.remove('active');
+        stage.setAttribute('aria-hidden', 'true');
+        stopLoop();
+        resolve();
+        return;
+      }
+      const base = dino.scale.x;
+      const t0 = performance.now();
+      function outro(now) {
+        const t = Math.min(1, (now - t0) / 550);
+        const e = t * t;
+        dino.scale.setScalar(base * (1 - e) + 0.01 * e);
+        if (t < 1) requestAnimationFrame(outro);
+        else {
+          dino.visible = false;
+          dino.scale.setScalar(base);
+          stage.classList.remove('active');
+          stage.setAttribute('aria-hidden', 'true');
+          stopLoop();
+          resolve();
+        }
+      }
+      requestAnimationFrame(outro);
+    });
+  }
+
+  async function runEvent() {
+    if (busy) return;
+    busy = true;
+    btn.disabled = true;
+
+    const targets = collectTargets();
+    let physics = null;
+
+    document.body.classList.add('dino-chaos');
+
+    // Start fall + dino together
+    if (!reduce) {
+      physics = fallElements(targets);
+      await showDino();
+    } else {
+      // Reduced motion: brief dino only
+      await showDino();
+    }
+
+    await new Promise((r) => setTimeout(r, EVENT_MS));
+
+    if (physics) physics.stop();
+    if (physics) await restoreElements(physics.bodies);
+    await hideDino();
+
+    document.body.classList.remove('dino-chaos');
+    btn.disabled = false;
+    busy = false;
+  }
+
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    runEvent();
+  });
+
+  // Cleanup on page hide
+  window.addEventListener('pagehide', () => {
+    stopLoop();
+  });
+})();
+</script>
+<!-- ===== DINO EASTER EGG END ===== -->
+
 </body>
 </html>
