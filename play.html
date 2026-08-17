@@ -30,7 +30,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 #navbar{position:fixed;top:0;left:0;right:0;z-index:200;padding:14px 0;background:rgba(5,3,12,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
 .brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;letter-spacing:0.1em;}
-.brand img{width:36px;height:36px;border-radius:50%;border:2px solid var(--cyan);}
+.brand img{width:36px;height:36px;border-radius:50%;border:2px solid var(--cyan);object-fit:contain;background:#05030c;}
 .nav-links{display:flex;flex-wrap:wrap;gap:8px 14px;}
 .nav-links a{font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
 .nav-links a:hover,.nav-links a.active{color:var(--cyan);}
@@ -88,7 +88,7 @@ footer{padding:24px 0;border-top:1px solid var(--line);text-align:center;color:v
 
 <header id="navbar">
   <div class="wrap nav-inner">
-    <a href="index.html" class="brand"><img src="bftero-avatar.jpg" alt="" width="36" height="36"> BFTERO</a>
+    <a href="index.html" class="brand"><img src="bftero-logo.png" alt="Bftero" width="36" height="36"> BFTERO</a>
     <nav class="nav-links">
       <a href="index.html">Home</a>
       <a href="play.html" class="active">Play</a>

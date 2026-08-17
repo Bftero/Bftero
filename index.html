@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bftero | Gamer • Streamer • Roblox Developer</title>
 <meta name="description" content="Welcome to Bftero — a gaming creator, streamer and Roblox developer. Explore my Roblox games, watch my latest YouTube videos and Shorts, follow my livestreams, and connect with me across social media.">
-<meta name="keywords" content="Bftero, BFTERO, Roblox developer, Roblox games, PS5 gamer, streamer, Minecraft, GTA, Rockstar Games, NepX Universe, live streaming, gaming creator">
+<meta name="keywords" content="Bftero, BFTERO, Roblox developer, Roblox games, PS5 gamer, streamer, Minecraft, GTA, Rockstar Games, live streaming, gaming creator">
 <meta name="author" content="Bftero">
 <meta name="robots" content="index, follow">
 <!-- Required so YouTube embeds receive a proper Referer (avoids Error 153) -->
@@ -258,8 +258,9 @@ section{position:relative;z-index:1;padding:100px 0;}
   width:42px;height:42px;border-radius:50%;object-fit:cover;
   border:2px solid transparent;background:var(--grad-1);padding:2px;
   box-shadow:0 0 18px rgba(41,241,230,0.35);
+  overflow:hidden;flex-shrink:0;
 }
-.brand-img img{width:100%;height:100%;border-radius:50%;object-fit:cover;}
+.brand-img img{width:100%;height:100%;border-radius:50%;object-fit:contain;background:#05030c;}
 .nav-links{display:flex;gap:28px;align-items:center;}
 .nav-links a{
   font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);
@@ -668,10 +669,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
 .dance-buddy.climbing-down img{ transform: rotate(18deg) scaleY(1.02); }
 .dance-buddy.climbing-up img{ transform: rotate(4deg) scaleY(1.02); }
 
-/* Center background 3D model (shiv.glb) */
+/* Center background 3D model (shiv.glb) — fully opaque, spotlight-lit */
 #modelStage{
   position:fixed;inset:0;z-index:0;pointer-events:none;
-  opacity:0.55;
+  opacity:1;
   overflow:hidden;
 }
 #modelStage canvas{width:100%!important;height:100%!important;display:block;max-width:100%;}
@@ -679,7 +680,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:42px
 @media (max-width:700px){
   #webRope{width:56px; right:0;}
   .dance-buddy{width:56px;height:56px;right:0;}
-  #modelStage{opacity:0.28;}
+  #modelStage{opacity:1;}
 }
 @media (prefers-reduced-motion: reduce){
   .dance-buddy img{transition:none;}
@@ -973,7 +974,7 @@ body.bftero-modal-open{overflow:hidden;}
 <header id="navbar">
   <div class="wrap nav-inner">
     <a href="#hero" class="brand">
-      <div class="brand-img"><img src="bftero-avatar.jpg" alt="Bftero" width="42" height="42"></div>
+      <div class="brand-img"><img src="bftero-logo.png" alt="Bftero" width="42" height="42"></div>
       BFTERO
     </a>
     <nav class="nav-links" id="navLinks">
@@ -1024,7 +1025,6 @@ body.bftero-modal-open{overflow:hidden;}
       <div class="hero-stats">
         <div class="hero-stat"><b>4</b><span>Original Games</span></div>
         <div class="hero-stat"><b>Live</b><span>Weekly Streams</span></div>
-        <div class="hero-stat"><b>NP</b><span>Based in Nepal</span></div>
       </div>
     </div>
     <div class="hero-visual" id="heroVisual">
@@ -1281,8 +1281,8 @@ body.bftero-modal-open{overflow:hidden;}
       <h2 class="section-title" style="margin-bottom:20px;">About <span>Bftero</span></h2>
       <div class="about-text">
         <p>Bftero is a gaming creator, streamer, Roblox developer, and digital creator focused on gaming content, live streaming, Roblox experiences, PS5 gaming, Minecraft, GTA, and Rockstar Games.</p>
-        <p>From building original Roblox experiences like Leave Me Alone, The Balen City, MM2 Nepal and Space Tour NP, to streaming Spider-Man 2 and GTA on PS5 — the mission is simple: create worlds, share the journey, and play with the community.</p>
-        <p>Based in Nepal. Streaming weekly. Always building the next experience.</p>
+        <p>From building original Roblox experiences like Leave Me Alone, The Balen City, MM2 and Space Tour, to streaming Spider-Man 2 and GTA on PS5 — the mission is simple: create worlds, share the journey, and play with the community.</p>
+        <p>Streaming weekly. Always building the next experience.</p>
       </div>
       <a href="#socials" class="btn btn-primary" style="margin-top:8px;">Connect With Me</a>
     </div>
@@ -1359,7 +1359,7 @@ body.bftero-modal-open{overflow:hidden;}
       </div>
       <div class="contact-info-item">
         <div class="ico">◈</div>
-        <div><h4>Community</h4><p>Join NepX Universe or hop in Discord during streams.</p></div>
+        <div><h4>Community</h4><p>Join the community or hop in Discord during streams.</p></div>
       </div>
       <div class="contact-info-item">
         <div class="ico">▲</div>
@@ -3020,26 +3020,34 @@ if (stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   stage.appendChild(renderer.domElement);
 
   // Soft fill so the model is never pure black in shadows
-  const amb = new THREE.AmbientLight(0xb8c4ff, 0.28);
+  const amb = new THREE.AmbientLight(0xb8c4ff, 0.42);
   scene.add(amb);
 
-  // Gentle cyan key from upper-front (kept low so spotlight dominates)
-  const key = new THREE.DirectionalLight(0x29f1e6, 0.35);
+  // Gentle cyan key from upper-front (kept moderate so spotlight dominates)
+  const key = new THREE.DirectionalLight(0x29f1e6, 0.45);
   key.position.set(2, 4, 3);
   scene.add(key);
 
   // Soft magenta rim from behind-right for edge separation
-  const rim = new THREE.DirectionalLight(0xff3fb0, 0.25);
+  const rim = new THREE.DirectionalLight(0xff3fb0, 0.32);
   rim.position.set(3, 1.5, -3);
   scene.add(rim);
 
-  // Main spotlight: LEFT → RIGHT across the Shiv model (cinematic, not blown out)
-  const spot = new THREE.SpotLight(0xfff2e0, 2.4, 22, Math.PI / 5.5, 0.5, 1.1);
-  spot.position.set(-5.2, 2.2, 3.8); // left side, slightly elevated, in front
-  spot.target.position.set(0.8, 0.15, 0); // aim across the model toward the right
+  // Focused spotlight on the Shiva model — premium highlight, not washed out
+  const spot = new THREE.SpotLight(0xfff5e8, 3.2, 28, Math.PI / 6, 0.35, 1.0);
+  spot.position.set(-4.6, 2.8, 4.2);
+  spot.target.position.set(0, 0.2, 0);
   spot.castShadow = false;
   scene.add(spot);
   scene.add(spot.target);
+
+  // Secondary fill spotlight from opposite side for even visibility on mobile/desktop
+  const spot2 = new THREE.SpotLight(0xdce8ff, 1.4, 24, Math.PI / 5, 0.5, 1.15);
+  spot2.position.set(4.2, 1.8, 3.2);
+  spot2.target.position.set(0, 0.15, 0);
+  spot2.castShadow = false;
+  scene.add(spot2);
+  scene.add(spot2.target);
 
   let model = null;
   let targetY = 0;
@@ -3049,6 +3057,20 @@ if (stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 
   const loader = new GLTFLoader();
   // Place your file as: shiv.glb next to index.html
+  function makeModelOpaque(root) {
+    root.traverse((child) => {
+      if (!child.isMesh) return;
+      const mats = Array.isArray(child.material) ? child.material : [child.material];
+      mats.forEach((m) => {
+        if (!m) return;
+        m.transparent = false;
+        m.opacity = 1;
+        m.depthWrite = true;
+        if (m.alphaTest !== undefined) m.alphaTest = 0;
+        m.needsUpdate = true;
+      });
+    });
+  }
   function applyModelScale() {
     if (!model) return;
     // Always reset to 1 first so repeated resize calls don't compound the scale
@@ -3071,6 +3093,7 @@ if (stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     'shiv.glb',
     (gltf) => {
       model = gltf.scene;
+      makeModelOpaque(model);
       applyModelScale();
       scene.add(model);
     },
