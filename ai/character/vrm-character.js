@@ -1,5 +1,6 @@
 /**
- * MAYA – VRM character (front-facing, arms down, expressions)
+ * MAYA – VRM character with full emotion expressions
+ * Uses your custom my-character.vrm
  */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -17,6 +18,7 @@ let breathPhase = 0;
 let stageEl = null;
 let ready = false;
 let reduceMotion = false;
+let availableExpressions = [];
 
 function createLookAt() {
   lookAtTarget = new THREE.Object3D();
@@ -27,22 +29,50 @@ function applyArmsDown() {
   if (!vrm || !vrm.humanoid) return;
   const h = vrm.humanoid;
   try {
-    const bones = {
-      lU: h.getNormalizedBoneNode('leftUpperArm'),
-      rU: h.getNormalizedBoneNode('rightUpperArm'),
-      lL: h.getNormalizedBoneNode('leftLowerArm'),
-      rL: h.getNormalizedBoneNode('rightLowerArm'),
-      lS: h.getNormalizedBoneNode('leftShoulder'),
-      rS: h.getNormalizedBoneNode('rightShoulder')
-    };
-    // Rest pose: arms at sides (from default T-pose)
-    if (bones.lS) bones.lS.rotation.set(0.05, 0, 0.15);
-    if (bones.rS) bones.rS.rotation.set(0.05, 0, -0.15);
-    if (bones.lU) bones.lU.rotation.set(0.35, 0.1, 1.25);
-    if (bones.rU) bones.rU.rotation.set(0.35, -0.1, -1.25);
-    if (bones.lL) bones.lL.rotation.set(0.15, -0.2, 0.1);
-    if (bones.rL) bones.rL.rotation.set(0.15, 0.2, -0.1);
+    const lU = h.getNormalizedBoneNode('leftUpperArm');
+    const rU = h.getNormalizedBoneNode('rightUpperArm');
+    const lL = h.getNormalizedBoneNode('leftLowerArm');
+    const rL = h.getNormalizedBoneNode('rightLowerArm');
+    const lS = h.getNormalizedBoneNode('leftShoulder');
+    const rS = h.getNormalizedBoneNode('rightShoulder');
+    if (lS) lS.rotation.set(0.04, 0, 0.12);
+    if (rS) rS.rotation.set(0.04, 0, -0.12);
+    if (lU) lU.rotation.set(0.3, 0.08, 1.2);
+    if (rU) rU.rotation.set(0.3, -0.08, -1.2);
+    if (lL) lL.rotation.set(0.12, -0.18, 0.08);
+    if (rL) rL.rotation.set(0.12, 0.18, -0.08);
   } catch (_) {}
+}
+
+function detectExpressions() {
+  availableExpressions = [];
+  if (!vrm || !vrm.expressionManager) return;
+  try {
+    const em = vrm.expressionManager;
+    // VRM 1.0 expression names
+    const candidates = [
+      'happy', 'angry', 'sad', 'surprised', 'relaxed', 'neutral',
+      'blink', 'blinkLeft', 'blinkRight',
+      'aa', 'ih', 'ou', 'ee', 'oh',
+      'lookUp', 'lookDown', 'lookLeft', 'lookRight'
+    ];
+    candidates.forEach((name) => {
+      try {
+        // expressionManager.expressionMap or getExpressionTrackName
+        if (em.getExpressionTrackName) {
+          const t = em.getExpressionTrackName(name);
+          if (t) availableExpressions.push(name);
+        } else if (em.expressionMap && em.expressionMap[name]) {
+          availableExpressions.push(name);
+        } else {
+          // try set/get
+          em.setValue(name, 0);
+          availableExpressions.push(name);
+        }
+      } catch (_) {}
+    });
+  } catch (_) {}
+  console.log('MAYA expressions:', availableExpressions);
 }
 
 async function init(container) {
@@ -53,8 +83,8 @@ async function init(container) {
 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(30, w / h, 0.1, 20);
-  camera.position.set(0, 1.15, 1.7);
-  camera.lookAt(0, 1.0, 0);
+  camera.position.set(0, 1.2, 1.75);
+  camera.lookAt(0, 1.05, 0);
 
   renderer = new THREE.WebGLRenderer({ alpha: true, antialias: !reduceMotion, powerPreference: 'low-power' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, reduceMotion ? 1 : 1.75));
@@ -64,11 +94,15 @@ async function init(container) {
   container.appendChild(renderer.domElement);
 
   scene.add(new THREE.AmbientLight(0xc8d0ff, 0.7));
-  const key = new THREE.DirectionalLight(0xffffff, 1.0);
-  key.position.set(0.6, 2.0, 2.2);
+  const key = new THREE.DirectionalLight(0xffffff, 1.05);
+  key.position.set(0.5, 2.0, 2.2);
   scene.add(key);
-  scene.add(new THREE.DirectionalLight(0x29f1e6, 0.3).position.set(-2, 1, 1));
-  scene.add(new THREE.DirectionalLight(0xff3fb0, 0.25).position.set(0, 1.5, -2));
+  const fill = new THREE.DirectionalLight(0x29f1e6, 0.35);
+  fill.position.set(-2, 1.2, 1.5);
+  scene.add(fill);
+  const rim = new THREE.DirectionalLight(0xff3fb0, 0.3);
+  rim.position.set(0, 1.5, -2);
+  scene.add(rim);
 
   createLookAt();
   clock = new THREE.Clock();
@@ -79,7 +113,7 @@ async function init(container) {
 
   const url =
     (window.BFTERO_AI_CONFIG && window.BFTERO_AI_CONFIG.characterUrl) ||
-    'https://cdn.jsdelivr.net/gh/pixiv/three-vrm@3.3.2/packages/three-vrm/examples/models/VRM1_Constraint_Twist_Sample.vrm';
+    'ai/character/my-character.vrm';
 
   return new Promise((resolve) => {
     loader.load(
@@ -87,48 +121,105 @@ async function init(container) {
       (gltf) => {
         try {
           vrm = gltf.userData.vrm;
-          if (!vrm) return resolve(false);
+          if (!vrm) {
+            console.warn('No VRM in file');
+            resolve(false);
+            return;
+          }
+
           try {
             VRMUtils.removeUnnecessaryVertices(gltf.scene);
             if (VRMUtils.combineSkeletons) VRMUtils.combineSkeletons(gltf.scene);
             if (VRMUtils.combineMorphs) VRMUtils.combineMorphs(vrm);
           } catch (_) {}
 
-          // Face camera
-          vrm.scene.rotation.y = 0;
+          // Face the camera (adjust if your model faces the other way)
+          vrm.scene.rotation.y = Math.PI;
           vrm.scene.traverse((o) => { o.frustumCulled = false; });
           scene.add(vrm.scene);
+
           if (vrm.lookAt) vrm.lookAt.target = lookAtTarget;
 
-          setExpression('happy', 0.45);
+          detectExpressions();
+          setExpression('happy', 0.4);
           ready = true;
           startLoop();
           resolve(true);
         } catch (e) {
-          console.warn(e);
+          console.warn('VRM setup error', e);
           resolve(false);
         }
       },
       undefined,
-      (e) => { console.warn(e); resolve(false); }
+      (e) => {
+        console.warn('VRM load failed', e);
+        resolve(false);
+      }
     );
   });
 }
 
+function clearExpressions() {
+  if (!vrm || !vrm.expressionManager) return;
+  const em = vrm.expressionManager;
+  const names = [
+    'happy', 'angry', 'sad', 'surprised', 'relaxed', 'neutral',
+    'aa', 'ih', 'ou', 'ee', 'oh'
+  ];
+  names.forEach((n) => {
+    try { em.setValue(n, 0); } catch (_) {}
+  });
+}
+
+/**
+ * Map API emotions → VRM blendshapes
+ */
 function setExpression(name, weight = 1) {
   if (!vrm || !vrm.expressionManager) return;
   currentEmotion = name;
   const em = vrm.expressionManager;
-  ['happy', 'angry', 'sad', 'surprised', 'relaxed', 'neutral', 'blink', 'aa', 'ih', 'ou', 'ee', 'oh'].forEach((p) => {
-    try { em.setValue(p, 0); } catch (_) {}
-  });
+  clearExpressions();
+  const w = Math.max(0, Math.min(1, weight));
+
   try {
-    if (name === 'happy' || name === 'funny') em.setValue('happy', weight);
-    else if (name === 'angry') em.setValue('angry', weight);
-    else if (name === 'sad') em.setValue('sad', weight);
-    else if (name === 'surprised') em.setValue('surprised', weight);
-    else em.setValue('relaxed', weight * 0.4);
-  } catch (_) {}
+    switch (String(name || '').toLowerCase()) {
+      case 'funny':
+      case 'laughing':
+        em.setValue('happy', w);
+        em.setValue('aa', w * 0.35);
+        break;
+      case 'happy':
+      case 'excited':
+      case 'playful':
+      case 'teasing':
+      case 'calm':
+        em.setValue('happy', w * 0.85);
+        break;
+      case 'shy':
+        em.setValue('happy', w * 0.45);
+        em.setValue('relaxed', w * 0.3);
+        break;
+      case 'angry':
+      case 'annoyed':
+        em.setValue('angry', w);
+        break;
+      case 'sad':
+        em.setValue('sad', w);
+        break;
+      case 'surprised':
+      case 'confused':
+        em.setValue('surprised', w);
+        break;
+      case 'serious':
+      case 'neutral':
+        em.setValue('relaxed', w * 0.4);
+        break;
+      default:
+        em.setValue('happy', w * 0.5);
+    }
+  } catch (e) {
+    console.warn('expression', name, e);
+  }
 }
 
 function setMouth(open) {
@@ -137,6 +228,7 @@ function setMouth(open) {
   try {
     vrm.expressionManager.setValue('aa', mouthOpen * 0.9);
     vrm.expressionManager.setValue('oh', mouthOpen * 0.35);
+    vrm.expressionManager.setValue('ih', mouthOpen * 0.15);
   } catch (_) {}
 }
 
@@ -151,8 +243,11 @@ function startLoop() {
     headSway += dt * 0.5;
 
     if (vrm.humanoid) {
-      const chest = vrm.humanoid.getNormalizedBoneNode('chest') || vrm.humanoid.getNormalizedBoneNode('spine');
+      const chest =
+        vrm.humanoid.getNormalizedBoneNode('chest') ||
+        vrm.humanoid.getNormalizedBoneNode('spine');
       if (chest) chest.position.y = Math.sin(breathPhase) * 0.005;
+
       if (!isSpeaking) {
         const head = vrm.humanoid.getNormalizedBoneNode('head');
         if (head) {
@@ -168,14 +263,16 @@ function startLoop() {
       nextBlink = 2 + Math.random() * 3.5;
       try {
         vrm.expressionManager.setValue('blink', 1);
-        setTimeout(() => { try { vrm.expressionManager.setValue('blink', 0); } catch (_) {} }, 120);
+        setTimeout(() => {
+          try { vrm.expressionManager.setValue('blink', 0); } catch (_) {}
+        }, 120);
       } catch (_) {}
     }
 
     if (lookAtTarget) {
       lookAtTarget.position.set(
         Math.sin(Date.now() * 0.00035) * 0.08,
-        1.1 + Math.sin(Date.now() * 0.00028) * 0.03,
+        1.15 + Math.sin(Date.now() * 0.00028) * 0.03,
         1.0
       );
     }
@@ -183,7 +280,6 @@ function startLoop() {
     if (!isSpeaking) setMouth(mouthOpen * 0.85);
 
     vrm.update(dt);
-    // Apply AFTER update so T-pose does not win
     applyArmsDown();
     renderer.render(scene, camera);
   }
@@ -207,23 +303,32 @@ function speakStart(emotion) {
 function speakEnd() {
   isSpeaking = false;
   setMouth(0);
-  setExpression(currentEmotion === 'funny' ? 'happy' : currentEmotion, 0.45);
+  const keep = currentEmotion === 'funny' || currentEmotion === 'laughing' ? 'happy' : currentEmotion;
+  setExpression(keep, 0.4);
 }
 
 window.BfteroVRM = {
-  init, resize, setExpression, speakStart, speakEnd, setMouth,
+  init,
+  resize,
+  setExpression,
+  speakStart,
+  speakEnd,
+  setMouth,
   isReady: () => ready,
   dispose() {
     if (animId) cancelAnimationFrame(animId);
     animId = null;
     if (renderer) {
       renderer.dispose();
-      if (renderer.domElement && renderer.domElement.parentNode)
+      if (renderer.domElement && renderer.domElement.parentNode) {
         renderer.domElement.parentNode.removeChild(renderer.domElement);
+      }
     }
     vrm = null;
     ready = false;
   }
 };
 
-window.addEventListener('resize', () => { if (ready) resize(); });
+window.addEventListener('resize', () => {
+  if (ready) resize();
+});

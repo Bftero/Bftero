@@ -1,11 +1,11 @@
 /**
- * Bftero AI – configuration (no secrets)
+ * MAYA – configuration (no secrets)
  */
 window.BFTERO_AI_CONFIG = {
-  characterUrl:
-    'https://cdn.jsdelivr.net/gh/pixiv/three-vrm@3.3.2/packages/three-vrm/examples/models/VRM1_Constraint_Twist_Sample.vrm',
+  // Your custom VRM character
+  characterUrl: 'ai/character/my-character.vrm',
 
-  // Your Cloudflare Worker (already set)
+  // Cloudflare Worker
   apiEndpoint: 'https://bftero-ai.samarpan7129.workers.dev',
 
   preferredVoiceNames: [

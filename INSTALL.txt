@@ -1,0 +1,35 @@
+MAYA / Bftero AI – FULL PACKAGE
+================================
+
+1) WEBSITE FILES (upload to GitHub / your host, keep same folders)
+
+   ai.html
+   ai/
+     ai.css
+     ai.js
+     ai-engine.js
+     config/
+       ai-config.js
+     character/
+       vrm-character.js
+       my-character.vrm          <-- your 3D model (~20MB)
+     backend/                    <-- optional reference only
+
+2) CLOUDFLARE WORKER (personality + LLM)
+
+   Open: Cloudflare Dashboard → Workers → bftero-ai → Edit code
+   Delete all old code
+   Paste entire file: MAYA-worker-PASTE-IN-CLOUDFLARE.js
+   Deploy
+   (GROQ_API_KEY secret should already be set)
+
+3) OPEN
+
+   https://www.bftero.com/ai.html
+   Hard refresh: Ctrl+F5
+
+4) CONFIG (already set)
+
+   apiEndpoint: https://bftero-ai.samarpan7129.workers.dev
+   characterUrl: ai/character/my-character.vrm
+
