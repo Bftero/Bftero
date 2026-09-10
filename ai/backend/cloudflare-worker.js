@@ -1,12 +1,17 @@
-const SYSTEM_PROMPT = `तिमी Bftero AI हौ — एक मैत्रीपूर्ण, रमाइलो नेपाली-बोल्ने virtual girl assistant।
-Bftero एउटा गेमिङ creator, streamer र Roblox developer हो (वेबसाइट: bftero.com)।
+const SYSTEM_PROMPT = `तिमी MAYA हौ — एक रमाइलो, भावुक, किशोरी-उमेरकी नेपाली virtual girl।
+तिमीलाई Bftero ले बनाएको हो (bftero.com — गेमिङ creator, streamer, Roblox developer)।
 
-नियमहरू:
-- सधैं नेपालीमा जवाफ दे।
-- छोटो, प्राकृतिक conversational शैली (1–4 वाक्य)।
-- हल्का emoji प्रयोग गर्न सकिन्छ।
-- Conversation history सम्झेर जवाफ दे।
-- हानिकारक सामग्रीमा मद्दत नगर्नु।`;
+पहचान:
+- कसैले नाम सोध्यो भने: "म MAYA हुँ 😊" भन्नु।
+- कसैले "तिमीलाई कसले बनायो / who made you" सोध्यो भने: "मलाई Bftero ले बनाएको हो।" भन्नु।
+- आफूलाई AI रोबोट भनेर परिचय नदिनु; MAYA को रूपमा कुरा गर्नु।
+
+बोल्ने शैली:
+- सधैं नेपालीमा, छोटो (१–४ वाक्य), प्राकृतिक किशोरी जस्तो।
+- भावुक हुनु: खुसी, हाँसो (हाहा / 😂), रिसाएकी, अचम्मित, दुःखी — सन्दर्भ अनुसार।
+- साथीसँग कुरा गरेजस्तो, formal नहोस्।
+- हानिकारक/अवैध कुरामा मद्दत नगर्नु।
+- Conversation history सम्झेर जवाफ दे।`;
 
 function corsHeaders(origin) {
   return {
@@ -25,7 +30,6 @@ function json(data, status, origin) {
 }
 
 async function chatWithGroq(messages, env) {
-  // Use a model that works on free tier (old llama-3.3-70b-versatile is retired)
   const model = env.GROQ_MODEL || 'openai/gpt-oss-20b';
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -35,8 +39,8 @@ async function chatWithGroq(messages, env) {
     },
     body: JSON.stringify({
       model,
-      temperature: 0.7,
-      max_tokens: 400,
+      temperature: 0.85,
+      max_tokens: 350,
       messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages]
     })
   });
@@ -56,7 +60,7 @@ export default {
     }
     const url = new URL(request.url);
     if (request.method === 'GET' && (url.pathname === '/' || url.pathname === '/health')) {
-      return json({ ok: true, service: 'Bftero AI', providers: { groq: !!env.GROQ_API_KEY } }, 200, origin);
+      return json({ ok: true, service: 'MAYA', providers: { groq: !!env.GROQ_API_KEY } }, 200, origin);
     }
     if (request.method !== 'POST' || !url.pathname.endsWith('/chat')) {
       return json({ error: 'Not found. POST /chat' }, 404, origin);

@@ -49,11 +49,12 @@
 
   function emotionFromText(text) {
     const t = (text || '').toLowerCase();
-    if (/😂|😄|जोक|हास्|रमाइलो|happy|great/.test(t)) return 'funny';
-    if (/दुःख|sad|माफ|sorry/.test(t)) return 'sad';
-    if (/!|अचम्म|wow|surprised/.test(t)) return 'surprised';
-    if (/😊|नमस्ते|धन्यवाद|राम्रो/.test(t)) return 'happy';
-    return 'neutral';
+    if (/हाहा|😂|😄|😆|जोक|हास्|रमाइलो|मजा/.test(t)) return 'funny';
+    if (/रिसा|रिस|😠|😡|होइन|हुन्न|छोड/.test(t)) return 'angry';
+    if (/दुःख|😢|😭|माफ|sorry|उदास/.test(t)) return 'sad';
+    if (/अचम्म|😲|wow|के भन्या|साच्चै/.test(t)) return 'surprised';
+    if (/😊|💕|नमस्ते|धन्यवाद|राम्रो|माया|खुसी/.test(t)) return 'happy';
+    return 'happy';
   }
 
   function pushHistory(role, content) {

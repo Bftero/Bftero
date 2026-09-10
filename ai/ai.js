@@ -112,15 +112,18 @@
   /* ---------- TTS ---------- */
   function pickVoice() {
     const voices = speechSynthesis.getVoices() || [];
-    const prefs = CFG.preferredVoiceNames || [];
-    for (const p of prefs) {
-      const v = voices.find(x => (x.name + x.lang).toLowerCase().includes(p.toLowerCase()));
-      if (v) return v;
-    }
-    // Prefer any ne / hi female-ish
-    const ne = voices.find(v => /ne|nepali|hi-IN|hindi/i.test(v.lang + v.name));
-    if (ne) return ne;
-    return voices.find(v => v.default) || voices[0] || null;
+    if (!voices.length) return null;
+    const score = (v) => {
+      const n = (v.name + ' ' + v.lang).toLowerCase();
+      let s = 0;
+      if (/female|woman|girl|zira|susan|samantha|veena|neerja|heera|hemkala|google हिन्दी|google हिंदी/i.test(n)) s += 5;
+      if (/hi-in|hindi|ne-np|nepali/i.test(n)) s += 4;
+      if (/en-in|indian/i.test(n)) s += 2;
+      if (/male|david|mark|ravi/i.test(n)) s -= 5;
+      return s;
+    };
+    const sorted = voices.slice().sort((a, b) => score(b) - score(a));
+    return sorted[0] || voices[0];
   }
 
   function speak(text, emotion) {
@@ -131,9 +134,14 @@
       }
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'ne-NP';
-      u.rate = 0.95;
-      u.pitch = 1.05;
+      u.lang = 'hi-IN'; // better female coverage; still speaks Nepali text
+      // Teen-girl style: higher pitch, natural speed
+      const emo = emotion || 'happy';
+      if (emo === 'funny') { u.rate = 1.08; u.pitch = 1.45; }
+      else if (emo === 'angry') { u.rate = 1.12; u.pitch = 1.15; }
+      else if (emo === 'sad') { u.rate = 0.88; u.pitch = 1.2; }
+      else if (emo === 'surprised') { u.rate = 1.1; u.pitch = 1.5; }
+      else { u.rate = 1.0; u.pitch = 1.35; }
       const voice = pickVoice();
       if (voice) u.voice = voice;
 

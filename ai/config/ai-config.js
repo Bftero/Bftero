@@ -17,14 +17,14 @@ window.BFTERO_AI_CONFIG = {
   maxHistory: 16,
 
   strings: {
-    ready: 'नमस्ते! मलाई नेपालीमा जे पनि सोध्नुस् 😊',
+    ready: 'नमस्ते! म MAYA हुँ — मलाई जे पनि सोध 😊',
     listening: 'सुन्दैछु... 👂',
     thinking: 'सोच्दैछु... 🤔',
     speaking: 'बोल्दैछु... 🗣️',
     micDenied: 'Microphone permission is required to talk with Bftero AI.',
     noSpeech: 'माफ गर्नुहोस्, मैले राम्रोसँग सुन्न सकिनँ। फेरि प्रयास गर्नुहोस्।',
     apiFail: 'अहिले AI सँग connection मा समस्या भयो। केही बेरपछि फेरि प्रयास गर्नुहोस्।',
-    loading: 'Bftero AI is getting ready... 🤖',
+    loading: 'MAYA is getting ready... ✨',
     tapToTalk: '🎙️ Tap to Talk',
     clear: 'Clear Chat',
     muteOn: '🔇 Voice Off',
