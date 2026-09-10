@@ -82,13 +82,27 @@
     }
 
     const data = await res.json();
-    if (data.text) return String(data.text);
-    if (data.reply) return String(data.reply);
-    if (data.message) return String(data.message);
-    if (data.choices && data.choices[0] && data.choices[0].message) {
-      return String(data.choices[0].message.content || '');
+    let text = '';
+    if (data.text) text = String(data.text);
+    else if (data.reply) text = String(data.reply);
+    else if (data.message) text = String(data.message);
+    else if (data.choices && data.choices[0] && data.choices[0].message) {
+      text = String(data.choices[0].message.content || '');
+    } else {
+      throw new Error('Unexpected API response');
     }
-    throw new Error('Unexpected API response');
+    const emotion = data.emotion ? String(data.emotion).toLowerCase() : null;
+    return { text, emotion };
+  }
+
+  function mapEmotion(e) {
+    const x = String(e || '').toLowerCase();
+    if (x === 'laughing' || x === 'funny') return 'funny';
+    if (x === 'annoyed' || x === 'angry') return 'angry';
+    if (x === 'shy' || x === 'happy' || x === 'excited' || x === 'playful' || x === 'teasing' || x === 'calm') return 'happy';
+    if (x === 'sad') return 'sad';
+    if (x === 'surprised' || x === 'confused') return 'surprised';
+    return emotionFromText(e) || 'happy';
   }
 
   async function getResponse(userText) {
@@ -101,9 +115,13 @@
 
     try {
       const remote = await callRemoteAPI();
-      if (remote && remote.trim()) {
-        pushHistory('assistant', remote.trim());
-        return { text: remote.trim(), emotion: emotionFromText(remote) };
+      if (remote && remote.text && remote.text.trim()) {
+        const text = remote.text.trim();
+        pushHistory('assistant', text);
+        return {
+          text,
+          emotion: mapEmotion(remote.emotion) || emotionFromText(text)
+        };
       }
     } catch (e) {
       console.warn('MAYA remote failed, local fallback', e);
