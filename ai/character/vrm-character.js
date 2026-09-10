@@ -1,15 +1,30 @@
 /**
- * MAYA – VRM character with full emotion expressions,
- * natural hand gestures, body language and speaking animation.
+ * MAYA – VRM 0.x Character
+ * Bftero AI
  *
- * Uses your custom my-character.vrm
+ * Compatible with:
+ * - VRM 0.x
+ * - your my-character.vrm
+ * - facial expressions
+ * - blinking
+ * - mouth movement
+ * - talking gestures
+ * - hand movement
+ * - body language
+ * - head movement
  */
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 
-let renderer, scene, camera, vrm, clock, animId;
+let renderer;
+let scene;
+let camera;
+let vrm;
+let clock;
+let animId;
+
 let lookAtTarget = null;
 
 let mouthOpen = 0;
@@ -19,848 +34,955 @@ let isSpeaking = false;
 let blinkTimer = 0;
 let nextBlink = 2 + Math.random() * 3;
 
-let headSway = 0;
 let breathPhase = 0;
+let talkPhase = 0;
+let gestureTimer = 0;
+let gestureDuration = 0;
+
+let currentGesture = 'idle';
 
 let stageEl = null;
 let ready = false;
 let reduceMotion = false;
+
 let availableExpressions = [];
 
-// ============================================================
-// GESTURE / BODY LANGUAGE STATE
-// ============================================================
+// --------------------------------------------------
+// BONE CACHE
+// --------------------------------------------------
 
-let gestureTime = 0;
-let gestureCooldown = 0;
+let bones = {};
 
-let currentGesture = 'idle';
-let gestureDuration = 0;
-let gestureStrength = 0;
+// Store original rotations
+let restRotations = {};
 
-let gestureSide = 1;
-
-// ============================================================
-// HELPERS
-// ============================================================
-
-function clamp(v, min = 0, max = 1) {
-  return Math.max(min, Math.min(max, v));
-}
-
-function lerp(a, b, speed) {
-  return a + (b - a) * speed;
-}
-
-function smooth(current, target, speed) {
-  return current + (target - current) * speed;
-}
-
-// ============================================================
-// LOOK AT
-// ============================================================
+// --------------------------------------------------
+// CREATE LOOK TARGET
+// --------------------------------------------------
 
 function createLookAt() {
+
   lookAtTarget = new THREE.Object3D();
+
+  lookAtTarget.position.set(
+    0,
+    1.25,
+    1
+  );
+
   scene.add(lookAtTarget);
 }
 
-// ============================================================
-// GET BONES
-// ============================================================
+// --------------------------------------------------
+// GET HUMANOID BONE
+// --------------------------------------------------
 
-function getBones() {
-  if (!vrm || !vrm.humanoid) return {};
+function getBone(name) {
 
-  const h = vrm.humanoid;
+  if (!vrm || !vrm.humanoid) return null;
 
   try {
-    return {
-      head: h.getNormalizedBoneNode('head'),
-
-      neck: h.getNormalizedBoneNode('neck'),
-
-      chest:
-        h.getNormalizedBoneNode('chest') ||
-        h.getNormalizedBoneNode('spine'),
-
-      spine: h.getNormalizedBoneNode('spine'),
-
-      hips: h.getNormalizedBoneNode('hips'),
-
-      leftShoulder: h.getNormalizedBoneNode('leftShoulder'),
-      rightShoulder: h.getNormalizedBoneNode('rightShoulder'),
-
-      leftUpperArm: h.getNormalizedBoneNode('leftUpperArm'),
-      rightUpperArm: h.getNormalizedBoneNode('rightUpperArm'),
-
-      leftLowerArm: h.getNormalizedBoneNode('leftLowerArm'),
-      rightLowerArm: h.getNormalizedBoneNode('rightLowerArm'),
-
-      leftHand: h.getNormalizedBoneNode('leftHand'),
-      rightHand: h.getNormalizedBoneNode('rightHand')
-    };
+    return vrm.humanoid.getNormalizedBoneNode(name);
   } catch (_) {
-    return {};
+    return null;
   }
 }
 
-// ============================================================
-// REST POSE
-// ============================================================
+// --------------------------------------------------
+// CACHE BONES
+// --------------------------------------------------
 
-function applyRestPose() {
-  if (!vrm || !vrm.humanoid) return;
+function cacheBones() {
 
-  const b = getBones();
+  bones = {};
 
-  try {
-    if (b.leftUpperArm) {
-      b.leftUpperArm.rotation.z = 1.05;
-      b.leftUpperArm.rotation.x = 0.08;
-      b.leftUpperArm.rotation.y = 0;
+  const names = [
+
+    'hips',
+
+    'spine',
+    'chest',
+    'upperChest',
+
+    'neck',
+    'head',
+
+    'leftShoulder',
+    'leftUpperArm',
+    'leftLowerArm',
+    'leftHand',
+
+    'rightShoulder',
+    'rightUpperArm',
+    'rightLowerArm',
+    'rightHand'
+
+  ];
+
+  names.forEach(name => {
+
+    const bone = getBone(name);
+
+    if (bone) {
+
+      bones[name] = bone;
+
+      restRotations[name] = bone.quaternion.clone();
+
     }
 
-    if (b.rightUpperArm) {
-      b.rightUpperArm.rotation.z = -1.05;
-      b.rightUpperArm.rotation.x = 0.08;
-      b.rightUpperArm.rotation.y = 0;
-    }
+  });
 
-    if (b.leftLowerArm) {
-      b.leftLowerArm.rotation.y = -0.12;
-      b.leftLowerArm.rotation.x = 0;
-    }
-
-    if (b.rightLowerArm) {
-      b.rightLowerArm.rotation.y = 0.12;
-      b.rightLowerArm.rotation.x = 0;
-    }
-
-    if (b.leftHand) {
-      b.leftHand.rotation.set(0, 0, 0);
-    }
-
-    if (b.rightHand) {
-      b.rightHand.rotation.set(0, 0, 0);
-    }
-  } catch (_) {}
+  console.log(
+    'MAYA bones:',
+    Object.keys(bones)
+  );
 }
 
-// ============================================================
+// --------------------------------------------------
+// RESET BONE TO ORIGINAL POSE
+// --------------------------------------------------
+
+function resetBone(name) {
+
+  const bone = bones[name];
+
+  if (!bone) return;
+
+  const rest = restRotations[name];
+
+  if (!rest) return;
+
+  bone.quaternion.copy(rest);
+}
+
+// --------------------------------------------------
+// RESET BODY
+// --------------------------------------------------
+
+function resetBody() {
+
+  Object.keys(restRotations).forEach(name => {
+
+    resetBone(name);
+
+  });
+
+}
+
+// --------------------------------------------------
+// ROTATE BONE RELATIVE TO ORIGINAL POSE
+// --------------------------------------------------
+
+function rotateBone(name, x, y, z) {
+
+  const bone = bones[name];
+
+  if (!bone) return;
+
+  const rest = restRotations[name];
+
+  if (!rest) return;
+
+  const q = new THREE.Quaternion();
+
+  q.setFromEuler(
+    new THREE.Euler(
+      x,
+      y,
+      z,
+      'XYZ'
+    )
+  );
+
+  bone.quaternion
+    .copy(rest)
+    .multiply(q);
+
+}
+
+// --------------------------------------------------
 // EXPRESSIONS
-// ============================================================
+// --------------------------------------------------
 
 function detectExpressions() {
+
   availableExpressions = [];
 
-  if (!vrm || !vrm.expressionManager) return;
+  if (!vrm || !vrm.blendShapeProxy) {
+
+    console.log(
+      'MAYA: VRM expression system not found'
+    );
+
+    return;
+  }
 
   try {
-    const em = vrm.expressionManager;
 
-    const candidates = [
+    const proxy = vrm.blendShapeProxy;
+
+    const names = [
+
       'happy',
       'angry',
       'sad',
       'surprised',
       'relaxed',
-      'neutral',
 
       'blink',
-      'blinkLeft',
-      'blinkRight',
+      'blink_l',
+      'blink_r',
 
       'aa',
       'ih',
       'ou',
       'ee',
-      'oh',
+      'oh'
 
-      'lookUp',
-      'lookDown',
-      'lookLeft',
-      'lookRight'
     ];
 
-    candidates.forEach((name) => {
+    names.forEach(name => {
+
       try {
-        if (em.getExpressionTrackName) {
-          const t = em.getExpressionTrackName(name);
-          if (t) availableExpressions.push(name);
-        } else if (em.expressionMap && em.expressionMap[name]) {
+
+        const value =
+          proxy.getValue(name);
+
+        if (
+          value !== undefined ||
+          proxy.blendShapeNames?.includes(name)
+        ) {
+
           availableExpressions.push(name);
-        } else {
-          em.setValue(name, 0);
-          availableExpressions.push(name);
+
         }
+
       } catch (_) {}
+
     });
+
   } catch (_) {}
 
-  console.log('MAYA expressions:', availableExpressions);
+  console.log(
+    'MAYA expressions:',
+    availableExpressions
+  );
 }
 
-// ============================================================
+// --------------------------------------------------
 // CLEAR EXPRESSIONS
-// ============================================================
+// --------------------------------------------------
 
 function clearExpressions() {
-  if (!vrm || !vrm.expressionManager) return;
 
-  const em = vrm.expressionManager;
+  if (!vrm || !vrm.blendShapeProxy) return;
+
+  const proxy = vrm.blendShapeProxy;
 
   const names = [
+
     'happy',
     'angry',
     'sad',
     'surprised',
     'relaxed',
-    'neutral',
+
     'aa',
     'ih',
     'ou',
     'ee',
     'oh'
+
   ];
 
-  names.forEach((n) => {
+  names.forEach(name => {
+
     try {
-      em.setValue(n, 0);
+
+      proxy.setValue(
+        name,
+        0
+      );
+
     } catch (_) {}
+
   });
 }
 
-// ============================================================
+// --------------------------------------------------
 // EMOTION
-// ============================================================
+// --------------------------------------------------
 
-function setExpression(name, weight = 1) {
-  if (!vrm || !vrm.expressionManager) return;
+function setExpression(
+  name,
+  weight = 1
+) {
+
+  if (
+    !vrm ||
+    !vrm.blendShapeProxy
+  ) return;
 
   currentEmotion = name;
 
-  const em = vrm.expressionManager;
+  const proxy =
+    vrm.blendShapeProxy;
 
   clearExpressions();
 
-  const w = clamp(weight);
+  const w =
+    Math.max(
+      0,
+      Math.min(
+        1,
+        weight
+      )
+    );
+
+  const emotion =
+    String(name || '')
+      .toLowerCase();
 
   try {
-    switch (String(name || '').toLowerCase()) {
+
+    switch (emotion) {
 
       case 'funny':
       case 'laughing':
-        em.setValue('happy', w);
-        em.setValue('aa', w * 0.35);
+
+        proxy.setValue(
+          'happy',
+          w
+        );
+
+        proxy.setValue(
+          'aa',
+          w * 0.25
+        );
+
         break;
+
 
       case 'happy':
       case 'excited':
       case 'playful':
       case 'teasing':
-      case 'calm':
-        em.setValue('happy', w * 0.85);
+
+        proxy.setValue(
+          'happy',
+          w
+        );
+
         break;
 
-      case 'shy':
-        em.setValue('happy', w * 0.45);
-        em.setValue('relaxed', w * 0.3);
+
+      case 'calm':
+
+        proxy.setValue(
+          'relaxed',
+          w * 0.7
+        );
+
         break;
+
+
+      case 'shy':
+
+        proxy.setValue(
+          'happy',
+          w * 0.45
+        );
+
+        proxy.setValue(
+          'relaxed',
+          w * 0.3
+        );
+
+        break;
+
 
       case 'angry':
       case 'annoyed':
-        em.setValue('angry', w);
+
+        proxy.setValue(
+          'angry',
+          w
+        );
+
         break;
 
+
       case 'sad':
-        em.setValue('sad', w);
+
+        proxy.setValue(
+          'sad',
+          w
+        );
+
         break;
+
 
       case 'surprised':
       case 'confused':
-        em.setValue('surprised', w);
+
+        proxy.setValue(
+          'surprised',
+          w
+        );
+
         break;
+
 
       case 'serious':
       case 'neutral':
-        em.setValue('relaxed', w * 0.4);
+
+        proxy.setValue(
+          'relaxed',
+          w * 0.25
+        );
+
         break;
 
+
       default:
-        em.setValue('happy', w * 0.5);
+
+        proxy.setValue(
+          'happy',
+          w * 0.5
+        );
+
     }
+
   } catch (e) {
-    console.warn('expression', name, e);
+
+    console.warn(
+      'MAYA expression error:',
+      e
+    );
+
   }
 }
 
-// ============================================================
+// --------------------------------------------------
 // MOUTH
-// ============================================================
+// --------------------------------------------------
 
 function setMouth(open) {
-  mouthOpen = clamp(open);
 
-  if (!vrm || !vrm.expressionManager) return;
+  mouthOpen =
+    Math.max(
+      0,
+      Math.min(
+        1,
+        open
+      )
+    );
+
+  if (
+    !vrm ||
+    !vrm.blendShapeProxy
+  ) return;
+
+  const proxy =
+    vrm.blendShapeProxy;
 
   try {
-    vrm.expressionManager.setValue('aa', mouthOpen * 0.9);
-    vrm.expressionManager.setValue('oh', mouthOpen * 0.35);
-    vrm.expressionManager.setValue('ih', mouthOpen * 0.15);
+
+    proxy.setValue(
+      'aa',
+      mouthOpen * 0.9
+    );
+
+    proxy.setValue(
+      'oh',
+      mouthOpen * 0.25
+    );
+
+    proxy.setValue(
+      'ih',
+      mouthOpen * 0.15
+    );
+
   } catch (_) {}
+
 }
 
-// ============================================================
-// RANDOM GESTURES
-// ============================================================
+// --------------------------------------------------
+// RANDOM TALK GESTURE
+// --------------------------------------------------
 
 function chooseGesture() {
 
   const gestures = [
-    'talk',
-    'talk',
-    'talk',
 
-    'point',
-    'openHands',
+    'talk',
     'explain',
+    'openHands',
+    'point',
     'handsTogether',
-    'wave',
     'shrug',
     'thinking'
+
   ];
 
   currentGesture =
-    gestures[Math.floor(Math.random() * gestures.length)];
+    gestures[
+      Math.floor(
+        Math.random() *
+        gestures.length
+      )
+    ];
 
-  gestureTime = 0;
+  gestureTimer = 0;
 
   gestureDuration =
-    0.8 + Math.random() * 1.5;
+    1.5 +
+    Math.random() * 2.5;
 
-  gestureStrength =
-    0.65 + Math.random() * 0.35;
-
-  gestureSide =
-    Math.random() > 0.5 ? 1 : -1;
-
-  gestureCooldown =
-    0.4 + Math.random() * 1.5;
 }
 
-// ============================================================
-// RESET HANDS
-// ============================================================
-
-function resetArms(b, amount = 0.12) {
-
-  if (b.leftUpperArm) {
-    b.leftUpperArm.rotation.x =
-      lerp(b.leftUpperArm.rotation.x, 0.08, amount);
-
-    b.leftUpperArm.rotation.y =
-      lerp(b.leftUpperArm.rotation.y, 0, amount);
-
-    b.leftUpperArm.rotation.z =
-      lerp(b.leftUpperArm.rotation.z, 1.05, amount);
-  }
-
-  if (b.rightUpperArm) {
-    b.rightUpperArm.rotation.x =
-      lerp(b.rightUpperArm.rotation.x, 0.08, amount);
-
-    b.rightUpperArm.rotation.y =
-      lerp(b.rightUpperArm.rotation.y, 0, amount);
-
-    b.rightUpperArm.rotation.z =
-      lerp(b.rightUpperArm.rotation.z, -1.05, amount);
-  }
-
-  if (b.leftLowerArm) {
-    b.leftLowerArm.rotation.x =
-      lerp(b.leftLowerArm.rotation.x, 0, amount);
-
-    b.leftLowerArm.rotation.y =
-      lerp(b.leftLowerArm.rotation.y, -0.12, amount);
-  }
-
-  if (b.rightLowerArm) {
-    b.rightLowerArm.rotation.x =
-      lerp(b.rightLowerArm.rotation.x, 0, amount);
-
-    b.rightLowerArm.rotation.y =
-      lerp(b.rightLowerArm.rotation.y, 0.12, amount);
-  }
-}
-
-// ============================================================
-// NATURAL SPEAKING HANDS
-// ============================================================
+// --------------------------------------------------
+// TALK BODY LANGUAGE
+// --------------------------------------------------
 
 function updateGesture(dt) {
 
-  const b = getBones();
-
-  if (!b.leftUpperArm || !b.rightUpperArm) return;
-
-  gestureTime += dt;
-
   if (!isSpeaking) {
-    resetArms(b, 0.08);
+
+    currentGesture = 'idle';
+
     return;
+
   }
 
-  gestureCooldown -= dt;
+  gestureTimer += dt;
+  talkPhase += dt * 4;
 
   if (
-    gestureCooldown <= 0 &&
-    gestureTime >= gestureDuration
+    gestureTimer >
+    gestureDuration
   ) {
-    chooseGesture();
-  }
 
-  const t =
-    gestureDuration > 0
-      ? gestureTime / gestureDuration
-      : 0;
+    chooseGesture();
+
+  }
 
   const wave =
-    Math.sin(gestureTime * 5.5);
-
-  const waveSlow =
-    Math.sin(gestureTime * 2.2);
-
-  const strength = gestureStrength;
-
-  // ----------------------------------------------------------
-  // BASE TALKING MOVEMENT
-  // ----------------------------------------------------------
-
-  resetArms(b, 0.12);
-
-  b.leftUpperArm.rotation.x +=
-    wave * 0.08 * strength;
-
-  b.rightUpperArm.rotation.x +=
-    Math.sin(gestureTime * 5.2 + 1.5) *
-    0.08 *
-    strength;
-
-  b.leftLowerArm.rotation.x +=
-    waveSlow * 0.12 * strength;
-
-  b.rightLowerArm.rotation.x +=
-    Math.sin(gestureTime * 2.5) *
-    0.12 *
-    strength;
-
-  // ----------------------------------------------------------
-  // TALK
-  // ----------------------------------------------------------
-
-  if (currentGesture === 'talk') {
-
-    b.leftUpperArm.rotation.z +=
-      Math.sin(gestureTime * 3.5) *
-      0.12 *
-      strength;
-
-    b.rightUpperArm.rotation.z -=
-      Math.sin(gestureTime * 3.1 + 1) *
-      0.12 *
-      strength;
-
-    b.leftLowerArm.rotation.y +=
-      Math.sin(gestureTime * 4) *
-      0.16 *
-      strength;
-
-    b.rightLowerArm.rotation.y -=
-      Math.sin(gestureTime * 4.2) *
-      0.16 *
-      strength;
-  }
-
-  // ----------------------------------------------------------
-  // POINT
-  // ----------------------------------------------------------
-
-  else if (currentGesture === 'point') {
-
-    const arm =
-      gestureSide > 0
-        ? b.rightUpperArm
-        : b.leftUpperArm;
-
-    const lower =
-      gestureSide > 0
-        ? b.rightLowerArm
-        : b.leftLowerArm;
-
-    if (arm) {
-
-      if (gestureSide > 0) {
-        arm.rotation.z = -0.55;
-        arm.rotation.x = -0.25;
-      } else {
-        arm.rotation.z = 0.55;
-        arm.rotation.x = -0.25;
-      }
-    }
-
-    if (lower) {
-      lower.rotation.x = -0.35;
-      lower.rotation.y =
-        gestureSide > 0 ? 0.35 : -0.35;
-    }
-  }
-
-  // ----------------------------------------------------------
-  // OPEN HANDS
-  // ----------------------------------------------------------
-
-  else if (currentGesture === 'openHands') {
-
-    b.leftUpperArm.rotation.z = 0.72;
-    b.rightUpperArm.rotation.z = -0.72;
-
-    b.leftUpperArm.rotation.x = -0.18;
-    b.rightUpperArm.rotation.x = -0.18;
-
-    b.leftLowerArm.rotation.y =
-      -0.25 + wave * 0.08;
-
-    b.rightLowerArm.rotation.y =
-      0.25 - wave * 0.08;
-  }
-
-  // ----------------------------------------------------------
-  // EXPLAIN
-  // ----------------------------------------------------------
-
-  else if (currentGesture === 'explain') {
-
-    b.leftUpperArm.rotation.z =
-      0.78 +
-      Math.sin(gestureTime * 3) * 0.12;
-
-    b.rightUpperArm.rotation.z =
-      -0.78 -
-      Math.sin(gestureTime * 3 + 1) * 0.12;
-
-    b.leftUpperArm.rotation.x = -0.15;
-    b.rightUpperArm.rotation.x = -0.15;
-
-    b.leftLowerArm.rotation.x =
-      -0.2 +
-      Math.sin(gestureTime * 4) * 0.12;
-
-    b.rightLowerArm.rotation.x =
-      -0.2 +
-      Math.sin(gestureTime * 4 + 1) * 0.12;
-  }
-
-  // ----------------------------------------------------------
-  // HANDS TOGETHER
-  // ----------------------------------------------------------
-
-  else if (currentGesture === 'handsTogether') {
-
-    b.leftUpperArm.rotation.z = 0.72;
-    b.rightUpperArm.rotation.z = -0.72;
-
-    b.leftUpperArm.rotation.x = -0.12;
-    b.rightUpperArm.rotation.x = -0.12;
-
-    b.leftLowerArm.rotation.x = -0.55;
-    b.rightLowerArm.rotation.x = -0.55;
-
-    b.leftLowerArm.rotation.y = -0.4;
-    b.rightLowerArm.rotation.y = 0.4;
-  }
-
-  // ----------------------------------------------------------
-  // WAVE
-  // ----------------------------------------------------------
-
-  else if (currentGesture === 'wave') {
-
-    if (gestureSide > 0) {
-
-      b.rightUpperArm.rotation.z = -0.5;
-      b.rightUpperArm.rotation.x = -0.35;
-
-      b.rightLowerArm.rotation.x =
-        -0.7 +
-        Math.sin(gestureTime * 6) * 0.25;
-
-      b.rightLowerArm.rotation.y =
-        Math.sin(gestureTime * 6) * 0.35;
-
-    } else {
-
-      b.leftUpperArm.rotation.z = 0.5;
-      b.leftUpperArm.rotation.x = -0.35;
-
-      b.leftLowerArm.rotation.x =
-        -0.7 +
-        Math.sin(gestureTime * 6) * 0.25;
-
-      b.leftLowerArm.rotation.y =
-        Math.sin(gestureTime * 6) * 0.35;
-    }
-  }
-
-  // ----------------------------------------------------------
-  // SHRUG
-  // ----------------------------------------------------------
-
-  else if (currentGesture === 'shrug') {
-
-    b.leftUpperArm.rotation.z = 0.75;
-    b.rightUpperArm.rotation.z = -0.75;
-
-    b.leftUpperArm.rotation.x = -0.15;
-    b.rightUpperArm.rotation.x = -0.15;
-
-    b.leftLowerArm.rotation.x = -0.15;
-    b.rightLowerArm.rotation.x = -0.15;
-
-    if (b.leftShoulder) {
-      b.leftShoulder.rotation.z =
-        Math.sin(gestureTime * 3) * 0.12;
-    }
-
-    if (b.rightShoulder) {
-      b.rightShoulder.rotation.z =
-        -Math.sin(gestureTime * 3) * 0.12;
-    }
-  }
-
-  // ----------------------------------------------------------
-  // THINKING
-  // ----------------------------------------------------------
-
-  else if (currentGesture === 'thinking') {
-
-    b.rightUpperArm.rotation.z = -0.62;
-    b.rightUpperArm.rotation.x = -0.2;
-
-    b.rightLowerArm.rotation.x = -0.8;
-    b.rightLowerArm.rotation.y = 0.15;
-
-    b.leftUpperArm.rotation.z = 0.95;
-  }
-
-  // ----------------------------------------------------------
-  // HAND MOVEMENT
-  // ----------------------------------------------------------
-
-  if (b.leftHand) {
-
-    b.leftHand.rotation.x =
-      Math.sin(gestureTime * 5) *
-      0.15 *
-      strength;
-
-    b.leftHand.rotation.z =
-      Math.sin(gestureTime * 3) *
-      0.12 *
-      strength;
-  }
-
-  if (b.rightHand) {
-
-    b.rightHand.rotation.x =
-      Math.sin(gestureTime * 5.3 + 1) *
-      0.15 *
-      strength;
-
-    b.rightHand.rotation.z =
-      Math.sin(gestureTime * 3.2 + 1) *
-      0.12 *
-      strength;
-  }
-}
-
-// ============================================================
-// BODY LANGUAGE
-// ============================================================
-
-function updateBodyLanguage(dt) {
-
-  if (!vrm || !vrm.humanoid) return;
-
-  const b = getBones();
-
-  if (!b.chest && !b.spine) return;
-
-  const chest = b.chest || b.spine;
-
-  const time = performance.now() * 0.001;
-
-  // Natural breathing
-  const breathing =
-    Math.sin(time * 1.25) * 0.015;
-
-  chest.rotation.x =
-    smooth(
-      chest.rotation.x,
-      breathing,
-      0.08
+    Math.sin(talkPhase);
+
+  const wave2 =
+    Math.sin(
+      talkPhase * 0.65
     );
 
-  // ----------------------------------------------------------
-  // SPEAKING BODY SWAY
-  // ----------------------------------------------------------
+  // ------------------------------------------------
+  // ALWAYS GIVE SMALL TALKING MOVEMENT
+  // ------------------------------------------------
 
-  if (isSpeaking) {
+  rotateBone(
+    'chest',
+    0,
+    wave * 0.025,
+    wave2 * 0.018
+  );
 
-    chest.rotation.y =
-      Math.sin(time * 1.25) * 0.025;
+  rotateBone(
+    'head',
+    wave2 * 0.025,
+    wave * 0.035,
+    0
+  );
 
-    chest.rotation.z =
-      Math.sin(time * 1.7) * 0.018;
+  // ------------------------------------------------
+  // GESTURES
+  // ------------------------------------------------
 
-    // Small energetic movement
-    chest.rotation.x +=
-      Math.sin(time * 3.0) * 0.012;
+  switch (currentGesture) {
 
-    // Emotion-specific body language
-    if (
-      currentEmotion === 'excited' ||
-      currentEmotion === 'happy' ||
-      currentEmotion === 'playful' ||
-      currentEmotion === 'funny'
-    ) {
+    // ----------------------------------------------
+    // NORMAL TALK
+    // ----------------------------------------------
 
-      chest.rotation.y +=
-        Math.sin(time * 2.5) * 0.025;
+    case 'talk':
 
-      chest.rotation.z +=
-        Math.sin(time * 2.2) * 0.02;
-    }
-
-    if (
-      currentEmotion === 'sad'
-    ) {
-
-      chest.rotation.x =
-        smooth(
-          chest.rotation.x,
-          0.035,
-          0.05
-        );
-    }
-
-    if (
-      currentEmotion === 'angry' ||
-      currentEmotion === 'annoyed'
-    ) {
-
-      chest.rotation.x += 0.02;
-
-      chest.rotation.y +=
-        Math.sin(time * 4) * 0.015;
-    }
-
-    if (
-      currentEmotion === 'shy'
-    ) {
-
-      chest.rotation.y +=
-        Math.sin(time * 1.4) * 0.035;
-    }
-
-  } else {
-
-    // Calm idle body
-    chest.rotation.y =
-      smooth(
-        chest.rotation.y,
-        Math.sin(time * 0.7) * 0.012,
-        0.03
+      rotateBone(
+        'leftUpperArm',
+        -0.12 + wave * 0.12,
+        0,
+        0.15
       );
 
-    chest.rotation.z =
-      smooth(
-        chest.rotation.z,
-        Math.sin(time * 0.9) * 0.01,
-        0.03
+      rotateBone(
+        'rightUpperArm',
+        -0.12 - wave * 0.12,
+        0,
+        -0.15
       );
+
+      rotateBone(
+        'leftLowerArm',
+        wave * 0.18,
+        0,
+        0
+      );
+
+      rotateBone(
+        'rightLowerArm',
+        -wave * 0.18,
+        0,
+        0
+      );
+
+      break;
+
+
+    // ----------------------------------------------
+    // EXPLAIN
+    // ----------------------------------------------
+
+    case 'explain':
+
+      rotateBone(
+        'leftUpperArm',
+        -0.45,
+        0,
+        0.55
+      );
+
+      rotateBone(
+        'rightUpperArm',
+        -0.45,
+        0,
+        -0.55
+      );
+
+      rotateBone(
+        'leftLowerArm',
+        0,
+        0,
+        -0.15 + wave * 0.25
+      );
+
+      rotateBone(
+        'rightLowerArm',
+        0,
+        0,
+        0.15 - wave * 0.25
+      );
+
+      break;
+
+
+    // ----------------------------------------------
+    // OPEN HANDS
+    // ----------------------------------------------
+
+    case 'openHands':
+
+      rotateBone(
+        'leftUpperArm',
+        -0.35 + wave * 0.08,
+        0,
+        0.8
+      );
+
+      rotateBone(
+        'rightUpperArm',
+        -0.35 - wave * 0.08,
+        0,
+        -0.8
+      );
+
+      rotateBone(
+        'leftLowerArm',
+        0,
+        0,
+        -0.2
+      );
+
+      rotateBone(
+        'rightLowerArm',
+        0,
+        0,
+        0.2
+      );
+
+      break;
+
+
+    // ----------------------------------------------
+    // POINTING
+    // ----------------------------------------------
+
+    case 'point':
+
+      rotateBone(
+        'rightUpperArm',
+        -0.65,
+        0,
+        -0.85
+      );
+
+      rotateBone(
+        'rightLowerArm',
+        -0.15,
+        0,
+        0.05
+      );
+
+      rotateBone(
+        'leftUpperArm',
+        -0.15,
+        0,
+        0.2
+      );
+
+      rotateBone(
+        'leftLowerArm',
+        0.2,
+        0,
+        0
+      );
+
+      break;
+
+
+    // ----------------------------------------------
+    // HANDS TOGETHER
+    // ----------------------------------------------
+
+    case 'handsTogether':
+
+      rotateBone(
+        'leftUpperArm',
+        -0.45,
+        0,
+        0.55
+      );
+
+      rotateBone(
+        'rightUpperArm',
+        -0.45,
+        0,
+        -0.55
+      );
+
+      rotateBone(
+        'leftLowerArm',
+        -0.4,
+        0,
+        -0.25
+      );
+
+      rotateBone(
+        'rightLowerArm',
+        -0.4,
+        0,
+        0.25
+      );
+
+      break;
+
+
+    // ----------------------------------------------
+    // SHRUG
+    // ----------------------------------------------
+
+    case 'shrug':
+
+      rotateBone(
+        'leftShoulder',
+        0,
+        0,
+        0.2
+      );
+
+      rotateBone(
+        'rightShoulder',
+        0,
+        0,
+        -0.2
+      );
+
+      rotateBone(
+        'leftUpperArm',
+        -0.3,
+        0,
+        0.65
+      );
+
+      rotateBone(
+        'rightUpperArm',
+        -0.3,
+        0,
+        -0.65
+      );
+
+      break;
+
+
+    // ----------------------------------------------
+    // THINKING
+    // ----------------------------------------------
+
+    case 'thinking':
+
+      rotateBone(
+        'rightUpperArm',
+        -0.55,
+        0,
+        -0.45
+      );
+
+      rotateBone(
+        'rightLowerArm',
+        -0.8,
+        0,
+        0.15
+      );
+
+      rotateBone(
+        'leftUpperArm',
+        -0.15,
+        0,
+        0.25
+      );
+
+      rotateBone(
+        'leftLowerArm',
+        0.1,
+        0,
+        0
+      );
+
+      break;
+
   }
+
 }
 
-// ============================================================
-// HEAD / FACIAL BODY LANGUAGE
-// ============================================================
+// --------------------------------------------------
+// IDLE BODY
+// --------------------------------------------------
 
-function updateHead(dt) {
+function updateIdle(dt) {
 
-  if (!vrm || !vrm.humanoid) return;
+  if (isSpeaking) return;
 
-  const b = getBones();
+  const t =
+    performance.now() *
+    0.001;
 
-  if (!b.head) return;
+  const gentle =
+    Math.sin(t * 1.3);
 
-  const time = performance.now() * 0.001;
+  const gentle2 =
+    Math.sin(t * 0.8);
 
-  if (isSpeaking) {
+  // Small natural body movement
 
-    // Natural talking head movement
-    b.head.rotation.y =
-      Math.sin(time * 1.7) * 0.055;
+  rotateBone(
+    'chest',
+    gentle * 0.008,
+    gentle2 * 0.012,
+    0
+  );
 
-    b.head.rotation.x =
-      Math.sin(time * 1.25) * 0.035;
+  rotateBone(
+    'head',
+    gentle2 * 0.015,
+    gentle * 0.025,
+    0
+  );
 
-    b.head.rotation.z =
-      Math.sin(time * 1.4) * 0.025;
-
-    // Excited = more movement
-    if (
-      currentEmotion === 'excited' ||
-      currentEmotion === 'funny' ||
-      currentEmotion === 'laughing'
-    ) {
-
-      b.head.rotation.y +=
-        Math.sin(time * 3) * 0.025;
-
-      b.head.rotation.z +=
-        Math.sin(time * 2.5) * 0.02;
-    }
-
-    // Shy = slight head tilt
-    if (currentEmotion === 'shy') {
-      b.head.rotation.z =
-        0.06 +
-        Math.sin(time * 1.2) * 0.025;
-    }
-
-    // Sad = slightly downward
-    if (currentEmotion === 'sad') {
-      b.head.rotation.x = 0.08;
-    }
-
-  } else {
-
-    // Idle head movement
-    b.head.rotation.y =
-      Math.sin(time * 0.7) * 0.035;
-
-    b.head.rotation.x =
-      Math.sin(time * 0.5) * 0.018;
-
-    b.head.rotation.z =
-      Math.sin(time * 0.6) * 0.012;
-  }
 }
 
-// ============================================================
+// --------------------------------------------------
+// BLINK
+// --------------------------------------------------
+
+function updateBlink(dt) {
+
+  if (
+    !vrm ||
+    !vrm.blendShapeProxy
+  ) return;
+
+  blinkTimer += dt;
+
+  if (
+    blinkTimer >
+    nextBlink
+  ) {
+
+    blinkTimer = 0;
+
+    nextBlink =
+      2 +
+      Math.random() * 3.5;
+
+    try {
+
+      vrm.blendShapeProxy.setValue(
+        'blink',
+        1
+      );
+
+      setTimeout(() => {
+
+        try {
+
+          if (
+            vrm &&
+            vrm.blendShapeProxy
+          ) {
+
+            vrm.blendShapeProxy.setValue(
+              'blink',
+              0
+            );
+
+          }
+
+        } catch (_) {}
+
+      }, 120);
+
+    } catch (_) {}
+
+  }
+
+}
+
+// --------------------------------------------------
+// BREATHING
+// --------------------------------------------------
+
+function updateBreathing(dt) {
+
+  breathPhase +=
+    dt * 1.2;
+
+  const chest =
+    bones.chest ||
+    bones.spine;
+
+  if (!chest) return;
+
+  const movement =
+    Math.sin(
+      breathPhase
+    ) * 0.003;
+
+  chest.position.y =
+    movement;
+
+}
+
+// --------------------------------------------------
 // INIT
-// ============================================================
+// --------------------------------------------------
 
 async function init(container) {
 
@@ -872,12 +994,23 @@ async function init(container) {
     ).matches;
 
   const w =
-    container.clientWidth || 320;
+    container.clientWidth ||
+    320;
 
   const h =
-    container.clientHeight || 420;
+    container.clientHeight ||
+    420;
 
-  scene = new THREE.Scene();
+  // ------------------------------------------------
+  // SCENE
+  // ------------------------------------------------
+
+  scene =
+    new THREE.Scene();
+
+  // ------------------------------------------------
+  // CAMERA
+  // ------------------------------------------------
 
   camera =
     new THREE.PerspectiveCamera(
@@ -899,11 +1032,21 @@ async function init(container) {
     0
   );
 
+  // ------------------------------------------------
+  // RENDERER
+  // ------------------------------------------------
+
   renderer =
     new THREE.WebGLRenderer({
+
       alpha: true,
-      antialias: !reduceMotion,
-      powerPreference: 'low-power'
+
+      antialias:
+        !reduceMotion,
+
+      powerPreference:
+        'high-performance'
+
     });
 
   renderer.setPixelRatio(
@@ -930,27 +1073,27 @@ async function init(container) {
     renderer.domElement
   );
 
-  // ==========================================================
+  // ------------------------------------------------
   // LIGHTING
-  // ==========================================================
+  // ------------------------------------------------
 
   scene.add(
     new THREE.AmbientLight(
-      0xc8d0ff,
-      0.7
+      0xffffff,
+      0.8
     )
   );
 
   const key =
     new THREE.DirectionalLight(
       0xffffff,
-      1.05
+      1.2
     );
 
   key.position.set(
     0.5,
-    2.0,
-    2.2
+    2,
+    2
   );
 
   scene.add(key);
@@ -958,12 +1101,12 @@ async function init(container) {
   const fill =
     new THREE.DirectionalLight(
       0x29f1e6,
-      0.35
+      0.25
     );
 
   fill.position.set(
     -2,
-    1.2,
+    1,
     1.5
   );
 
@@ -972,7 +1115,7 @@ async function init(container) {
   const rim =
     new THREE.DirectionalLight(
       0xff3fb0,
-      0.3
+      0.25
     );
 
   rim.position.set(
@@ -983,14 +1126,18 @@ async function init(container) {
 
   scene.add(rim);
 
+  // ------------------------------------------------
+  // LOOK AT
+  // ------------------------------------------------
+
   createLookAt();
 
   clock =
     new THREE.Clock();
 
-  // ==========================================================
+  // ------------------------------------------------
   // LOAD VRM
-  // ==========================================================
+  // ------------------------------------------------
 
   const loader =
     new GLTFLoader();
@@ -999,24 +1146,33 @@ async function init(container) {
     'anonymous';
 
   loader.register(
-    (parser) =>
-      new VRMLoaderPlugin(parser)
+    parser =>
+      new VRMLoaderPlugin(
+        parser
+      )
   );
 
   const url =
+
     (
       window.BFTERO_AI_CONFIG &&
       window.BFTERO_AI_CONFIG.characterUrl
     ) ||
+
     'ai/character/my-character.vrm';
 
-  return new Promise((resolve) => {
+  console.log(
+    'MAYA loading:',
+    url
+  );
+
+  return new Promise(resolve => {
 
     loader.load(
 
       url,
 
-      (gltf) => {
+      gltf => {
 
         try {
 
@@ -1025,51 +1181,63 @@ async function init(container) {
 
           if (!vrm) {
 
-            console.warn(
-              'No VRM in file'
+            console.error(
+              'MAYA: VRM not found'
             );
 
             resolve(false);
+
             return;
+
           }
 
-          try {
+          // ------------------------------------------------
+          // YOUR MODEL IS VRM 0.x
+          // ------------------------------------------------
 
-            VRMUtils
-              .removeUnnecessaryVertices(
-                gltf.scene
-              );
+          console.log(
+            'MAYA: VRM loaded'
+          );
 
-            if (
-              VRMUtils.combineSkeletons
-            ) {
-              VRMUtils.combineSkeletons(
-                gltf.scene
-              );
-            }
+          console.log(
+            'MAYA VRM:',
+            vrm
+          );
 
-            if (
-              VRMUtils.combineMorphs
-            ) {
-              VRMUtils.combineMorphs(
-                vrm
-              );
-            }
-
-          } catch (_) {}
-
-          // ==================================================
           // IMPORTANT:
-          // YOUR MODEL WAS FACING BACKWARDS.
-          // ROTATE 180 DEGREES.
-          // ==================================================
+          // Correct VRM 0.x orientation
 
-          vrm.scene.rotation.y =
-            Math.PI;
+          if (
+            VRMUtils.rotateVRM0
+          ) {
+
+            VRMUtils.rotateVRM0(
+              vrm.scene
+            );
+
+            console.log(
+              'MAYA: VRM 0.x rotation applied'
+            );
+
+          } else {
+
+            // fallback
+
+            vrm.scene.rotation.y =
+              Math.PI;
+
+          }
+
+          // ------------------------------------------------
+          // ADD MODEL
+          // ------------------------------------------------
 
           vrm.scene.traverse(
-            (o) => {
-              o.frustumCulled = false;
+            object => {
+
+              object.frustumCulled =
+                false;
+
             }
           );
 
@@ -1077,55 +1245,99 @@ async function init(container) {
             vrm.scene
           );
 
-          if (vrm.lookAt) {
-            vrm.lookAt.target =
-              lookAtTarget;
-          }
+          // ------------------------------------------------
+          // CACHE BONES
+          // ------------------------------------------------
+
+          cacheBones();
+
+          // ------------------------------------------------
+          // EXPRESSIONS
+          // ------------------------------------------------
 
           detectExpressions();
 
           setExpression(
             'happy',
-            0.4
+            0.5
           );
 
-          applyRestPose();
+          // ------------------------------------------------
+          // LOOK AT
+          // ------------------------------------------------
+
+          if (
+            vrm.lookAt
+          ) {
+
+            vrm.lookAt.target =
+              lookAtTarget;
+
+          }
 
           ready = true;
+
+          console.log(
+            'MAYA READY'
+          );
 
           startLoop();
 
           resolve(true);
 
-        } catch (e) {
+        } catch (error) {
 
-          console.warn(
-            'VRM setup error',
-            e
+          console.error(
+            'MAYA setup error:',
+            error
           );
 
           resolve(false);
+
         }
+
       },
 
-      undefined,
+      progress => {
 
-      (e) => {
+        if (
+          progress.total
+        ) {
 
-        console.warn(
-          'VRM load failed',
-          e
+          const percent =
+            (
+              progress.loaded /
+              progress.total
+            ) * 100;
+
+          console.log(
+            `MAYA loading ${percent.toFixed(0)}%`
+          );
+
+        }
+
+      },
+
+      error => {
+
+        console.error(
+          'MAYA VRM load failed:',
+          error
         );
 
         resolve(false);
+
       }
+
     );
+
   });
+
 }
 
-// ============================================================
-// MAIN LOOP
-// ============================================================
+// --------------------------------------------------
+// ANIMATION LOOP
+// --------------------------------------------------
 
 function startLoop() {
 
@@ -1143,128 +1355,83 @@ function startLoop() {
 
     if (!vrm) return;
 
-    // ========================================================
-    // TIME
-    // ========================================================
+    // ------------------------------
+    // BREATH
+    // ------------------------------
 
-    breathPhase +=
-      dt * 1.1;
+    updateBreathing(dt);
 
-    headSway +=
-      dt * 0.5;
-
-    // ========================================================
+    // ------------------------------
     // BODY
-    // ========================================================
+    // ------------------------------
 
-    updateBodyLanguage(dt);
+    if (isSpeaking) {
 
-    updateHead(dt);
+      updateGesture(dt);
 
-    updateGesture(dt);
+    } else {
 
-    // ========================================================
-    // LOOK AT
-    // ========================================================
+      updateIdle(dt);
+
+    }
+
+    // ------------------------------
+    // BLINK
+    // ------------------------------
+
+    updateBlink(dt);
+
+    // ------------------------------
+    // EYE TARGET
+    // ------------------------------
 
     if (lookAtTarget) {
 
-      const time =
-        Date.now();
+      const t =
+        performance.now() *
+        0.001;
 
       lookAtTarget.position.set(
 
         Math.sin(
-          time * 0.00035
+          t * 0.7
         ) * 0.08,
 
-        1.15 +
-          Math.sin(
-            time * 0.00028
-          ) * 0.03,
+        1.2 +
+        Math.sin(
+          t * 0.5
+        ) * 0.025,
 
-        1.0
+        1
+
       );
+
     }
 
-    // ========================================================
-    // BLINK
-    // ========================================================
-
-    blinkTimer += dt;
-
-    if (
-      blinkTimer >
-      nextBlink
-    ) {
-
-      blinkTimer = 0;
-
-      nextBlink =
-        2 +
-        Math.random() * 3.5;
-
-      try {
-
-        vrm.expressionManager
-          .setValue(
-            'blink',
-            1
-          );
-
-        setTimeout(
-          () => {
-
-            try {
-
-              vrm.expressionManager
-                .setValue(
-                  'blink',
-                  0
-                );
-
-            } catch (_) {}
-
-          },
-          120
-        );
-
-      } catch (_) {}
-    }
-
-    // ========================================================
-    // MOUTH
-    // ========================================================
-
-    if (!isSpeaking) {
-
-      setMouth(
-        mouthOpen * 0.85
-      );
-    }
-
-    // ========================================================
-    // UPDATE VRM
-    // ========================================================
+    // ------------------------------
+    // VRM UPDATE
+    // ------------------------------
 
     vrm.update(dt);
 
-    // ========================================================
+    // ------------------------------
     // RENDER
-    // ========================================================
+    // ------------------------------
 
     renderer.render(
       scene,
       camera
     );
+
   }
 
   tick();
+
 }
 
-// ============================================================
+// --------------------------------------------------
 // RESIZE
-// ============================================================
+// --------------------------------------------------
 
 function resize() {
 
@@ -1275,10 +1442,12 @@ function resize() {
   ) return;
 
   const w =
-    stageEl.clientWidth || 320;
+    stageEl.clientWidth ||
+    320;
 
   const h =
-    stageEl.clientHeight || 420;
+    stageEl.clientHeight ||
+    420;
 
   camera.aspect =
     w / h;
@@ -1290,19 +1459,22 @@ function resize() {
     h,
     false
   );
+
 }
 
-// ============================================================
+// --------------------------------------------------
 // SPEAK START
-// ============================================================
+// --------------------------------------------------
 
-function speakStart(emotion) {
+function speakStart(
+  emotion
+) {
 
   isSpeaking = true;
 
-  gestureTime = 0;
+  talkPhase = 0;
 
-  gestureCooldown = 0.1;
+  gestureTimer = 0;
 
   chooseGesture();
 
@@ -1312,12 +1484,14 @@ function speakStart(emotion) {
       emotion,
       0.95
     );
+
   }
+
 }
 
-// ============================================================
+// --------------------------------------------------
 // SPEAK END
-// ============================================================
+// --------------------------------------------------
 
 function speakEnd() {
 
@@ -1325,24 +1499,36 @@ function speakEnd() {
 
   setMouth(0);
 
-  const keep =
-    currentEmotion === 'funny' ||
-    currentEmotion === 'laughing'
-      ? 'happy'
-      : currentEmotion;
+  currentGesture =
+    'idle';
 
-  setExpression(
-    keep,
-    0.4
-  );
+  if (
+    currentEmotion ===
+      'funny' ||
 
-  // Return hands gradually to normal
-  gestureTime = 0;
+    currentEmotion ===
+      'laughing'
+  ) {
+
+    setExpression(
+      'happy',
+      0.45
+    );
+
+  } else {
+
+    setExpression(
+      currentEmotion,
+      0.4
+    );
+
+  }
+
 }
 
-// ============================================================
+// --------------------------------------------------
 // PUBLIC API
-// ============================================================
+// --------------------------------------------------
 
 window.BfteroVRM = {
 
@@ -1368,6 +1554,7 @@ window.BfteroVRM = {
       cancelAnimationFrame(
         animId
       );
+
     }
 
     animId = null;
@@ -1387,25 +1574,36 @@ window.BfteroVRM = {
           .removeChild(
             renderer.domElement
           );
+
       }
+
     }
 
     vrm = null;
 
+    bones = {};
+
+    restRotations = {};
+
     ready = false;
+
   }
+
 };
 
-// ============================================================
+// --------------------------------------------------
 // WINDOW RESIZE
-// ============================================================
+// --------------------------------------------------
 
 window.addEventListener(
   'resize',
   () => {
 
     if (ready) {
+
       resize();
+
     }
+
   }
 );
