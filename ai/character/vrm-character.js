@@ -24,6 +24,29 @@ function createLookAt() {
   scene.add(lookAtTarget);
 }
 
+/** Lower arms from T-pose into a natural idle pose */
+function applyIdlePose(vrmInstance) {
+  if (!vrmInstance || !vrmInstance.humanoid) return;
+  const h = vrmInstance.humanoid;
+  try {
+    const lUpper = h.getNormalizedBoneNode('leftUpperArm');
+    const rUpper = h.getNormalizedBoneNode('rightUpperArm');
+    const lLower = h.getNormalizedBoneNode('leftLowerArm');
+    const rLower = h.getNormalizedBoneNode('rightLowerArm');
+    // Bring arms down from T-pose
+    if (lUpper) {
+      lUpper.rotation.z = 1.15;
+      lUpper.rotation.x = 0.15;
+    }
+    if (rUpper) {
+      rUpper.rotation.z = -1.15;
+      rUpper.rotation.x = 0.15;
+    }
+    if (lLower) lLower.rotation.y = -0.25;
+    if (rLower) rLower.rotation.y = 0.25;
+  } catch (_) {}
+}
+
 async function init(container) {
   stageEl = container;
   reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -32,8 +55,10 @@ async function init(container) {
   const h = container.clientHeight || 420;
 
   scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(30, w / h, 0.1, 20);
-  camera.position.set(0, 1.35, 2.2);
+  camera = new THREE.PerspectiveCamera(28, w / h, 0.1, 20);
+  // Camera in front of character
+  camera.position.set(0, 1.25, 2.0);
+  camera.lookAt(0, 1.1, 0);
 
   renderer = new THREE.WebGLRenderer({
     alpha: true,
@@ -46,14 +71,14 @@ async function init(container) {
   container.innerHTML = '';
   container.appendChild(renderer.domElement);
 
-  scene.add(new THREE.AmbientLight(0xb8c4ff, 0.55));
-  const key = new THREE.DirectionalLight(0x29f1e6, 0.75);
-  key.position.set(1.5, 2.5, 2);
+  scene.add(new THREE.AmbientLight(0xb8c4ff, 0.6));
+  const key = new THREE.DirectionalLight(0x29f1e6, 0.8);
+  key.position.set(1.2, 2.2, 2.5);
   scene.add(key);
   const fill = new THREE.DirectionalLight(0xff3fb0, 0.35);
-  fill.position.set(-2, 1.2, 1);
+  fill.position.set(-2, 1.2, 1.5);
   scene.add(fill);
-  const rim = new THREE.DirectionalLight(0xffffff, 0.28);
+  const rim = new THREE.DirectionalLight(0xffffff, 0.3);
   rim.position.set(0, 1.5, -2);
   scene.add(rim);
 
@@ -80,18 +105,20 @@ async function init(container) {
             return;
           }
 
-          // Performance helpers
           try {
             VRMUtils.removeUnnecessaryVertices(gltf.scene);
             if (VRMUtils.combineSkeletons) VRMUtils.combineSkeletons(gltf.scene);
             if (VRMUtils.combineMorphs) VRMUtils.combineMorphs(vrm);
           } catch (_) {}
 
-          vrm.scene.rotation.y = Math.PI; // face camera
+          // Face the camera (sample faces -Z by default in many setups)
+          vrm.scene.rotation.y = Math.PI;
           vrm.scene.traverse((obj) => {
             obj.frustumCulled = false;
           });
           scene.add(vrm.scene);
+
+          applyIdlePose(vrm);
 
           if (vrm.lookAt) {
             vrm.lookAt.target = lookAtTarget;
@@ -121,9 +148,7 @@ function setExpression(name, weight = 1) {
   const em = vrm.expressionManager;
   const presets = ['happy', 'angry', 'sad', 'surprised', 'relaxed', 'neutral', 'blink', 'aa', 'ih', 'ou', 'ee', 'oh'];
   presets.forEach((p) => {
-    try {
-      em.setValue(p, 0);
-    } catch (_) {}
+    try { em.setValue(p, 0); } catch (_) {}
   });
   try {
     if (name === 'happy' || name === 'funny') em.setValue('happy', weight);
@@ -154,7 +179,6 @@ function startLoop() {
     const dt = clock.getDelta();
     if (!vrm) return;
 
-    // Breathing
     breathPhase += dt * 1.2;
     const breath = Math.sin(breathPhase) * 0.008;
     if (vrm.humanoid) {
@@ -164,17 +188,15 @@ function startLoop() {
       if (chest) chest.position.y = breath;
     }
 
-    // Head sway when idle
-    headSway += dt * 0.6;
+    headSway += dt * 0.55;
     if (vrm.humanoid && !isSpeaking) {
       const head = vrm.humanoid.getNormalizedBoneNode('head');
       if (head) {
-        head.rotation.y = Math.sin(headSway) * 0.04;
-        head.rotation.x = Math.sin(headSway * 0.7) * 0.02;
+        head.rotation.y = Math.sin(headSway) * 0.05;
+        head.rotation.x = Math.sin(headSway * 0.7) * 0.025;
       }
     }
 
-    // Blink
     blinkTimer += dt;
     if (blinkTimer > nextBlink) {
       blinkTimer = 0;
@@ -183,23 +205,19 @@ function startLoop() {
         try {
           vrm.expressionManager.setValue('blink', 1);
           setTimeout(() => {
-            try {
-              vrm.expressionManager.setValue('blink', 0);
-            } catch (_) {}
+            try { vrm.expressionManager.setValue('blink', 0); } catch (_) {}
           }, 140);
         } catch (_) {}
       }
     }
 
-    // Look-at drift
     if (lookAtTarget) {
-      lookAtTarget.position.x = Math.sin(Date.now() * 0.0004) * 0.15;
-      lookAtTarget.position.y = 1.4 + Math.sin(Date.now() * 0.0003) * 0.05;
+      lookAtTarget.position.x = Math.sin(Date.now() * 0.0004) * 0.12;
+      lookAtTarget.position.y = 1.25 + Math.sin(Date.now() * 0.0003) * 0.04;
+      lookAtTarget.position.z = 1.5;
     }
 
-    if (!isSpeaking) {
-      setMouth(mouthOpen * 0.85);
-    }
+    if (!isSpeaking) setMouth(mouthOpen * 0.85);
 
     vrm.update(dt);
     renderer.render(scene, camera);

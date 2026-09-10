@@ -1,131 +1,134 @@
 /**
- * Bftero AI – local conversational engine (Nepali)
- * Keeps short-term context. No external API keys required.
- * For production LLM, replace getResponse() with a secure backend call.
+ * Bftero AI – engine
+ * 1) Tries real LLM backend (apiEndpoint) with full chat history
+ * 2) Falls back to local keyword replies if backend is offline / not set
  */
 (function (global) {
   'use strict';
 
-  const history = [];
+  const history = []; // { role: 'user'|'assistant', content: string }
 
-  // Simple keyword → response pools (natural conversational Nepali)
-  const responses = {
+  /* ---------- Local fallback (used when no API) ---------- */
+  const localResponses = {
     greeting: [
       'नमस्ते! म Bftero AI हुँ। कस्तो छ आज? 😊',
       'हाइ! राम्रो छ? म तयार छु कुरा गर्न।',
-      'नमस्कार! के सहयोग चाहियो?',
-      'हेल्लो! मलाई जे पनि सोध्न सक्छौ।'
+      'नमस्कार! के सहयोग चाहियो?'
     ],
     howAreYou: [
       'म ठिक छु, धन्यवाद! तिमी कस्तो छौ?',
-      'एकदम राम्रो! तिमीलाई कस्तो लागिरहेको छ?',
-      'म खुसी छु। तिमीलाई के कुरा गर्न मन लाग्यो?'
+      'एकदम राम्रो! तिमीलाई कस्तो लागिरहेको छ?'
     ],
     aboutBftero: [
-      'Bftero एउटा गेमिङ creator, streamer र Roblox developer हो। यो साइटमा खेल, YouTube र community छ।',
-      'मलाई थाहा भएको कुरा अनुसार तिमी Bftero नामको creator brand बनाउन काम गरिरहेका छौ।',
-      'Bftero ले Roblox गेम, लाइभ स्ट्रिम र रमाइलो content बनाउँछ।'
-    ],
-    whatToDo: [
-      'आज केही रमाइलो गरौं! मलाई जे पनि सोध्न सक्छौ।',
-      'खेल खेल्न सकिन्छ, वा मसँग कुरा गर्न सकिन्छ।',
-      'Reaction Challenge खेल्न सकिन्छ, वा मलाई आफ्नो दिनको बारेमा भन्न सकिन्छ।'
+      'Bftero एउटा गेमिङ creator, streamer र Roblox developer हो।',
+      'Bftero ले Roblox गेम, लाइभ स्ट्रिम र content बनाउँछ।'
     ],
     joke: [
-      'एउटा जोक: कम्प्युटर किन चिसो हुन्छ? किनकि यसले Windows खुल्ला राख्छ! 😂',
-      'के थाहा छ? Bftero को गेममा हारेपछि पनि मुस्कान आउँछ!',
-      'म जोक भन्छु तर हाँस्न नसक्छु… किनकि म AI हुँ 😄'
-    ],
-    love: [
-      'प्यारको कुरा गर्दा मलाई लाग्छ तिमी आफैं राम्रो छौ।',
-      'म AI हुँ, तर म तिमीलाई साथ दिन्छु।',
-      'प्रेममा धैर्य चाहिन्छ। तिमी कस्तो महसुस गर्दैछौ?'
-    ],
-    sad: [
-      'मलाई दुःख लाग्यो। म यहाँ छु सुन्नको लागि।',
-      'कहिलेकाहीं दिन कठिन हुन्छ। के भन्न चाहन्छौ?',
-      'म तिमीसँगै छु। केही कुरा साझा गर्न चाहन्छौ?'
-    ],
-    thank: [
-      'स्वागत छ! 😊',
-      'कुनै पनि बेला। म यहाँ छु।',
-      'धन्यवाद भन्नु पर्दैन। रमाइलो भयो।'
-    ],
-    bye: [
-      'फिर भेटौंला! राम्रो दिन। 👋',
-      'बाइ बाइ! फेरी आउनु।',
-      'अलविदा! मलाई सम्झनु।'
+      'एउटा जोक: कम्प्युटर किन चिसो हुन्छ? किनकि यसले Windows खुल्ला राख्छ! 😂'
     ],
     default: [
-      'रोचक प्रश्न! म अझै सिकिरहेको छु। अर्को कुरा सोध्न सक्छौ।',
-      'मलाई यो बारेमा अझै थाहा छैन, तर म तिमीसँग कुरा गर्न मन पराउँछु।',
-      'केही अर्को सोध। म तयार छु।',
-      'राम्रो लाग्यो। तिमीलाई अझ के थाहा चाहियो?'
+      'म सुनें। अहिले backend AI जोडिएको छैन — तर म तयार छु। अर्को कुरा सोध।',
+      'ठीकै छ। जोक चाहियो? वा Bftero बारे सोध?'
     ]
   };
 
-  function detectIntent(text) {
-    const t = (text || '').toLowerCase().replace(/\s+/g, ' ');
-    if (/नमस्ते|नमस्कार|हाइ|hello|hi|हेल्लो/.test(t)) return 'greeting';
-    if (/कस्तो छ|कसरी छ|how are you|ठीक छ/.test(t)) return 'howAreYou';
-    if (/bftero|बफ्टेरो|तिमी को|के हो|बारेमा/.test(t)) return 'aboutBftero';
-    if (/के गरौं|के गर्ने|आज के|what to do|रमाइलो/.test(t)) return 'whatToDo';
-    if (/जोक|हास्न|मजाक|joke|funny/.test(t)) return 'joke';
-    if (/माया|प्रेम|love|crush|गर्लफ्रेन्ड|boy/.test(t)) return 'love';
-    if (/दुःख|sad|रोएको|खराब|नराम्रो/.test(t)) return 'sad';
-    if (/धन्यवाद|thank|थ्याङ्क/.test(t)) return 'thank';
-    if (/बाइ|bye|अलविदा|फिर भेट/.test(t)) return 'bye';
+  function localIntent(text) {
+    const t = (text || '').toLowerCase();
+    if (/नमस्ते|नमस्कार|हाइ|hello|hi/.test(t)) return 'greeting';
+    if (/कस्तो छ|how are you|ठीक/.test(t)) return 'howAreYou';
+    if (/bftero|बफ्टेरो/.test(t)) return 'aboutBftero';
+    if (/जोक|joke|funny/.test(t)) return 'joke';
     return 'default';
   }
 
-  function pick(arr) {
+  function localReply(text) {
+    const intent = localIntent(text);
+    const arr = localResponses[intent] || localResponses.default;
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  function getEmotion(intent) {
-    const map = {
-      greeting: 'happy',
-      howAreYou: 'happy',
-      aboutBftero: 'neutral',
-      whatToDo: 'happy',
-      joke: 'funny',
-      love: 'happy',
-      sad: 'sad',
-      thank: 'happy',
-      bye: 'happy',
-      default: 'neutral'
-    };
-    return map[intent] || 'neutral';
+  function emotionFromText(text) {
+    const t = (text || '').toLowerCase();
+    if (/😂|😄|जोक|हास्|रमाइलो|happy|great/.test(t)) return 'funny';
+    if (/दुःख|sad|माफ|sorry/.test(t)) return 'sad';
+    if (/!|अचम्म|wow|surprised/.test(t)) return 'surprised';
+    if (/😊|नमस्ते|धन्यवाद|राम्रो/.test(t)) return 'happy';
+    return 'neutral';
+  }
+
+  function pushHistory(role, content) {
+    history.push({ role, content: String(content || '').trim() });
+    const max = (window.BFTERO_AI_CONFIG && window.BFTERO_AI_CONFIG.maxHistory) || 16;
+    // Keep last N messages (each turn is 1 message)
+    while (history.length > max * 2) history.shift();
+  }
+
+  /**
+   * Call remote LLM backend with full conversation history.
+   * Backend must accept: { messages: [{role, content}, ...] }
+   * and return: { text: string } or { reply: string } or OpenAI-style choices
+   */
+  async function callRemoteAPI(userText) {
+    const endpoint = (window.BFTERO_AI_CONFIG && window.BFTERO_AI_CONFIG.apiEndpoint) || '';
+    if (!endpoint) return null;
+
+    const messages = history
+      .filter((m) => m.content)
+      .map((m) => ({
+        role: m.role === 'assistant' ? 'assistant' : 'user',
+        content: m.content
+      }));
+
+    // Ensure latest user message is included (pushHistory called before this)
+    const res = await fetch(endpoint.replace(/\/$/, '') + '/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages,
+        language: 'ne'
+      })
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      throw new Error('API ' + res.status + ' ' + errText.slice(0, 120));
+    }
+
+    const data = await res.json();
+    if (data.text) return String(data.text);
+    if (data.reply) return String(data.reply);
+    if (data.message) return String(data.message);
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      return String(data.choices[0].message.content || '');
+    }
+    throw new Error('Unexpected API response');
   }
 
   /**
    * Main entry – returns { text, emotion }
    */
-  function getResponse(userText) {
+  async function getResponse(userText) {
     const cleaned = String(userText || '').trim();
     if (!cleaned) {
       return { text: 'केही भन्नुस् न, म सुन्दैछु।', emotion: 'confused' };
     }
 
-    history.push({ role: 'user', text: cleaned });
-    if (history.length > (window.BFTERO_AI_CONFIG?.maxHistory || 12) * 2) {
-      history.splice(0, 2);
+    pushHistory('user', cleaned);
+
+    try {
+      const remote = await callRemoteAPI(cleaned);
+      if (remote && remote.trim()) {
+        pushHistory('assistant', remote.trim());
+        return { text: remote.trim(), emotion: emotionFromText(remote) };
+      }
+    } catch (e) {
+      console.warn('Bftero AI remote failed, using local fallback', e);
     }
 
-    const intent = detectIntent(cleaned);
-    let reply = pick(responses[intent] || responses.default);
-
-    // Very light context awareness
-    const lastAi = history.filter(h => h.role === 'ai').slice(-1)[0];
-    if (intent === 'howAreYou' && lastAi && /नमस्ते|हाइ/.test(lastAi.text)) {
-      reply = pick([
-        'म पनि ठिक छु 😄 आज के कुरा गरौं?',
-        'राम्रो छ! तिमीलाई के सोच्दैछ?'
-      ]);
-    }
-
-    history.push({ role: 'ai', text: reply });
-    return { text: reply, emotion: getEmotion(intent) };
+    // Local fallback
+    const reply = localReply(cleaned);
+    pushHistory('assistant', reply);
+    return { text: reply, emotion: emotionFromText(reply) };
   }
 
   function clearHistory() {

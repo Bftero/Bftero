@@ -189,9 +189,12 @@
     let result;
     try {
       result = window.BfteroAIEngine
-        ? window.BfteroAIEngine.getResponse(text)
+        ? await window.BfteroAIEngine.getResponse(text)
         : { text: 'म तयार छु।', emotion: 'happy' };
+      // getResponse may return a Promise in older builds
+      if (result && typeof result.then === 'function') result = await result;
     } catch (e) {
+      console.warn(e);
       result = { text: S.apiFail || 'अहिले समस्या भयो।', emotion: 'sad' };
     }
 
