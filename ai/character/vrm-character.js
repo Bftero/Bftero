@@ -1,6 +1,5 @@
 /**
- * Bftero AI – VRM character controller
- * Loads Three.js + @pixiv/three-vrm via import map (defined in ai.html).
+ * Bftero AI – VRM character (front-facing + arms down)
  */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -24,26 +23,36 @@ function createLookAt() {
   scene.add(lookAtTarget);
 }
 
-/** Lower arms from T-pose into a natural idle pose */
-function applyIdlePose(vrmInstance) {
-  if (!vrmInstance || !vrmInstance.humanoid) return;
-  const h = vrmInstance.humanoid;
+/** Keep arms down every frame (VRM update can reset pose) */
+function applyArmsDown() {
+  if (!vrm || !vrm.humanoid) return;
+  const h = vrm.humanoid;
   try {
     const lUpper = h.getNormalizedBoneNode('leftUpperArm');
     const rUpper = h.getNormalizedBoneNode('rightUpperArm');
     const lLower = h.getNormalizedBoneNode('leftLowerArm');
     const rLower = h.getNormalizedBoneNode('rightLowerArm');
-    // Bring arms down from T-pose
+    // Lower from T-pose to sides
     if (lUpper) {
-      lUpper.rotation.z = 1.15;
-      lUpper.rotation.x = 0.15;
+      lUpper.rotation.x = 0.25;
+      lUpper.rotation.y = 0.05;
+      lUpper.rotation.z = 1.35;
     }
     if (rUpper) {
-      rUpper.rotation.z = -1.15;
-      rUpper.rotation.x = 0.15;
+      rUpper.rotation.x = 0.25;
+      rUpper.rotation.y = -0.05;
+      rUpper.rotation.z = -1.35;
     }
-    if (lLower) lLower.rotation.y = -0.25;
-    if (rLower) rLower.rotation.y = 0.25;
+    if (lLower) {
+      lLower.rotation.x = 0.1;
+      lLower.rotation.y = -0.15;
+      lLower.rotation.z = 0.05;
+    }
+    if (rLower) {
+      rLower.rotation.x = 0.1;
+      rLower.rotation.y = 0.15;
+      rLower.rotation.z = -0.05;
+    }
   } catch (_) {}
 }
 
@@ -56,9 +65,8 @@ async function init(container) {
 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(28, w / h, 0.1, 20);
-  // Camera in front of character
-  camera.position.set(0, 1.25, 2.0);
-  camera.lookAt(0, 1.1, 0);
+  camera.position.set(0, 1.2, 1.85);
+  camera.lookAt(0, 1.05, 0);
 
   renderer = new THREE.WebGLRenderer({
     alpha: true,
@@ -71,14 +79,14 @@ async function init(container) {
   container.innerHTML = '';
   container.appendChild(renderer.domElement);
 
-  scene.add(new THREE.AmbientLight(0xb8c4ff, 0.6));
-  const key = new THREE.DirectionalLight(0x29f1e6, 0.8);
-  key.position.set(1.2, 2.2, 2.5);
+  scene.add(new THREE.AmbientLight(0xb8c4ff, 0.65));
+  const key = new THREE.DirectionalLight(0xffffff, 0.9);
+  key.position.set(0.8, 2.2, 2.5);
   scene.add(key);
-  const fill = new THREE.DirectionalLight(0xff3fb0, 0.35);
+  const fill = new THREE.DirectionalLight(0x29f1e6, 0.35);
   fill.position.set(-2, 1.2, 1.5);
   scene.add(fill);
-  const rim = new THREE.DirectionalLight(0xffffff, 0.3);
+  const rim = new THREE.DirectionalLight(0xff3fb0, 0.25);
   rim.position.set(0, 1.5, -2);
   scene.add(rim);
 
@@ -100,7 +108,6 @@ async function init(container) {
         try {
           vrm = gltf.userData.vrm;
           if (!vrm) {
-            console.warn('No VRM data in model');
             resolve(false);
             return;
           }
@@ -111,20 +118,18 @@ async function init(container) {
             if (VRMUtils.combineMorphs) VRMUtils.combineMorphs(vrm);
           } catch (_) {}
 
-          // Face the camera (sample faces -Z by default in many setups)
-          vrm.scene.rotation.y = Math.PI;
+          // This sample faces +Z toward camera when rotation.y = 0
+          vrm.scene.rotation.y = 0;
           vrm.scene.traverse((obj) => {
             obj.frustumCulled = false;
           });
           scene.add(vrm.scene);
 
-          applyIdlePose(vrm);
+          applyArmsDown();
 
-          if (vrm.lookAt) {
-            vrm.lookAt.target = lookAtTarget;
-          }
+          if (vrm.lookAt) vrm.lookAt.target = lookAtTarget;
 
-          setExpression('neutral', 1);
+          setExpression('happy', 0.35);
           ready = true;
           startLoop();
           resolve(true);
@@ -146,8 +151,7 @@ function setExpression(name, weight = 1) {
   if (!vrm || !vrm.expressionManager) return;
   currentEmotion = name;
   const em = vrm.expressionManager;
-  const presets = ['happy', 'angry', 'sad', 'surprised', 'relaxed', 'neutral', 'blink', 'aa', 'ih', 'ou', 'ee', 'oh'];
-  presets.forEach((p) => {
+  ['happy', 'angry', 'sad', 'surprised', 'relaxed', 'neutral', 'blink', 'aa', 'ih', 'ou', 'ee', 'oh'].forEach((p) => {
     try { em.setValue(p, 0); } catch (_) {}
   });
   try {
@@ -155,10 +159,10 @@ function setExpression(name, weight = 1) {
     else if (name === 'sad') em.setValue('sad', weight);
     else if (name === 'surprised') em.setValue('surprised', weight);
     else if (name === 'confused') {
-      em.setValue('sad', 0.25);
+      em.setValue('sad', 0.2);
       em.setValue('surprised', 0.15);
     } else {
-      em.setValue('neutral', weight);
+      em.setValue('relaxed', weight * 0.5);
     }
   } catch (_) {}
 }
@@ -167,8 +171,8 @@ function setMouth(open) {
   mouthOpen = Math.max(0, Math.min(1, open));
   if (!vrm || !vrm.expressionManager) return;
   try {
-    vrm.expressionManager.setValue('aa', mouthOpen * 0.85);
-    vrm.expressionManager.setValue('oh', mouthOpen * 0.35);
+    vrm.expressionManager.setValue('aa', mouthOpen * 0.9);
+    vrm.expressionManager.setValue('oh', mouthOpen * 0.4);
   } catch (_) {}
 }
 
@@ -179,21 +183,23 @@ function startLoop() {
     const dt = clock.getDelta();
     if (!vrm) return;
 
-    breathPhase += dt * 1.2;
-    const breath = Math.sin(breathPhase) * 0.008;
+    // Arms must be re-applied or they snap back to T-pose
+    applyArmsDown();
+
+    breathPhase += dt * 1.15;
     if (vrm.humanoid) {
       const chest =
         vrm.humanoid.getNormalizedBoneNode('chest') ||
         vrm.humanoid.getNormalizedBoneNode('spine');
-      if (chest) chest.position.y = breath;
+      if (chest) chest.position.y = Math.sin(breathPhase) * 0.006;
     }
 
-    headSway += dt * 0.55;
+    headSway += dt * 0.5;
     if (vrm.humanoid && !isSpeaking) {
       const head = vrm.humanoid.getNormalizedBoneNode('head');
       if (head) {
-        head.rotation.y = Math.sin(headSway) * 0.05;
-        head.rotation.x = Math.sin(headSway * 0.7) * 0.025;
+        head.rotation.y = Math.sin(headSway) * 0.04;
+        head.rotation.x = Math.sin(headSway * 0.7) * 0.02;
       }
     }
 
@@ -206,15 +212,17 @@ function startLoop() {
           vrm.expressionManager.setValue('blink', 1);
           setTimeout(() => {
             try { vrm.expressionManager.setValue('blink', 0); } catch (_) {}
-          }, 140);
+          }, 130);
         } catch (_) {}
       }
     }
 
     if (lookAtTarget) {
-      lookAtTarget.position.x = Math.sin(Date.now() * 0.0004) * 0.12;
-      lookAtTarget.position.y = 1.25 + Math.sin(Date.now() * 0.0003) * 0.04;
-      lookAtTarget.position.z = 1.5;
+      lookAtTarget.position.set(
+        Math.sin(Date.now() * 0.0004) * 0.1,
+        1.15 + Math.sin(Date.now() * 0.0003) * 0.03,
+        1.2
+      );
     }
 
     if (!isSpeaking) setMouth(mouthOpen * 0.85);
@@ -236,26 +244,13 @@ function resize() {
 
 function speakStart(emotion) {
   isSpeaking = true;
-  if (emotion) setExpression(emotion, 0.85);
+  if (emotion) setExpression(emotion, 0.9);
 }
 
 function speakEnd() {
   isSpeaking = false;
   setMouth(0);
   setExpression(currentEmotion === 'funny' ? 'happy' : currentEmotion, 0.4);
-}
-
-function dispose() {
-  if (animId) cancelAnimationFrame(animId);
-  animId = null;
-  if (renderer) {
-    renderer.dispose();
-    if (renderer.domElement && renderer.domElement.parentNode) {
-      renderer.domElement.parentNode.removeChild(renderer.domElement);
-    }
-  }
-  vrm = null;
-  ready = false;
 }
 
 window.BfteroVRM = {
@@ -266,7 +261,18 @@ window.BfteroVRM = {
   speakEnd,
   setMouth,
   isReady: () => ready,
-  dispose
+  dispose() {
+    if (animId) cancelAnimationFrame(animId);
+    animId = null;
+    if (renderer) {
+      renderer.dispose();
+      if (renderer.domElement && renderer.domElement.parentNode) {
+        renderer.domElement.parentNode.removeChild(renderer.domElement);
+      }
+    }
+    vrm = null;
+    ready = false;
+  }
 };
 
 window.addEventListener('resize', () => {
