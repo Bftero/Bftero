@@ -247,3 +247,48 @@
   }
   .ai-controls { gap: 8px; }
 }
+
+
+/* Full chat history */
+.ai-chat-history {
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: 14px;
+  padding: 10px 8px;
+  border: 1px solid var(--ai-line);
+  border-radius: 10px;
+  background: rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ai-hist-empty {
+  color: var(--ai-muted-2);
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 8px 0;
+}
+.ai-hist-row {
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+.ai-hist-row.user {
+  background: rgba(41,241,230,0.08);
+  border-left: 3px solid var(--ai-cyan);
+}
+.ai-hist-row.ai {
+  background: rgba(255,63,176,0.08);
+  border-left: 3px solid var(--ai-magenta);
+}
+.ai-hist-who {
+  display: block;
+  font-family: var(--ai-font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ai-muted-2);
+  margin-bottom: 4px;
+}
+.ai-hist-row p { margin: 0; color: var(--ai-text); white-space: pre-wrap; word-break: break-word; }

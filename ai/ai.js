@@ -52,6 +52,35 @@
     if (aiTextEl) aiTextEl.textContent = text || '—';
   }
 
+  function escapeHtml(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderChatHistory(list) {
+    const box = document.getElementById('aiChatHistory');
+    if (!box) return;
+    const items = list || (window.BfteroAIEngine && window.BfteroAIEngine.getHistory()) || [];
+    if (!items.length) {
+      box.innerHTML = '<p class="ai-hist-empty">अहिलेसम्म कुराकानी छैन — Tap to Talk थिच्नुहोस्</p>';
+      return;
+    }
+    box.innerHTML = items.map((m) => {
+      const who = m.role === 'user' ? 'तिमी' : 'MAYA';
+      const cls = m.role === 'user' ? 'user' : 'ai';
+      return '<div class="ai-hist-row ' + cls + '"><span class="ai-hist-who">' + who + '</span><p>' + escapeHtml(m.content) + '</p></div>';
+    }).join('');
+    box.scrollTop = box.scrollHeight;
+  }
+
+  window.__mayaOnHistoryChange = function (list) {
+    renderChatHistory(list);
+  };
+
+
   /* ---------- Speech Recognition ---------- */
   function initRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -244,7 +273,8 @@
     bind();
     setStatus('idle');
     showUser('—');
-    showAi(S.ready || 'नमस्ते! मलाई नेपालीमा जे पनि सोध्नुस् 😊');
+    showAi(S.ready || 'नमस्ते! म MAYA हुँ 😊');
+    renderChatHistory();
 
     // Load voices
     if (window.speechSynthesis) {
