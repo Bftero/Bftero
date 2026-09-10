@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bftero AI — नेपाली कुराकानी</title>
+<meta name="description" content="Bftero AI सँग नेपालीमा कुरा गर्नुहोस्। माइक्रोफोन थिच्नुहोस्, बोल्नुहोस्, र एनिमेटेड AI सँग कुराकानी गर्नुहोस्।">
+<link rel="icon" type="image/jpeg" href="bftero-avatar.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ai/ai.css">
+<style>
+/* Minimal shared chrome so the page matches the rest of the site without touching index styles */
+:root {
+  --bg: #05030c;
+  --line: rgba(160,150,220,0.14);
+  --cyan: #29f1e6;
+  --text: #f2eefc;
+  --muted: #a79cc9;
+  --muted-2: #6f6591;
+  --grad-1: linear-gradient(135deg,#29f1e6,#8b5cf6 50%,#ff3fb0);
+  --font-display: 'Orbitron',sans-serif;
+  --font-body: 'Space Grotesk',sans-serif;
+  --font-mono: 'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{overflow-x:hidden;max-width:100%;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.6;}
+a{color:inherit;text-decoration:none;}
+.site-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:url('main-bg.gif');background-size:cover;background-position:center;}
+.site-bg-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;background:rgba(5,3,12,0.78);}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px;width:100%;position:relative;z-index:1;}
+#navbar{position:fixed;top:0;left:0;right:0;z-index:200;padding:14px 0;background:rgba(5,3,12,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;letter-spacing:0.1em;}
+.brand img{width:36px;height:36px;border-radius:50%;border:2px solid var(--cyan);object-fit:contain;background:#05030c;}
+.nav-links{display:flex;flex-wrap:wrap;gap:8px 14px;}
+.nav-links a{font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+.nav-links a:hover,.nav-links a.active{color:var(--cyan);}
+footer{padding:24px 0;border-top:1px solid var(--line);text-align:center;color:var(--muted-2);font-size:0.8rem;position:relative;z-index:1;}
+</style>
+</head>
+<body>
+<div class="site-bg" aria-hidden="true"></div>
+<div class="site-bg-overlay" aria-hidden="true"></div>
+
+<header id="navbar">
+  <div class="wrap nav-inner">
+    <a href="index.html" class="brand"><img src="bftero-logo.png" alt="Bftero" width="36" height="36"> BFTERO</a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="play.html">Play</a>
+      <a href="ai.html" class="active">AI</a>
+      <a href="index.html#youtube">Content</a>
+      <a href="index.html#roblox">Roblox</a>
+      <a href="index.html#nepx">NepX</a>
+      <a href="index.html#about">About</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main class="ai-page">
+  <div class="wrap">
+    <div class="ai-head">
+      <h1>🤖 Bftero <span>AI</span></h1>
+      <p>नेपालीमा कुरा गर्नुहोस् — माइक थिच्नुहोस् र बोल्नुहोस्</p>
+    </div>
+
+    <div class="ai-shell">
+      <div class="ai-character-wrap">
+        <div id="aiLoading">
+          <div>Bftero AI is getting ready... 🤖</div>
+          <div class="ai-load-bar"></div>
+        </div>
+        <div id="aiCharacterStage" aria-label="Bftero AI character"></div>
+      </div>
+
+      <div class="ai-status" id="aiStatus">नमस्ते! मलाई नेपालीमा जे पनि सोध्नुस् 😊</div>
+
+      <div class="ai-controls">
+        <button type="button" class="ai-mic-btn" id="aiMicBtn">🎙️ Tap to Talk</button>
+        <button type="button" class="ai-btn-ghost" id="aiMuteBtn">🔊 Voice On</button>
+        <button type="button" class="ai-btn-ghost" id="aiClearBtn">Clear Chat</button>
+      </div>
+
+      <div class="ai-transcript">
+        <div class="ai-bubble user">
+          <label>तपाईंको कुरा</label>
+          <p id="aiUserText">—</p>
+        </div>
+        <div class="ai-bubble ai">
+          <label>Bftero AI</label>
+          <p id="aiResponseText">—</p>
+        </div>
+      </div>
+
+      <p class="ai-hint">Chrome / Edge मा राम्रोसँग चल्छ · माइक्रोफोन अनुमति दिनुहोस् · HTTPS आवश्यक</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">© <span id="year"></span> BFTERO · <a href="index.html">Back to home</a></div>
+</footer>
+
+<script src="ai/config/ai-config.js"></script>
+<script src="ai/ai-engine.js"></script>
+<script type="module" src="ai/character/vrm-character.js"></script>
+<script type="module" src="ai/ai.js"></script>
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
