@@ -11,7 +11,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="ai/ai.css">
 <style>
-/* Minimal shared chrome so the page matches the rest of the site without touching index styles */
 :root {
   --bg: #05030c;
   --line: rgba(160,150,220,0.14);
@@ -40,6 +39,17 @@ a{color:inherit;text-decoration:none;}
 .nav-links a:hover,.nav-links a.active{color:var(--cyan);}
 footer{padding:24px 0;border-top:1px solid var(--line);text-align:center;color:var(--muted-2);font-size:0.8rem;position:relative;z-index:1;}
 </style>
+
+<!-- Import map so three + three-vrm resolve correctly in the browser -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+    "@pixiv/three-vrm": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3.3.2/lib/three-vrm.module.min.js"
+  }
+}
+</script>
 </head>
 <body>
 <div class="site-bg" aria-hidden="true"></div>

@@ -3,11 +3,19 @@
  * Frontend-only. Real LLM/TTS keys must live on a secure backend.
  */
 window.BFTERO_AI_CONFIG = {
-  // Sample female VRM (official three-vrm example – replace with your own licensed model later)
-  characterUrl: 'https://pixiv.github.io/three-vrm/examples/models/three-vrm-girl.vrm',
+  // Official three-vrm sample (VRM 1.0). Replace with your own licensed model later.
+  characterUrl:
+    'https://cdn.jsdelivr.net/gh/pixiv/three-vrm@3.3.2/packages/three-vrm/examples/models/VRM1_Constraint_Twist_Sample.vrm',
 
   // Preferred TTS voice name fragments (browser will pick best match)
-  preferredVoiceNames: ['Nepali', 'ne-NP', 'Google नेपाली', 'Microsoft Hemkala', 'Google Hindi', 'hi-IN'],
+  preferredVoiceNames: [
+    'Nepali',
+    'ne-NP',
+    'Google नेपाली',
+    'Microsoft Hemkala',
+    'Google Hindi',
+    'hi-IN'
+  ],
 
   // Speech recognition language
   recognitionLang: 'ne-NP',
