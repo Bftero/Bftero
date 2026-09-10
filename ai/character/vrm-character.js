@@ -35,12 +35,11 @@ function applyArmsDown() {
     const rL = h.getNormalizedBoneNode('rightLowerArm');
     const lS = h.getNormalizedBoneNode('leftShoulder');
     const rS = h.getNormalizedBoneNode('rightShoulder');
-    if (lS) lS.rotation.set(0.04, 0, 0.12);
-    if (rS) rS.rotation.set(0.04, 0, -0.12);
-    if (lU) lU.rotation.set(0.3, 0.08, 1.2);
-    if (rU) rU.rotation.set(0.3, -0.08, -1.2);
-    if (lL) lL.rotation.set(0.12, -0.18, 0.08);
-    if (rL) rL.rotation.set(0.12, 0.18, -0.08);
+    // Gentle rest pose (custom VRM often already has good bind pose)
+    if (lU) { lU.rotation.z = 1.1; lU.rotation.x = 0.2; }
+    if (rU) { rU.rotation.z = -1.1; rU.rotation.x = 0.2; }
+    if (lL) lL.rotation.y = -0.15;
+    if (rL) rL.rotation.y = 0.15;
   } catch (_) {}
 }
 
@@ -82,9 +81,10 @@ async function init(container) {
   const h = container.clientHeight || 420;
 
   scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(30, w / h, 0.1, 20);
-  camera.position.set(0, 1.2, 1.75);
-  camera.lookAt(0, 1.05, 0);
+  camera = new THREE.PerspectiveCamera(28, w / h, 0.1, 20);
+  // Frame head + upper body of custom VRM
+  camera.position.set(0, 1.35, 2.15);
+  camera.lookAt(0, 1.15, 0);
 
   renderer = new THREE.WebGLRenderer({ alpha: true, antialias: !reduceMotion, powerPreference: 'low-power' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, reduceMotion ? 1 : 1.75));
@@ -134,7 +134,7 @@ async function init(container) {
           } catch (_) {}
 
           // Face the camera (adjust if your model faces the other way)
-          vrm.scene.rotation.y = Math.PI;
+          vrm.scene.rotation.y = 0; // front-facing for my-character.vrm
           vrm.scene.traverse((o) => { o.frustumCulled = false; });
           scene.add(vrm.scene);
 

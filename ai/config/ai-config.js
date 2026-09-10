@@ -3,7 +3,7 @@
  */
 window.BFTERO_AI_CONFIG = {
   // Your custom VRM character
-  characterUrl: 'ai/character/my-character.vrm',
+  characterUrl: 'https://www.bftero.com/ai/character/my-character.vrm',
 
   // Cloudflare Worker
   apiEndpoint: 'https://bftero-ai.samarpan7129.workers.dev',
